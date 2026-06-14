@@ -26,3 +26,19 @@ export async function createJob(input: CreateJobInput) {
         },
     });
 }
+
+export async function getJobsByUser(userId: string){
+    return prisma.job.findMany({
+        where: {userId},
+        orderBy: {createdAt: "desc"},
+    });
+}
+
+export async function getJobById(jobId: string, userId: string){
+    return prisma.job.findFirst({
+        where: {
+            id: jobId,
+            userId,
+        },
+    });
+}
