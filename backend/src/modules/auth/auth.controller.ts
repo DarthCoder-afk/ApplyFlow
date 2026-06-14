@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { registerUser } from "./auth.service";
+import { registerUser, loginUser } from "./auth.service";
 
 export async function register(req: Request, res: Response){
     try {
@@ -19,11 +19,43 @@ export async function register(req: Request, res: Response){
             user,
         });
     } catch (error) {
-        if(error instanceof Error && error.message === "EMAIL_ALREADY_EXISTS") {
-            return res.status(400).json({ message: "Email already exists" });
+        if(error instanceof Error && error.message === "USER_ALREADY_EXISTS") {
+            return res.status(400).json({ message: "user already exists" });
         }
 
         console.error("Register error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export async function login(req: Request, res: Response){
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
+        const { accessToken, refreshToken, user } = await loginUser({ email, password });
+        
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+            sameSite: "strict",
+        });
+
+        return res.status(200).json({
+            message: "Login successful",
+            accessToken,
+            user,
+        });
+    } catch (error) {
+        if(error instanceof Error && error.message === "INVALID_CREDENTIALS") {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        console.error("Login error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
