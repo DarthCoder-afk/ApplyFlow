@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import {prisma} from "../../config/database";
-import { signAccessToken, signRefreshToken } from "../../utils/jwt";
+import { verifyRefreshToken, signAccessToken, signRefreshToken } from "../../utils/jwt";
 
 const SALT_ROUNDS = 10;
 
@@ -84,4 +84,34 @@ export async function loginUser(input: LoginInput) {
             name: user.name,
         },
     };
+}
+
+export async function refreshAccessToken(refreshToken: string) {
+    let payload: { userId: string };
+
+    try {
+        payload = verifyRefreshToken(refreshToken);
+    } catch (error) {
+        throw new Error("INVALID_REFRESH_TOKEN");
+    }
+
+    const storedToken = await prisma.refreshToken.findUnique({
+        where: { token: refreshToken },
+    });
+
+    if (!storedToken || storedToken.expiresAt < new Date()) {
+        throw new Error("INVALID_REFRESH_TOKEN");
+    }
+
+    const accessToken = signAccessToken({ userId: payload.userId });
+
+    return { accessToken };
+}
+
+export async function logoutUser(refreshToken: string){
+    await prisma.refreshToken.deleteMany({
+        where: { token: refreshToken },
+    });
+
+    return { message: "Logged out successfully" };
 }

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { registerUser, loginUser } from "./auth.service";
+import { registerUser, loginUser, refreshAccessToken, logoutUser } from "./auth.service";
 
 export async function register(req: Request, res: Response){
     try {
@@ -56,6 +56,51 @@ export async function login(req: Request, res: Response){
         }
 
         console.error("Login error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export async function refresh(req: Request, res: Response){
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(401).json({ message: "Refresh token required" });
+        }
+
+        const { accessToken } = await refreshAccessToken(refreshToken);
+        
+        return res.status(200).json({
+            message: "Token refreshed",
+            accessToken,
+        });
+    } catch (error) {
+        if (error instanceof Error && error.message === "INVALID_REFRESH_TOKEN") {
+            return res.status(401).json({ message: "Invalid refresh token" });
+        }
+
+        console.error("Refresh error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export async function logout(req: Request, res: Response){
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (refreshToken) {
+            await logoutUser(refreshToken);
+        }
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        });
+
+        return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error("Logout error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
