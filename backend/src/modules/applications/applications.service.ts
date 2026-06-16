@@ -69,3 +69,25 @@ export async function getApplications(userId: string){
         },
     })
 }
+
+export async function getApplicationsById(id: string, userId: string ) {
+    return prisma.application.findFirst({
+        where: {
+            id,
+            userId,
+        },
+        include: {
+            job: {
+                select: {
+                    id: true,
+                    title: true,
+                    company: true,
+                    location: true,
+                    source: true,
+                    jobUrl: true,
+                    description: true,
+                },
+            },
+        },
+    });
+} 
