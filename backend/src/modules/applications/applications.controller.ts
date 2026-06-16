@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createApplication , getApplicationsByUser } from "./applications.service";
+import { createApplication , getApplications } from "./applications.service";
 import { APPLICATION_STATUSES } from "./applications.constants";
 
 
@@ -45,13 +45,13 @@ export async function create(req: Request, res: Response) {
     }
 }
 
-export async function getApplications(req: Request, res: Response) {
+export async function listApplications(req: Request, res: Response) {
     try {
         if (!req.userId ){
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        const applications = await getApplicationsByUser(req.userId);
+        const applications = await getApplications(req.userId);
         return res.status(200).json({ count: applications.length, applications });
 
     } catch (error) {
