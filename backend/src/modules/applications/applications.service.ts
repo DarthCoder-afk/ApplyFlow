@@ -50,3 +50,22 @@ export async function createApplication(input: CreateApplicationInput){
         },
     });
 }
+
+export async function getApplicationsByUser(userId: string){
+    return prisma.application.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        include: {
+            job: {
+                select: {
+                    id: true,
+                    title: true,
+                    company: true,
+                    location: true,
+                    source: true,
+                    jobUrl: true,
+                },
+            },
+        },
+    })
+}
