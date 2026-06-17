@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createApplication , getApplications, getApplicationsById } from "./applications.service";
+import { createApplication , getApplications, getApplicationsById, updateApplication, deleteApplication } from "./applications.service";
 import { APPLICATION_STATUSES } from "./applications.constants";
 
 
@@ -79,3 +79,58 @@ export async function getOne(req: Request, res: Response) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export async function update(req: Request, res: Response) {
+    try {
+      if (!req.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { id } = req.params;
+      const { status, appliedAt, notes } = req.body;
+
+      if (status && !APPLICATION_STATUSES.includes(status)) {
+        return res.status(400).json({
+          message: "Invalid status",
+          allowedStatuses: APPLICATION_STATUSES,
+        });
+      }
+
+      const application = await updateApplication(id as string, req.userId, {
+        status,
+        appliedAt,
+        notes,
+      });
+
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+
+      return res.status(200).json({
+        message: "Application updated successfully",
+        application,
+      });
+    } catch (error) {
+      console.error("Update application error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+}
+  export async function remove(req: Request, res: Response) {
+    try {
+      if (!req.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { id } = req.params;
+      const deleted = await deleteApplication(id as string, req.userId);
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      return res.status(200).json({ message: "Application deleted successfully" });
+    } catch (error) {
+      console.error("Delete application error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }

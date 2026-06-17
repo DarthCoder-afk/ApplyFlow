@@ -10,6 +10,12 @@ type CreateApplicationInput = {
     notes?: string;
 };
 
+type UpdateApplicationInput = {
+    status?: ApplicationStatus;
+    appliedAt?: string;
+    notes?: string;
+};
+
 export async function createApplication(input: CreateApplicationInput){
     const job = await getJobById(input.jobId, input.userId);
 
@@ -90,4 +96,49 @@ export async function getApplicationsById(id: string, userId: string ) {
             },
         },
     });
-} 
+}
+
+export async function updateApplication(
+    id: string,
+    userId: string,
+    data: UpdateApplicationInput
+  ) {
+
+    const existing = await getApplicationsById(id, userId);
+
+    if (!existing) {
+      return null;
+    }
+    
+    return prisma.application.update({
+      where: { id },
+      data: {
+        status: data.status,
+        notes: data.notes,
+        appliedAt: data.appliedAt ? new Date(data.appliedAt) : undefined,
+      },
+      include: {
+        job: {
+          select: {
+            id: true,
+            title: true,
+            company: true,
+            source: true,
+          },
+        },
+      },
+    });
+}
+export async function deleteApplication(id: string, userId: string) {
+    const existing = await getApplicationsById(id, userId);
+
+    if (!existing) {
+        return null;
+    }
+
+    await prisma.application.delete({
+        where: { id },
+    });
+
+    return true;
+}
