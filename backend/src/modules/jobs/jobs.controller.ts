@@ -32,6 +32,7 @@ export async function create(req: Request, res: Response) {
   }
 }
 
+
 export async function getAll(req: Request, res: Response) {
   try {
     if (!req.userId) {
