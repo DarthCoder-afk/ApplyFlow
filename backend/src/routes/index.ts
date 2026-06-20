@@ -3,6 +3,7 @@ import { prisma } from "../config/database";
 import authRoutes from "../modules/auth/auth.routes";
 import jobsRoutes from "../modules/jobs/jobs.routes";
 import applicationsRoutes from "../modules/applications/applications.route";
+import dashboardRoutes from "../modules/dashboard/dashboard.route";
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.get("/health", (_req, res) => {
 router.use("/auth", authRoutes);
 router.use("/jobs", jobsRoutes);
 router.use("/applications", applicationsRoutes);
+router.use("/dashboard", dashboardRoutes);
 
 export default router;
