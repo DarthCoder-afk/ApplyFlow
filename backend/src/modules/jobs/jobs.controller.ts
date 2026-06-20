@@ -1,26 +1,15 @@
 import { Request, Response } from "express";
 import { createJob, getJobsByUser, getJobById, updateJob, deleteJob } from "./jobs.service";
 import { JOB_SOURCES, JobSource } from "./jobs.constants";
-import { parseSortParams } from "../../utils/sorting";
+import { listJobsQuerySchema } from "./jobs.schema";
 
 export async function create(req: Request, res: Response) {
     try {
         const { title, company, location, jobUrl, description, notes, source } = req.body;
 
-        if(!title || !company){
-            return res.status(400).json({ message: "Title and company are required" });
-        }
-
         if (!req.userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-
-        if (source && !JOB_SOURCES.includes(source)) {
-            return res.status(400).json({
-              message: "Invalid source",
-              allowedSources: JOB_SOURCES,
-            });
-          }
 
         const job = await createJob({
             title,
@@ -51,30 +40,25 @@ export async function getAll(req: Request, res: Response) {
       }
       const JOB_SORT_FIELDS = ["createdAt", "updatedAt", "title", "company"] as const;
 
-      const { sort, order, search, source, page, limit } = req.query;
-
-      const { field, order: sortOrder } = parseSortParams(
-        sort,
-        order,
-        JOB_SORT_FIELDS,
-        "createdAt"
-      );
-      
+      const { sort, order, search, source, page, limit } = listJobsQuerySchema.parse(req.query);
+  
       if (source && !JOB_SOURCES.includes(source as JobSource)) {
         return res.status(400).json({
           message: "Invalid source",
           allowedSources: JOB_SOURCES,
         });
       }
+
       const result = await getJobsByUser({
         userId: req.userId,
-        search: typeof search === "string" ? search.trim() : undefined,
-        source: source as JobSource | undefined,
-        page: page ? Number(page) : 1,
-        limit: limit ? Number(limit) : 10,
-        sort: field,
-        order: sortOrder,
+        search,
+        source,
+        page,
+        limit,
+        sort,
+        order,
       });
+
       return res.status(200).json({
         count: result.jobs.length,
         jobs: result.jobs,
