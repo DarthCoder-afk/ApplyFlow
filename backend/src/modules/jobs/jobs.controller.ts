@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { createJob, getJobsByUser, getJobById, updateJob, deleteJob } from "./jobs.service";
-import { JOB_SOURCES } from "./jobs.constants";
+import { JOB_SOURCES, JobSource } from "./jobs.constants";
 
 export async function create(req: Request, res: Response) {
     try {
@@ -42,20 +42,35 @@ export async function create(req: Request, res: Response) {
     }
 }
 
+
 export async function getAll(req: Request, res: Response) {
     try {
-        if (!req.userId) {
-          return res.status(401).json({ message: "Unauthorized" });
-        }
-        const jobs = await getJobsByUser(req.userId);
-        return res.status(200).json({
-          count: jobs.length,
-          jobs,
-        });
-      } catch (error) {
-        console.error("List jobs error:", error);
-        return res.status(500).json({ message: "Internal server error" });
+      if (!req.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
       }
+      const { search, source, page, limit } = req.query;
+      if (source && !JOB_SOURCES.includes(source as JobSource)) {
+        return res.status(400).json({
+          message: "Invalid source",
+          allowedSources: JOB_SOURCES,
+        });
+      }
+      const result = await getJobsByUser({
+        userId: req.userId,
+        search: typeof search === "string" ? search.trim() : undefined,
+        source: source as JobSource | undefined,
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 10,
+      });
+      return res.status(200).json({
+        count: result.jobs.length,
+        jobs: result.jobs,
+        pagination: result.pagination,
+      });
+    } catch (error) {
+      console.error("List jobs error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
 }
 
 export async function getOne(req: Request, res: Response) {

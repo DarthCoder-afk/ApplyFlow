@@ -23,6 +23,14 @@ type UpdateJobInput = {
     userId: string;
 }
 
+type GetJobsFilters = {
+    userId: string;
+    search?: string;
+    source?: JobSource;
+    page?: number;
+    limit?: number;
+  };
+
 export async function createJob(input: CreateJobInput) {
     return prisma.job.create({
         data:{
@@ -38,11 +46,44 @@ export async function createJob(input: CreateJobInput) {
     });
 }
 
-export async function getJobsByUser(userId: string){
-    return prisma.job.findMany({
-        where: {userId},
-        orderBy: {createdAt: "desc"},
-    });
+export async function getJobsByUser(filters: GetJobsFilters) {
+    const page = filters.page && filters.page > 0 ? filters.page : 1;
+    const limit =
+      filters.limit && filters.limit > 0 && filters.limit <= 50
+        ? filters.limit
+        : 10;
+    const skip = (page - 1) * limit;
+    const where = {
+      userId: filters.userId,
+      ...(filters.source ? { source: filters.source } : {}),
+      ...(filters.search
+        ? {
+            OR: [
+              { title: { contains: filters.search, mode: "insensitive" as const } },
+              { company: { contains: filters.search, mode: "insensitive" as const } },
+              { location: { contains: filters.search, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
+    };
+    const [jobs, total] = await Promise.all([
+      prisma.job.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.job.count({ where }),
+    ]);
+    return {
+      jobs,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
 }
 
 export async function getJobById(jobId: string, userId: string){
