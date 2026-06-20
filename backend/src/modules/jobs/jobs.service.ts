@@ -1,6 +1,9 @@
 import { prisma } from "../../config/database";
 import { JobSource } from "./jobs.constants";
 
+
+type JobSortField = "createdAt" | "updatedAt" | "title" | "company";
+
 type CreateJobInput = {
     title: string;
     company: string;
@@ -29,7 +32,9 @@ type GetJobsFilters = {
     source?: JobSource;
     page?: number;
     limit?: number;
-  };
+    sort?: JobSortField;
+    order?: "asc" | "desc";
+};
 
 export async function createJob(input: CreateJobInput) {
     return prisma.job.create({
@@ -53,6 +58,8 @@ export async function getJobsByUser(filters: GetJobsFilters) {
         ? filters.limit
         : 10;
     const skip = (page - 1) * limit;
+    const sortField = filters.sort ?? "createdAt";
+const sortOrder = filters.order ?? "desc";
     const where = {
       userId: filters.userId,
       ...(filters.source ? { source: filters.source } : {}),
@@ -71,7 +78,7 @@ export async function getJobsByUser(filters: GetJobsFilters) {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { [sortField]: sortOrder },
       }),
       prisma.job.count({ where }),
     ]);

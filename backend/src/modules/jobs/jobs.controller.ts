@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { createJob, getJobsByUser, getJobById, updateJob, deleteJob } from "./jobs.service";
 import { JOB_SOURCES, JobSource } from "./jobs.constants";
+import { parseSortParams } from "../../utils/sorting";
 
 export async function create(req: Request, res: Response) {
     try {
@@ -48,7 +49,17 @@ export async function getAll(req: Request, res: Response) {
       if (!req.userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const { search, source, page, limit } = req.query;
+      const JOB_SORT_FIELDS = ["createdAt", "updatedAt", "title", "company"] as const;
+
+      const { sort, order, search, source, page, limit } = req.query;
+
+      const { field, order: sortOrder } = parseSortParams(
+        sort,
+        order,
+        JOB_SORT_FIELDS,
+        "createdAt"
+      );
+      
       if (source && !JOB_SOURCES.includes(source as JobSource)) {
         return res.status(400).json({
           message: "Invalid source",
@@ -61,6 +72,8 @@ export async function getAll(req: Request, res: Response) {
         source: source as JobSource | undefined,
         page: page ? Number(page) : 1,
         limit: limit ? Number(limit) : 10,
+        sort: field,
+        order: sortOrder,
       });
       return res.status(200).json({
         count: result.jobs.length,

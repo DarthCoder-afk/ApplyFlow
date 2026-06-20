@@ -2,6 +2,8 @@ import { prisma } from "../../config/database";
 import { getJobById } from "../jobs/jobs.service";
 import { ApplicationStatus } from "./applications.constants";
 
+type ApplicationSortField = "createdAt" | "updatedAt" | "appliedAt" | "status";
+
 type CreateApplicationInput = {
     jobId: string;
     userId: string;
@@ -22,6 +24,8 @@ type GetApplicationsFilters = {
     search?: string;
     page?: number;
     limit?: number;
+    sort?: ApplicationSortField;
+    order?: "asc" | "desc";
   };
 
 export async function createApplication(input: CreateApplicationInput){
@@ -72,6 +76,8 @@ export async function getApplications(filters: GetApplicationsFilters) {
         ? filters.limit
         : 10;
     const skip = (page - 1) * limit;
+    const sortField = filters.sort ?? "createdAt";
+    const sortOrder = filters.order ?? "desc";
     const where = {
       userId: filters.userId,
       ...(filters.status ? { status: filters.status } : {}),
@@ -91,7 +97,7 @@ export async function getApplications(filters: GetApplicationsFilters) {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { [sortField]: sortOrder },
         include: {
           job: {
             select: {
