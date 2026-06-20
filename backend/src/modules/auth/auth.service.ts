@@ -23,7 +23,7 @@ export async function registerUser(input: RegisterInput) {
     });
 
     if (existingUser) {
-        throw new Error("User already exists");
+        throw new Error("USER_ALREADY_EXISTS");
     }
 
     const hashedPassword = await bcrypt.hash(input.password, SALT_ROUNDS);
