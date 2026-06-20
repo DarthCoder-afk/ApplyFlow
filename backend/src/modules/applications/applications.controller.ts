@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { createApplication , getApplications, getApplicationsById, updateApplication, deleteApplication } from "./applications.service";
 import { APPLICATION_STATUSES } from "./applications.constants";
+import { ApplicationStatus } from "./applications.constants";
 
 
 export async function create(req: Request, res: Response) {
@@ -47,18 +48,37 @@ export async function create(req: Request, res: Response) {
 
 export async function listApplications(req: Request, res: Response) {
     try {
-        if (!req.userId ){
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-
-        const applications = await getApplications(req.userId);
-        return res.status(200).json({ count: applications.length, applications });
-
+      if (!req.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+  
+      const { status, search, page, limit } = req.query;
+  
+      if (status && !APPLICATION_STATUSES.includes(status as ApplicationStatus)) {
+        return res.status(400).json({
+          message: "Invalid status",
+          allowedStatuses: APPLICATION_STATUSES,
+        });
+      }
+  
+      const result = await getApplications({
+        userId: req.userId,
+        status: status as ApplicationStatus | undefined,
+        search: typeof search === "string" ? search.trim() : undefined,
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 10,
+      });
+  
+      return res.status(200).json({
+        count: result.applications.length,
+        applications: result.applications,
+        pagination: result.pagination,
+      });
     } catch (error) {
-        console.error("List applications error: ", error);
-        return res.status(500).json({ message: "Internal server error" });
+      console.error("List applications error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
-}
+  }
 
 export async function getOne(req: Request, res: Response) {
     try {
@@ -127,7 +147,7 @@ export async function update(req: Request, res: Response) {
       if (!deleted) {
         return res.status(404).json({ message: "Application not found" });
       }
-      
+
       return res.status(200).json({ message: "Application deleted successfully" });
     } catch (error) {
       console.error("Delete application error:", error);

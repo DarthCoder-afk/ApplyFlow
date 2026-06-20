@@ -16,6 +16,14 @@ type UpdateApplicationInput = {
     notes?: string;
 };
 
+type GetApplicationsFilters = {
+    userId: string;
+    status?: ApplicationStatus;
+    search?: string;
+    page?: number;
+    limit?: number;
+  };
+
 export async function createApplication(input: CreateApplicationInput){
     const job = await getJobById(input.jobId, input.userId);
 
@@ -57,24 +65,59 @@ export async function createApplication(input: CreateApplicationInput){
     });
 }
 
-export async function getApplications(userId: string){
-    return prisma.application.findMany({
-        where: { userId },
+export async function getApplications(filters: GetApplicationsFilters) {
+    const page = filters.page && filters.page > 0 ? filters.page : 1;
+    const limit =
+      filters.limit && filters.limit > 0 && filters.limit <= 50
+        ? filters.limit
+        : 10;
+    const skip = (page - 1) * limit;
+    const where = {
+      userId: filters.userId,
+      ...(filters.status ? { status: filters.status } : {}),
+      ...(filters.search
+        ? {
+            job: {
+              OR: [
+                { title: { contains: filters.search, mode: "insensitive" as const } },
+                { company: { contains: filters.search, mode: "insensitive" as const } },
+              ],
+            },
+          }
+        : {}),
+    };
+    const [applications, total] = await Promise.all([
+      prisma.application.findMany({
+        where,
+        skip,
+        take: limit,
         orderBy: { createdAt: "desc" },
         include: {
-            job: {
-                select: {
-                    id: true,
-                    title: true,
-                    company: true,
-                    location: true,
-                    source: true,
-                    jobUrl: true,
-                },
+          job: {
+            select: {
+              id: true,
+              title: true,
+              company: true,
+              location: true,
+              source: true,
+              jobUrl: true,
             },
+          },
         },
-    })
+      }),
+      prisma.application.count({ where }),
+    ]);
+    return {
+      applications,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
 }
+  
 
 export async function getApplicationsById(id: string, userId: string ) {
     return prisma.application.findFirst({
@@ -109,7 +152,7 @@ export async function updateApplication(
     if (!existing) {
       return null;
     }
-    
+
     return prisma.application.update({
       where: { id },
       data: {
