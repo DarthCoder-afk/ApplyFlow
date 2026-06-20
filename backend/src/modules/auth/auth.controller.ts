@@ -3,16 +3,8 @@ import { registerUser, loginUser, refreshAccessToken, logoutUser } from "./auth.
 
 export async function register(req: Request, res: Response){
     try {
-        const { email, password, name } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
-        }
-
-        if (password.length < 6) {
-            return res.status(400).json({ message: "Password must be at least 6 characters" });
-        }
-
-        const user = await registerUser({ email, password, name });
+    
+        const user = await registerUser(req.body);
 
         return res.status(201).json({
             message: "User registered successfully",
@@ -30,13 +22,8 @@ export async function register(req: Request, res: Response){
 
 export async function login(req: Request, res: Response){
     try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
-        }
-
-        const { accessToken, refreshToken, user } = await loginUser({ email, password });
+  
+        const { accessToken, refreshToken, user } = await loginUser(req.body);
         
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
