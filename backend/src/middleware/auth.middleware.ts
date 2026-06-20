@@ -1,21 +1,21 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../utils/jwt";
+import { Request, Response, NextFunction } from 'express';
+import { verifyAccessToken } from '../utils/jwt';
 
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-    if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(401).json({ message: "Access token required" });
-    }
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Access token required' });
+  }
 
-    const token = authHeader.split(" ")[1];
+  const token = authHeader.split(' ')[1];
 
-    try {
-        const payload = verifyAccessToken(token);
-        req.userId = payload.userId;
+  try {
+    const payload = verifyAccessToken(token);
+    req.userId = payload.userId;
 
-        next();
-    } catch (error) {
-        return res.status(401).json({ message: "Invalid or expired access token" });
-    }
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired access token' });
+  }
 }
