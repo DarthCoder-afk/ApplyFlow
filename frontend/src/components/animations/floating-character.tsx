@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 export default function FloatingCharacter() {
   return (
@@ -11,7 +11,7 @@ export default function FloatingCharacter() {
       transition={{
         opacity: { duration: 0.5, delay: 0.3 },
         scale: { duration: 0.5, delay: 0.3 },
-        y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+        y: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
       }}
     >
       👨‍💻
