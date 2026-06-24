@@ -1,4 +1,4 @@
-import type { LoginFormValues } from '@/lib/validation/auth';
+import type { LoginFormValues, RegisterFormValues } from '@/lib/validation/auth';
 
 type LoginResponse = {
   accessToken: string;
@@ -8,6 +8,12 @@ type LoginResponse = {
     email: string;
     name?: string | null;
   };
+};
+
+type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
 };
 
 type ApiError = {
@@ -27,5 +33,23 @@ export async function login(values: LoginFormValues): Promise<LoginResponse> {
     throw new Error(data.message ?? 'Invalid email or password');
   }
 
+  return data;
+}
+
+export async function register(values: RegisterFormValues): Promise<LoginResponse> {
+  const payload: RegisterPayload = {
+    name: values.name,
+    email: values.email,
+    password: values.password,
+  };
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = (await res.json()) as LoginResponse & ApiError;
+  if (!res.ok) {
+    throw new Error(data.message ?? 'Could not create account');
+  }
   return data;
 }

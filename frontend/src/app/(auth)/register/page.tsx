@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import LoginForm from '@/src/app/(auth)/login-form';
+import RegisterForm from '@/src/app/(auth)/register-form';
 import AuthWelcomePanel from '@/src/app/(auth)/welcome-panel';
 import {
   Card,
@@ -9,24 +9,24 @@ import {
   CardTitle,
 } from '@/src/components/ui/card';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="grid flex-1 items-center gap-12 pb-8 lg:grid-cols-2 lg:gap-16">
-      <AuthWelcomePanel />
+      <AuthWelcomePanel mode="register" />
 
       <Card className="w-full rounded-3xl border-slate-200 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Log in</CardTitle>
-          <CardDescription>Enter your email and password to continue.</CardDescription>
+          <CardTitle className="text-2xl">Create your account</CardTitle>
+          <CardDescription>It&apos;s free — start tracking in minutes.</CardDescription>
         </CardHeader>
 
         <CardContent>
-          <LoginForm />
+          <RegisterForm />
 
           <p className="mt-6 text-center text-sm text-slate-600">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="font-medium text-cyan-700 hover:text-cyan-600">
-              Sign up free
+            Already have an account?{' '}
+            <Link href="/login" className="font-medium text-cyan-700 hover:text-cyan-600">
+              Log in
             </Link>
           </p>
         </CardContent>

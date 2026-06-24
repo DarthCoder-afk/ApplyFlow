@@ -10,7 +10,40 @@ const highlights = [
   'Stay organized without spreadsheets',
 ];
 
-export default function AuthWelcomePanel() {
+type AuthWelcomePanelProps = {
+  mode?: 'login' | 'register';
+};
+
+const content = {
+  login: {
+    bubble: 'Ready to pick up your job search? 🎯',
+    title: 'Welcome back!',
+    gradient: 'Your applications are waiting.',
+    description:
+      'Log in to manage your pipeline, update statuses, and keep momentum in your job search.',
+    highlights: [
+      'Track every application in one place',
+      'Monitor interviews and offers',
+      'Stay organized without spreadsheets',
+    ],
+  },
+  register: {
+    bubble: 'Let’s get your job hunt organized! 🚀',
+    title: 'Start tracking',
+    gradient: 'your job search today.',
+    description:
+      'Create a free account and keep every application organized — no more messy spreadsheets.',
+    highlights: [
+      'Save and organize job leads',
+      'Track status from Applied to Offer',
+      'Notes and follow-ups in one place',
+    ],
+  },
+};
+
+export default function AuthWelcomePanel({ mode = 'login' }: AuthWelcomePanelProps) {
+  const copy = content[mode];
+
   return (
     <div className="flex flex-col justify-center space-y-8">
       <div className="relative flex justify-center md:justify-start">
@@ -21,7 +54,7 @@ export default function AuthWelcomePanel() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.4 }}
         >
-          Ready to pick up your job search? 🎯
+          {copy.bubble}
         </motion.div>
       </div>
 
@@ -32,9 +65,9 @@ export default function AuthWelcomePanel() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          Welcome back!
+          {copy.title}
           <span className="mt-2 block bg-gradient-to-r from-cyan-600 to-violet-600 bg-clip-text text-transparent">
-            Your applications are waiting.
+            {copy.gradient}
           </span>
         </motion.h1>
 
@@ -44,7 +77,7 @@ export default function AuthWelcomePanel() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
         >
-          Log in to manage your pipeline, update statuses, and keep momentum in your job search.
+          {copy.description}
         </motion.p>
       </div>
 
@@ -58,7 +91,7 @@ export default function AuthWelcomePanel() {
             transition={{ delay: 0.35 + index * 0.08 }}
           >
             <Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-600" />
-            {item}
+            {copy.highlights[index]}
           </motion.li>
         ))}
       </ul>
