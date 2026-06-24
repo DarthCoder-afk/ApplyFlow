@@ -6,8 +6,8 @@ export default function HeroSection() {
   return (
     <>
       <section className="relative w-full overflow-hidden bg-[#FAF9F6] text-slate-900">
-      <div className="pointer-events-none absolute -left-28 -top-28 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -right-28 top-24 h-72 w-72 rounded-full bg-cyan-600/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-28 -top-28 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-28 top-24 h-72 w-72 rounded-full bg-cyan-600/20 blur-3xl" />
 
         <div className="mx-auto grid min-h-screen w-full max-w-6xl gap-10 px-6 pb-20 pt-28 md:grid-cols-2 md:items-center">
           <div className="space-y-6">

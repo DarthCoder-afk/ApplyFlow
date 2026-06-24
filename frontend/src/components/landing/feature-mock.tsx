@@ -2,12 +2,10 @@ import { FeatureIconName } from './data/features-data';
 
 type FeatureMockProps = {
   icon: FeatureIconName;
-  variant: 'light' ;
+  variant: 'light';
 };
 
 export default function FeatureMock({ icon }: FeatureMockProps) {
-
-
   const shell = 'border-slate-200 bg-white shadow-sm';
   const row = 'bg-slate-50';
   const muted = 'text-slate-500';

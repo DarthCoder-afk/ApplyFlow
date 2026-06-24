@@ -10,7 +10,7 @@ type FeatureSpotlightProps = {
   feature: FeatureSpotlightItem;
   index: number;
   reverse?: boolean;
-  variant: 'light' ;
+  variant: 'light';
 };
 
 export default function FeatureSpotlight({
@@ -19,11 +19,11 @@ export default function FeatureSpotlight({
   reverse = false,
   variant = 'light',
 }: FeatureSpotlightProps) {
-    const sectionBg = 'bg-[#FAF9F6] text-slate-900';
-    const eyebrow = 'border-slate-200 bg-white text-slate-600';
-    const body = 'text-slate-600';
-    const bulletIcon = 'text-cyan-600';
-    const cta = 'text-cyan-700 hover:text-cyan-600';
+  const sectionBg = 'bg-[#FAF9F6] text-slate-900';
+  const eyebrow = 'border-slate-200 bg-white text-slate-600';
+  const body = 'text-slate-600';
+  const bulletIcon = 'text-cyan-600';
+  const cta = 'text-cyan-700 hover:text-cyan-600';
 
   return (
     <section className={`w-full ${sectionBg}`}>
