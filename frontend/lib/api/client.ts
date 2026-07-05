@@ -15,7 +15,11 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   });
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.message ?? 'Request failed');
+    const message =
+      Array.isArray(data.errors) && data.errors.length > 0
+        ? data.errors.map((e: { field: string; message: string }) => `${e.field}: ${e.message}`).join(', ')
+        : (data.message ?? 'Request failed');
+    throw new Error(message);
   }
   return data as T;
 }
