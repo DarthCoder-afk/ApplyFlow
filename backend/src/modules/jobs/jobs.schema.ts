@@ -25,3 +25,5 @@ export const listJobsQuerySchema = z.object({
   sort: z.enum(['createdAt', 'updatedAt', 'title', 'company']).default('createdAt'),
   order: z.enum(['asc', 'desc']).default('desc'),
 });
+
+export type ListJobsQuery = z.infer<typeof listJobsQuerySchema>;

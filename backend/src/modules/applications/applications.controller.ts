@@ -7,7 +7,7 @@ import {
   deleteApplication,
 } from './applications.service';
 import { APPLICATION_STATUSES } from './applications.constants';
-import { listApplicationsQuerySchema } from './applications.schema';
+import { ListApplicationsQuery, listApplicationsQuerySchema } from './applications.schema';
 
 export async function create(req: Request, res: Response) {
   try {
@@ -49,9 +49,7 @@ export async function listApplications(req: Request, res: Response) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    const { status, search, page, limit, sort, order } = listApplicationsQuerySchema.parse(
-      req.query
-    );
+    const { status, search, page, limit, sort, order } = req.validatedQuery as ListApplicationsQuery;
 
     const result = await getApplications({
       userId: req.userId,

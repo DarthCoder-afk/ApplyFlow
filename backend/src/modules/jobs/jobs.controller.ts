@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { createJob, getJobsByUser, getJobById, updateJob, deleteJob } from './jobs.service';
 import { JOB_SOURCES, JobSource } from './jobs.constants';
-import { listJobsQuerySchema } from './jobs.schema';
+import { ListJobsQuery, listJobsQuerySchema } from './jobs.schema';
 
 export async function create(req: Request, res: Response) {
   try {
@@ -38,7 +38,7 @@ export async function getAll(req: Request, res: Response) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    const { sort, order, search, source, page, limit } = listJobsQuerySchema.parse(req.query);
+    const { sort, order, search, source, page, limit } = req.validatedQuery as ListJobsQuery;
 
     const result = await getJobsByUser({
       userId: req.userId,
