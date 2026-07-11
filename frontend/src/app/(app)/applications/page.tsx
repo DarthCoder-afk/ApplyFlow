@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getApplications } from '@/lib/api/applications';
 import AddApplicationForm from '@/src/components/applications/add-application-form';
-import StatusBadge from '@/src/components/applications/status-badge';
+import ApplicationRow from '@/src/components/applications/application-row';
 import { Button } from '@/src/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import type { ApplicationStatus } from '@/lib/types/application';
@@ -61,7 +61,7 @@ export default function ApplicationsPage() {
             ))}
         </div>
 
-        {isLoading && <p className="text-center text-slate-600">Loading jobs...</p>}
+        {isLoading && <p className="text-center text-slate-600">Loading applications...</p>}
         {error && <p className="text-red-600">Could not load applications.</p>}
 
         {data && data.applications.length === 0 && (
@@ -75,14 +75,7 @@ export default function ApplicationsPage() {
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <ul className="divide-y divide-slate-100">
                     {data.applications.map((application) => (
-                        <li key={application.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <p className="font-medium">{application.job.title}</p>
-                            <p className="text-sm text-slate-500">{application.job.company}</p>
-                            {application.notes && <p className="mt-1 text-xs text-slate-500">{application.notes}</p>}
-                        </div>
-                        <StatusBadge status={application.status} />
-                        </li>
+                        <ApplicationRow key={application.id} application={application} />
                     ))}
                 </ul>
             </div>
