@@ -2,18 +2,36 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { getJobs } from '@/lib/api/jobs';
-import AddJobForm from '@/src/components/jobs/add-job-form';
+import JobForm from '@/src/components/jobs/job-form';
+import JobRow from '@/src/components/jobs/job-row';
 import { Button } from '@/src/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { useState } from 'react';
+import { Job } from '@/lib/types/job';
 
 export default function JobsPage() {
-  const [showForm, setShowForm] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['jobs'],
     queryFn: () => getJobs({ limit: 20 }),
   });
+
+  function openCreate() {
+    setEditingJob(null);
+    setModalOpen(true);
+  }
+
+  function openEdit(job: Job) {
+    setEditingJob(job);
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+    setEditingJob(null);
+  }
 
   return (
     <>
@@ -28,7 +46,7 @@ export default function JobsPage() {
 
           <Button
             type="button"
-            onClick={() => setShowForm((v) => !v)}
+            onClick={openCreate}
             className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"
           >
             Add job
@@ -49,36 +67,20 @@ export default function JobsPage() {
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <ul className="divide-y divide-slate-100">
               {data.jobs.map((job) => (
-                <li
-                  key={job.id}
-                  className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div>
-                    <p className="font-medium text-slate-900">{job.title}</p>
-                    <p className="text-sm text-slate-500">
-                      {job.company}
-                      {job.location ? ` · ${job.location}` : ''}
-                    </p>
-                  </div>
-                  {job.source && (
-                    <span className="inline-flex w-fit rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700">
-                      {job.source.replace('_', ' ')}
-                    </span>
-                  )}
-                </li>
+                <JobRow key={job.id} job={job} onEdit={openEdit} />
               ))}
             </ul>
           </div>
         )}
       </div>
 
-      {showForm && (
+      {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Blurred backdrop — click to close */}
           <button
             type="button"
-            aria-label="Close add job form"
-            onClick={() => setShowForm(false)}
+            aria-label="Close"
+            onClick={closeModal}
             className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
           />
           {/* Centered modal */}
@@ -87,7 +89,7 @@ export default function JobsPage() {
               <CardTitle>Add a new job</CardTitle>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={closeModal}
                 className="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                 aria-label="Close"
               >
@@ -95,7 +97,11 @@ export default function JobsPage() {
               </button>
             </CardHeader>
             <CardContent>
-              <AddJobForm onSuccess={() => setShowForm(false)} />
+                <JobForm
+                  key={editingJob?.id ?? 'new'}
+                  job={editingJob ?? undefined}
+                  onSuccess={closeModal}
+                />
             </CardContent>
           </Card>
         </div>
