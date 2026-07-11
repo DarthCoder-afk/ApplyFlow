@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createJob } from '@/lib/api/jobs';
+import { createJob, updateJob } from '@/lib/api/jobs';
+import type { Job } from '@/lib/types/job';
 import {
   createJobSchema,
   type CreateJobFormValues,
@@ -15,52 +16,58 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 
-type AddJobFormProps = {
+type JobFormProps = {
+  job?: Job;
   onSuccess?: () => void;
 };
 
-export default function AddJobForm({ onSuccess }: AddJobFormProps) {
+function toFormValues(job?: Job): CreateJobFormValues {
+  return {
+    title: job?.title ?? '',
+    company: job?.company ?? '',
+    location: job?.location ?? '',
+    description: job?.description ?? '',
+    url: job?.jobUrl ?? '',
+    source: job?.source ?? 'LINKEDIN',
+    notes: job?.notes ?? '',
+  };
+}
+
+export default function JobForm({ job, onSuccess }: JobFormProps) {
+  const isEdit = Boolean(job);
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateJobFormValues>({
     resolver: zodResolver(createJobSchema),
-    defaultValues: {
-      title: '',
-      company: '',
-      location: '',
-      description: '',
-      url: '',
-      source: 'LINKEDIN',
-      notes: '',
-    },
+    defaultValues: toFormValues(job),
   });
 
   const mutation = useMutation({
-    mutationFn: createJob,
+    mutationFn: (values: CreateJobFormValues) =>
+      isEdit && job ? updateJob(job.id, values) : createJob(values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      reset();
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       setError(null);
       onSuccess?.();
     },
-    onError: (err: Error) => {
-      setError(err.message);
-    },
+    onError: (err: Error) => setError(err.message),
   });
 
-  function onSubmit(values: CreateJobFormValues) {
-    setError(null);
-    mutation.mutate(values);
-  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form  onSubmit={handleSubmit((values) => {
+      setError(null);
+      mutation.mutate(values);
+    })}
+    className="space-y-4"
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="title">Job title</Label>
@@ -135,7 +142,11 @@ export default function AddJobForm({ onSuccess }: AddJobFormProps) {
           disabled={isSubmitting || mutation.isPending}
           className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"
         >
-          {mutation.isPending ? 'Saving...' : 'Save job'}
+          {mutation.isPending
+            ? 'Saving...'
+            : isEdit
+              ? 'Update job'
+              : 'Save job'}
         </Button>
       </div>
     </form>
