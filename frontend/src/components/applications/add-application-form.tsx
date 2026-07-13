@@ -15,6 +15,14 @@ import {
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
+import { Controller } from 'react-hook-form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/src/components/ui/select';
 
 type AddApplicationFormProps = {
   onSuccess?: () => void;
@@ -31,6 +39,7 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -68,35 +77,47 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
       className="space-y-4"
     >
       <div className="space-y-2">
-        <Label htmlFor="jobId">Job</Label>
-        <select
-          id="jobId"
-          className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm"
-          {...register('jobId')}
-        >
-          <option value="">Select a job</option>
-          {jobsData.jobs.map((job) => (
-            <option key={job.id} value={job.id}>
-              {job.title} · {job.company}
-            </option>
-          ))}
-        </select>
+        <Controller
+          name="jobId"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger className="h-11 w-full border-[#ced4da] bg-white sm:h-9">
+                <SelectValue placeholder="Select a job" />
+              </SelectTrigger>
+              <SelectContent position="popper" align="start">
+                {jobsData.jobs.map((job) => (
+                  <SelectItem key={job.id} value={job.id}>
+                    {job.title} · {job.company}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+
         {errors.jobId && <p className="text-sm text-red-600">{errors.jobId.message}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="status">Status</Label>
-        <select
-          id="status"
-          className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm"
-          {...register('status')}
-        >
-          {APPLICATION_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {APPLICATION_STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
+        <Controller
+          name="status"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger className="h-11 w-full border-[#ced4da] bg-white sm:h-9">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent position="popper" align="start">
+                {APPLICATION_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {APPLICATION_STATUS_LABELS[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       <div className="space-y-2">

@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/ca
 import { useState } from 'react';
 import { Job } from '@/lib/types/job';
 import { Input } from '@/src/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import ListSkeleton from '@/src/components/ui/list-skeleton';
 import { keepPreviousData } from '@tanstack/react-query';
 
@@ -59,6 +59,7 @@ export default function JobsPage() {
             onClick={openCreate}
             className="bg-[#212529] text-white hover:bg-[#343a40]"
           >
+            <Plus className="h-4 w-4" />
             Add job
           </Button>
         </div>

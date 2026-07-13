@@ -7,6 +7,14 @@ import type { Application, ApplicationStatus } from '@/lib/types/application';
 import { Button } from '@/src/components/ui/button';
 import { useState } from 'react';
 import { Input } from '@/src/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/src/components/ui/select';
+import { Trash2, Loader2 } from 'lucide-react';
 
 type ApplicationRowProps = {
   application: Application;
@@ -92,30 +100,44 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
-        <select
+      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+        <Select
           value={application.status}
           disabled={updateMutation.isPending}
-          onChange={(e) => updateMutation.mutate(e.target.value as ApplicationStatus)}
-          className="h-9 rounded-md border border-input bg-transparent px-2.5 text-sm"
+          onValueChange={(value) => updateMutation.mutate(value as ApplicationStatus)}
         >
-          {APPLICATION_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {APPLICATION_STATUS_LABELS[status]}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger
+            className="h-11 w-full border-[#ced4da] bg-white sm:h-9 sm:w-[180px]"
+            aria-label="Application status"
+          >
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent position="popper" align="start">
+            {APPLICATION_STATUSES.map((status) => (
+              <SelectItem key={status} value={status}>
+                {APPLICATION_STATUS_LABELS[status]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={deleteMutation.isPending}
-          onClick={handleDelete}
-          className="text-red-600 hover:bg-red-50"
-        >
-          {deleteMutation.isPending ? 'Removing...' : 'Delete'}
-        </Button>
+        <div className="flex items-center justify-end gap-1 sm:justify-start">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={deleteMutation.isPending}
+            onClick={handleDelete}
+            aria-label={`Delete application for ${application.job.title}`}
+            className="border-[#dee2e6] text-red-600 hover:bg-red-50"
+          >
+            {deleteMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
     </li>
   );

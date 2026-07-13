@@ -3,14 +3,41 @@
 @import 'shadcn/tailwind.css';
 
 :root {
-    --bg: #f8f9fa;
-    --surface: #ffffff;
-    --border: #dee2e6;
-    --border-strong: #ced4da;
-    --muted: #adb5bd;
-    --text-muted: #6c757d;
-    --text: #495057;
-    --text-strong: #212529;
-    --hover: #e9ecef;
-    --ink: #343a40;
-  }
+  /* your existing custom vars stay */
+  --background: #f8f9fa;
+  --foreground: #212529;
+  --popover: #ffffff;
+  --popover-foreground: #212529;
+  --card: #ffffff;
+  --card-foreground: #212529;
+  --primary: #212529;
+  --primary-foreground: #ffffff;
+  --secondary: #e9ecef;
+  --secondary-foreground: #212529;
+  --muted: #e9ecef;
+  --muted-foreground: #6c757d;
+  --accent: #e9ecef;
+  --accent-foreground: #212529;
+  --border: #dee2e6;
+  --input: #ced4da;
+  --ring: #adb5bd;
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}

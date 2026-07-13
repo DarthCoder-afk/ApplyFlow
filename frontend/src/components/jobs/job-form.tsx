@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createJob, updateJob } from '@/lib/api/jobs';
-import type { Job } from '@/lib/types/job';
+import type { Job, JobSource } from '@/lib/types/job';
 import {
   createJobSchema,
   type CreateJobFormValues,
@@ -15,6 +15,14 @@ import {
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/src/components/ui/select';
+import { Controller } from 'react-hook-form';
 
 type JobFormProps = {
   job?: Job;
@@ -40,6 +48,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<CreateJobFormValues>({
@@ -91,17 +100,24 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="source">Source</Label>
-          <select
-            id="source"
-            className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            {...register('source')}
-          >
-            {JOB_SOURCES.map((source) => (
-              <option key={source} value={source}>
-                {JOB_SOURCE_LABELS[source]}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="source"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger id="source" className="h-11 w-full border-[#ced4da] bg-white sm:h-9">
+                  <SelectValue placeholder="Select source" />
+                </SelectTrigger>
+                <SelectContent position="popper" align="start">
+                  {JOB_SOURCES.map((source) => (
+                    <SelectItem key={source} value={source}>
+                      {JOB_SOURCE_LABELS[source]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
           {errors.source && <p className="text-sm text-red-600">{errors.source.message}</p>}
         </div>
       </div>

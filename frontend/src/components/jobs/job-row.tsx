@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteJob } from '@/lib/api/jobs';
 import type { Job } from '@/lib/types/job';
 import { Button } from '@/src/components/ui/button';
+import { Pencil, Trash2, Loader2 } from 'lucide-react';
 
 type JobRowProps = {
   job: Job;
@@ -38,27 +39,39 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
         {job.source && (
-          <span className="inline-flex rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700">
+          <span className="inline-flex rounded-full bg-[#f8f9fa] px-2.5 py-1 text-xs font-medium text-[#212529]">
             {job.source.replace('_', ' ')}
           </span>
         )}
-
-        <Button type="button" variant="outline" size="sm" onClick={() => onEdit(job)}>
-          Edit
-        </Button>
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={deleteMutation.isPending}
-          onClick={handleDelete}
-          className="text-red-600 hover:bg-red-50"
-        >
-          {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            onClick={() => onEdit(job)}
+            aria-label={`Edit ${job.title}`}
+            className="border-[#dee2e6] text-[#495057] hover:bg-[#f8f9fa]"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={deleteMutation.isPending}
+            onClick={handleDelete}
+            aria-label={`Delete ${job.title}`}
+            className="border-[#dee2e6] text-red-600 hover:bg-red-50"
+          >
+            {deleteMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
     </li>
   );
