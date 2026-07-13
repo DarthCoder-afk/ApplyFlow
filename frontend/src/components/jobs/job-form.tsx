@@ -60,13 +60,13 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
     onError: (err: Error) => setError(err.message),
   });
 
-
   return (
-    <form  onSubmit={handleSubmit((values) => {
-      setError(null);
-      mutation.mutate(values);
-    })}
-    className="space-y-4"
+    <form
+      onSubmit={handleSubmit((values) => {
+        setError(null);
+        mutation.mutate(values);
+      })}
+      className="space-y-4"
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
@@ -142,11 +142,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
           disabled={isSubmitting || mutation.isPending}
           className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"
         >
-          {mutation.isPending
-            ? 'Saving...'
-            : isEdit
-              ? 'Update job'
-              : 'Save job'}
+          {mutation.isPending ? 'Saving...' : isEdit ? 'Update job' : 'Save job'}
         </Button>
       </div>
     </form>

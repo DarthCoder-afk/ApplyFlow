@@ -1,5 +1,9 @@
 import { apiFetch } from './client';
-import type { Application, ApplicationsListResponse, ApplicationStatus } from '@/lib/types/application';
+import type {
+  Application,
+  ApplicationsListResponse,
+  ApplicationStatus,
+} from '@/lib/types/application';
 
 export async function getApplications(params?: {
   status?: ApplicationStatus;

@@ -29,11 +29,15 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
     queryFn: () => getJobs({ limit: 50 }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
-    useForm<CreateApplicationFormValues>({
-      resolver: zodResolver(createApplicationSchema),
-      defaultValues: { jobId: '', status: 'APPLIED', notes: '' },
-    });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateApplicationFormValues>({
+    resolver: zodResolver(createApplicationSchema),
+    defaultValues: { jobId: '', status: 'APPLIED', notes: '' },
+  });
 
   const mutation = useMutation({
     mutationFn: createApplication,
@@ -51,17 +55,25 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
 
   if (!jobsData?.jobs.length) {
     return (
-      <p className="text-sm text-slate-600">
-        Add a job first before creating an application.
-      </p>
+      <p className="text-sm text-slate-600">Add a job first before creating an application.</p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit((v) => { setError(null); mutation.mutate(v); })} className="space-y-4">
+    <form
+      onSubmit={handleSubmit((v) => {
+        setError(null);
+        mutation.mutate(v);
+      })}
+      className="space-y-4"
+    >
       <div className="space-y-2">
         <Label htmlFor="jobId">Job</Label>
-        <select id="jobId" className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm" {...register('jobId')}>
+        <select
+          id="jobId"
+          className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm"
+          {...register('jobId')}
+        >
           <option value="">Select a job</option>
           {jobsData.jobs.map((job) => (
             <option key={job.id} value={job.id}>
@@ -74,9 +86,15 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
 
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
-        <select id="status" className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm" {...register('status')}>
+        <select
+          id="status"
+          className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 text-sm"
+          {...register('status')}
+        >
           {APPLICATION_STATUSES.map((s) => (
-            <option key={s} value={s}>{APPLICATION_STATUS_LABELS[s]}</option>
+            <option key={s} value={s}>
+              {APPLICATION_STATUS_LABELS[s]}
+            </option>
           ))}
         </select>
       </div>
@@ -87,10 +105,16 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </p>
       )}
 
-      <Button type="submit" disabled={isSubmitting || mutation.isPending} className="bg-cyan-400 text-slate-950 hover:bg-cyan-300">
+      <Button
+        type="submit"
+        disabled={isSubmitting || mutation.isPending}
+        className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"
+      >
         {mutation.isPending ? 'Saving...' : 'Save application'}
       </Button>
     </form>

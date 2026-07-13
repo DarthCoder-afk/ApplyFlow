@@ -23,8 +23,7 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
   });
 
   function handleDelete() {
-  const message =
-    'Delete this job? Any linked application will also be removed.';
+    const message = 'Delete this job? Any linked application will also be removed.';
     if (!confirm(message)) return;
     deleteMutation.mutate();
   }

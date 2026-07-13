@@ -17,7 +17,9 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   if (!res.ok) {
     const message =
       Array.isArray(data.errors) && data.errors.length > 0
-        ? data.errors.map((e: { field: string; message: string }) => `${e.field}: ${e.message}`).join(', ')
+        ? data.errors
+            .map((e: { field: string; message: string }) => `${e.field}: ${e.message}`)
+            .join(', ')
         : (data.message ?? 'Request failed');
     throw new Error(message);
   }
