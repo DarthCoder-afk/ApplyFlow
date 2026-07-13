@@ -6,7 +6,7 @@ import LandingFooter from '../components/landing/landing-footer';
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen w-full bg-[#FAF9F6] text-slate-900">
+    <main className="min-h-screen w-full bg-[#f8f9fa] text-[#212529]">
       <LandingNavbar />
       <HeroSection />
       <FeaturesSection />

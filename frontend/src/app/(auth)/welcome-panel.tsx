@@ -49,7 +49,7 @@ export default function AuthWelcomePanel({ mode = 'login' }: AuthWelcomePanelPro
       <div className="relative flex justify-center md:justify-start">
         <FloatingCharacter variant="light" size="lg" />
         <motion.div
-          className="absolute -bottom-2 left-1/2 max-w-[220px] -translate-x-1/2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-sm md:left-24 md:translate-x-0"
+          className="absolute -bottom-2 left-1/2 max-w-[220px] -translate-x-1/2 rounded-xl border border-[#dee2e6] bg-white px-3 py-2 text-xs text-[#6c757d] shadow-sm md:left-24 md:translate-x-0"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.4 }}
@@ -66,13 +66,13 @@ export default function AuthWelcomePanel({ mode = 'login' }: AuthWelcomePanelPro
           transition={{ delay: 0.15 }}
         >
           {copy.title}
-          <span className="mt-2 block bg-gradient-to-r from-cyan-600 to-violet-600 bg-clip-text text-transparent">
+          <span className="mt-2 block bg-gradient-to-r from-[#212529] to-[#343a40] bg-clip-text text-transparent">
             {copy.gradient}
           </span>
         </motion.h1>
 
         <motion.p
-          className="max-w-md text-slate-600"
+          className="max-w-md text-[#6c757d]"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
@@ -85,12 +85,12 @@ export default function AuthWelcomePanel({ mode = 'login' }: AuthWelcomePanelPro
         {highlights.map((item, index) => (
           <motion.li
             key={item}
-            className="flex items-start gap-3 text-sm text-slate-600"
+            className="flex items-start gap-3 text-sm text-[#6c757d]"
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.35 + index * 0.08 }}
           >
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-600" />
+            <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#212529]" />
             {copy.highlights[index]}
           </motion.li>
         ))}

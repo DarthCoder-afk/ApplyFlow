@@ -6,10 +6,10 @@ type FeatureMockProps = {
 };
 
 export default function FeatureMock({ icon }: FeatureMockProps) {
-  const shell = 'border-slate-200 bg-white shadow-sm';
-  const row = 'bg-slate-50';
-  const muted = 'text-slate-500';
-  const text = 'text-slate-900';
+  const shell = 'border-[#dee2e6] bg-white shadow-sm';
+  const row = 'bg-[#f8f9fa]';
+  const muted = 'text-[#6c757d]';
+  const text = 'text-[#212529]';
 
   if (icon === 'briefcase') {
     return (
@@ -42,11 +42,11 @@ export default function FeatureMock({ icon }: FeatureMockProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className={`rounded-xl ${row} p-3`}>
             <p className={`text-xs ${muted}`}>Interview</p>
-            <p className="text-lg font-semibold text-cyan-500">5</p>
+            <p className="text-lg font-semibold text-[#212529]">5</p>
           </div>
           <div className={`rounded-xl ${row} p-3`}>
             <p className={`text-xs ${muted}`}>Offer</p>
-            <p className="text-lg font-semibold text-violet-500">1</p>
+            <p className="text-lg font-semibold text-[#212529]">1</p>
           </div>
         </div>
       </div>

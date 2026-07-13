@@ -16,13 +16,13 @@ export default function LandingNavbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        scrolled ? 'border-b border-slate-200 bg-[#FAF9F6]/90 backdrop-blur-md' : 'bg-transparent'
+        scrolled ? 'border-b border-[#dee2e6] bg-[#f8f9fa]/90 backdrop-blur-md' : 'bg-transparent'
       }`}
     >
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold text-slate-900">
+        <Link href="/" className="text-lg font-semibold text-[#212529]">
           Job{' '}
-          <span className="bg-gradient-to-r from-cyan-600 to-violet-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#212529] to-[#343a40] bg-clip-text text-transparent">
             Tracker
           </span>
         </Link>
@@ -30,13 +30,13 @@ export default function LandingNavbar() {
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/login"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-[#6c757d] transition hover:text-[#212529]"
           >
             Login
           </Link>
           <Link
             href="/register"
-            className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300"
+            className="rounded-lg bg-[#212529] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#343a40]"
           >
             Get Started
           </Link>

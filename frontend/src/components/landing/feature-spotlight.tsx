@@ -19,11 +19,11 @@ export default function FeatureSpotlight({
   reverse = false,
   variant = 'light',
 }: FeatureSpotlightProps) {
-  const sectionBg = 'bg-[#FAF9F6] text-slate-900';
-  const eyebrow = 'border-slate-200 bg-white text-slate-600';
-  const body = 'text-slate-600';
-  const bulletIcon = 'text-cyan-600';
-  const cta = 'text-cyan-700 hover:text-cyan-600';
+  const sectionBg = 'bg-[#f8f9fa] text-[#212529]';
+  const eyebrow = 'border-[#dee2e6] bg-white text-[#6c757d]';
+  const body = 'text-[#6c757d]';
+  const bulletIcon = 'text-[#212529]';
+  const cta = 'text-[#212529] bg-[#f8f9fa]';
 
   return (
     <section className={`w-full ${sectionBg}`}>

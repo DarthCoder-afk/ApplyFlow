@@ -1,3 +1,16 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+
+:root {
+    --bg: #f8f9fa;
+    --surface: #ffffff;
+    --border: #dee2e6;
+    --border-strong: #ced4da;
+    --muted: #adb5bd;
+    --text-muted: #6c757d;
+    --text: #495057;
+    --text-strong: #212529;
+    --hover: #e9ecef;
+    --ink: #343a40;
+  }

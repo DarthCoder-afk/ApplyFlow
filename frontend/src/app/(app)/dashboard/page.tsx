@@ -24,7 +24,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="mt-1 text-slate-600">Your job search at a glance.</p>
+        <p className="mt-1 text-[#6c757d]">Your job search at a glance.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -33,19 +33,19 @@ export default function DashboardPage() {
           label="Applications"
           value={data.totalApplications}
           delay={100}
-          accent="text-cyan-600"
+          accent="text-[#212529]"
         />
         <StatCard
           label="Active"
           value={data.activeApplications}
           delay={200}
-          accent="text-violet-600"
+          accent="text-[#212529]"
         />
         <StatCard
           label="Interviews"
           value={data.applicationsByStatus.INTERVIEW}
           delay={300}
-          accent="text-emerald-600"
+          accent="text-[#212529]"
         />
       </div>
 
@@ -54,17 +54,17 @@ export default function DashboardPage() {
           <StatusChart data={data.applicationsByStatus} />
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-[#dee2e6] bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-lg font-semibold">Recent activity</h2>
           <ul className="space-y-3">
             {data.recentApplications.length === 0 ? (
-              <li className="text-sm text-slate-500">No applications yet.</li>
+              <li className="text-sm text-[#6c757d]">No applications yet.</li>
             ) : (
               data.recentApplications.map((app) => (
-                <li key={app.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                <li key={app.id} className="rounded-xl border border-[#dee2e6] bg-[#f8f9fa] p-3">
                   <p className="font-medium">{app.job.title}</p>
-                  <p className="text-sm text-slate-500">{app.job.company}</p>
-                  <p className="mt-1 text-xs text-cyan-700">{app.status}</p>
+                  <p className="text-sm text-[#6c757d]">{app.job.company}</p>
+                  <p className="mt-1 text-xs text-[#212529]">{app.status}</p>
                 </li>
               ))
             )}

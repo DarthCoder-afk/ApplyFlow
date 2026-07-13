@@ -27,7 +27,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
         <Link href="/dashboard" className="text-lg font-semibold" onClick={onNavigate}>
           Job{' '}
-          <span className="bg-gradient-to-r from-cyan-600 to-violet-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#212529] to-[#343a40] bg-clip-text text-transparent">
             Tracker
           </span>
         </Link>
@@ -36,7 +36,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <button
           type="button"
           onClick={onNavigate}
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+          className="rounded-lg p-2 text-[#6c757d] hover:bg-[#f8f9fa] lg:hidden"
           aria-label="Close menu"
         >
           <X className="h-5 w-5" />
@@ -55,8 +55,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
                 active
-                  ? 'bg-cyan-50 text-cyan-700'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-[#212529] text-white'
+                  : 'text-[#6c757d] hover:bg-[#f8f9fa] hover:text-[#212529]'
               )}
             >
               <Icon className="h-4 w-4" />
@@ -66,7 +66,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
 
-      <div className="border-t border-slate-200 p-4">
+      <div className="border-t border-[#dee2e6] p-4">
         <button
           type="button"
           onClick={handleLogout}

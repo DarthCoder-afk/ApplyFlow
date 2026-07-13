@@ -75,7 +75,7 @@ export default function LoginForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="h-11 w-full rounded-lg bg-cyan-400 text-slate-950 hover:bg-cyan-300"
+        className="h-11 w-full rounded-lg bg-[#212529] text-white hover:bg-[#343a40]"
       >
         {isSubmitting ? 'Logging in...' : 'Log in'}
       </Button>

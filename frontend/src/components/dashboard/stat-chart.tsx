@@ -38,7 +38,7 @@ export default function StatusChart({ data }: StatusChartProps) {
             <XAxis dataKey="status" tick={{ fontSize: 12 }} />
             <YAxis allowDecimals={false} />
             <Tooltip />
-            <Bar dataKey="count" fill="#22d3ee" radius={[8, 8, 0, 0]} animationDuration={900} />
+            <Bar dataKey="count" fill="#212529" radius={[8, 8, 0, 0]} animationDuration={900} />
           </BarChart>
         </ResponsiveContainer>
       </div>
