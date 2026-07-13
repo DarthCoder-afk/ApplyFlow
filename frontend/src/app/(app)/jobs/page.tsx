@@ -8,14 +8,24 @@ import { Button } from '@/src/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { useState } from 'react';
 import { Job } from '@/lib/types/job';
+import { Input } from '@/src/components/ui/input';
+import { Search } from 'lucide-react';
+import ListSkeleton from '@/src/components/ui/list-skeleton';
+import { keepPreviousData } from '@tanstack/react-query';
 
 export default function JobsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [search, setSearch] = useState('');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['jobs'],
-    queryFn: () => getJobs({ limit: 20 }),
+    queryKey: ['jobs', search],
+    queryFn: () =>
+      getJobs({
+        limit: 20,
+        ...(search ? { search } : {}),
+      }),
+    placeholderData: keepPreviousData,
   });
 
   function openCreate() {
@@ -53,13 +63,28 @@ export default function JobsPage() {
           </Button>
         </div>
 
-        {isLoading && <p className="text-center text-slate-600">Loading jobs...</p>}
+        <div className="relative max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Input
+            type="search"
+            placeholder="Search by title, company, or location..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {isLoading && !data && <ListSkeleton rows={5} />}
         {error && <p className="text-red-600">Could not load jobs.</p>}
 
         {data && data.jobs.length === 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-            <p className="font-medium text-slate-900">No jobs saved yet</p>
-            <p className="mt-1 text-sm text-slate-600">Add your first job lead to get started.</p>
+            <p className="font-medium text-slate-900">
+              {search ? 'No jobs match your search' : 'No jobs saved yet'}
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              {search ? 'Try a different keyword.' : 'Add your first job lead to get started.'}
+            </p>
           </div>
         )}
 
@@ -86,7 +111,7 @@ export default function JobsPage() {
           {/* Centered modal */}
           <Card className="relative z-10 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border-slate-200 bg-white shadow-xl">
             <CardHeader className="flex flex-row items-start justify-between gap-4">
-              <CardTitle>Add a new job</CardTitle>
+              <CardTitle>{editingJob ? 'Edit job' : 'Add a new job'}</CardTitle>
               <button
                 type="button"
                 onClick={closeModal}
@@ -97,11 +122,11 @@ export default function JobsPage() {
               </button>
             </CardHeader>
             <CardContent>
-                <JobForm
-                  key={editingJob?.id ?? 'new'}
-                  job={editingJob ?? undefined}
-                  onSuccess={closeModal}
-                />
+              <JobForm
+                key={editingJob?.id ?? 'new'}
+                job={editingJob ?? undefined}
+                onSuccess={closeModal}
+              />
             </CardContent>
           </Card>
         </div>

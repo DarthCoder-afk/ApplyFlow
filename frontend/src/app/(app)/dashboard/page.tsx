@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getDashboardStats } from '@/lib/api/dashboard';
 import StatCard from '@/src/components/dashboard/stat-card';
 import StatusChart from '@/src/components/dashboard/stat-chart';
+import DashboardSkeleton from '@/src/components/dashboard/dashboard-skeleton';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useQuery({
@@ -12,7 +13,7 @@ export default function DashboardPage() {
   });
 
   if (isLoading) {
-    return <p className="text-slate-600">Loading dashboard...</p>;
+    return <DashboardSkeleton />;
   }
 
   if (error || !data) {
