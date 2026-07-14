@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, refresh, logout } from './auth.controller';
+import { register, login, refresh, logout, me } from './auth.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import { loginSchema, registerSchema } from './auth.schema';
@@ -11,8 +11,6 @@ router.post('/login', validate({ body: loginSchema }), login);
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 
-router.get('/me', authenticate, (req, res) => {
-  res.json({ userId: req.userId });
-});
+router.get('/me', authenticate, me);
 
 export default router;

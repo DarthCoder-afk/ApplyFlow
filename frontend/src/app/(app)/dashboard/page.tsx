@@ -1,7 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { getDashboardStats } from '@/lib/api/dashboard';
+import Link from 'next/link';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { getCurrentUser, getDashboardStats } from '@/lib/api/dashboard';
 import StatCard from '@/src/components/dashboard/stat-card';
 import StatusChart from '@/src/components/dashboard/stat-chart';
 import DashboardSkeleton from '@/src/components/dashboard/dashboard-skeleton';
@@ -10,6 +12,10 @@ export default function DashboardPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: getDashboardStats,
+  });
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: getCurrentUser,
   });
 
   if (isLoading) {
@@ -22,9 +28,24 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="mt-1 text-[#6c757d]">Your job search at a glance.</p>
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-800 to-slate-700 px-6 py-7 text-white shadow-lg sm:px-8 sm:py-8">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 right-1/3 h-52 w-52 rounded-full bg-violet-400/15 blur-3xl" />
+
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-sm">
+              <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+              Your career workspace
+            </div>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Welcome back{user?.name ? `, ${user.name}` : ''}.
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-300 sm:text-base">
+              Keep your momentum going—every application moves you closer to the right role.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

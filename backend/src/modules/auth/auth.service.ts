@@ -15,6 +15,17 @@ type LoginInput = {
   password: string;
 };
 
+export async function getUserById(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    },
+  });
+}
+
 export async function registerUser(input: RegisterInput) {
   const existingUser = await prisma.user.findUnique({
     where: {
