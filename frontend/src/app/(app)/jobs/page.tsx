@@ -17,12 +17,14 @@ export default function JobsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['jobs', search],
+    queryKey: ['jobs', search, page],
     queryFn: () =>
       getJobs({
-        limit: 20,
+        limit: 10,
+        page,
         ...(search ? { search } : {}),
       }),
     placeholderData: keepPreviousData,
@@ -41,6 +43,11 @@ export default function JobsPage() {
   function closeModal() {
     setModalOpen(false);
     setEditingJob(null);
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
   }
 
   return (
@@ -70,7 +77,7 @@ export default function JobsPage() {
             type="search"
             placeholder="Search by title, company, or location..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-9"
           />
         </div>
@@ -99,6 +106,32 @@ export default function JobsPage() {
           </div>
         )}
       </div>
+
+      {data && data.pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-slate-600">
+            Page {data.pagination.page} of {data.pagination.totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= data.pagination.totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

@@ -18,17 +18,29 @@ export default function ApplicationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['applications', statusFilter, search],
+    queryKey: ['applications', statusFilter, search, page],
     queryFn: () =>
       getApplications({
+        page,
         limit: 20,
         ...(statusFilter !== 'ALL' ? { status: statusFilter } : {}),
         ...(search ? { search } : {}),
       }),
     placeholderData: keepPreviousData,
   });
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
+  }
+
+  function handleStatusChange(status: ApplicationStatus | 'ALL') {
+    setStatusFilter(status);
+    setPage(1);
+  }
 
   return (
     <>
@@ -55,7 +67,7 @@ export default function ApplicationsPage() {
             type="search"
             placeholder="Search by job title or company..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-9"
           />
         </div>
@@ -65,7 +77,7 @@ export default function ApplicationsPage() {
             <button
               key={s}
               type="button"
-              onClick={() => setStatusFilter(s)}
+              onClick={() => handleStatusChange(s)}
               className={cn(
                 'rounded-full px-3 py-1 text-sm font-medium transition',
                 statusFilter === s
@@ -104,6 +116,32 @@ export default function ApplicationsPage() {
                 <ApplicationRow key={application.id} application={application} />
               ))}
             </ul>
+          </div>
+        )}
+
+        {data && data.pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-600">
+              Page {data.pagination.page} of {data.pagination.totalPages}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((currentPage) => currentPage - 1)}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= data.pagination.totalPages}
+                onClick={() => setPage((currentPage) => currentPage + 1)}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>
