@@ -40,26 +40,28 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="font-medium text-slate-700">Email address</Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
           placeholder="you@example.com"
           aria-invalid={!!errors.email}
+          className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 shadow-none placeholder:text-slate-400 focus-visible:bg-white focus-visible:ring-slate-400"
           {...register('email')}
         />
         {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="font-medium text-slate-700">Password</Label>
         <Input
           id="password"
           type="password"
           autoComplete="current-password"
           placeholder="••••••••"
           aria-invalid={!!errors.password}
+          className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 shadow-none placeholder:text-slate-400 focus-visible:bg-white focus-visible:ring-slate-400"
           {...register('password')}
         />
         {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
@@ -74,7 +76,7 @@ export default function LoginForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="h-11 w-full rounded-lg bg-[#212529] text-white hover:bg-[#343a40]"
+        className="h-11 w-full rounded-xl bg-slate-950 text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5 hover:bg-slate-800"
       >
         {isSubmitting ? 'Logging in...' : 'Log in'}
       </Button>
