@@ -28,7 +28,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
-        <Link href="/dashboard" className="inline-flex items-center gap-2.5 text-lg font-semibold tracking-tight text-white" onClick={onNavigate}>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2.5 text-lg font-semibold tracking-tight text-white"
+          onClick={onNavigate}
+        >
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-white text-slate-950 shadow-lg shadow-black/20">
             <BriefcaseBusiness className="h-4 w-4" />
           </span>
@@ -47,7 +51,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-5">
-        <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Workspace</p>
+        <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          Workspace
+        </p>
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
 

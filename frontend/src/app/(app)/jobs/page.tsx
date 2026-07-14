@@ -78,7 +78,9 @@ export default function JobsPage() {
               </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Jobs</h1>
               <p className="mt-2 text-sm text-slate-300 sm:text-base">
-                {data ? `${data.pagination.total} saved opportunities, all in one place.` : 'Save and organize opportunities you want to pursue.'}
+                {data
+                  ? `${data.pagination.total} saved opportunities, all in one place.`
+                  : 'Save and organize opportunities you want to pursue.'}
               </p>
             </div>
 
@@ -94,8 +96,14 @@ export default function JobsPage() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <Select value={sourceFilter} onValueChange={(value) => handleSourceChange(value as JobSource | 'ALL')}>
-            <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-white px-3 shadow-sm sm:w-48" aria-label="Filter jobs by source">
+          <Select
+            value={sourceFilter}
+            onValueChange={(value) => handleSourceChange(value as JobSource | 'ALL')}
+          >
+            <SelectTrigger
+              className="h-11 w-full rounded-xl border-slate-200 bg-white px-3 shadow-sm sm:w-48"
+              aria-label="Filter jobs by source"
+            >
               <SelectValue placeholder="Filter by source" />
             </SelectTrigger>
             <SelectContent position="popper" align="end">
@@ -126,7 +134,9 @@ export default function JobsPage() {
         {data && data.jobs.length === 0 && (
           <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
             <p className="font-medium text-[#212529]">
-              {search || sourceFilter !== 'ALL' ? 'No jobs match your filters' : 'No jobs saved yet'}
+              {search || sourceFilter !== 'ALL'
+                ? 'No jobs match your filters'
+                : 'No jobs saved yet'}
             </p>
             <p className="mt-1 text-sm text-[#6c757d]">
               {search || sourceFilter !== 'ALL'
@@ -150,7 +160,8 @@ export default function JobsPage() {
       {data && data.pagination.totalPages > 1 && (
         <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
           <p className="text-sm text-slate-600">
-            <span className="font-medium text-slate-900">{data.pagination.total}</span> jobs · Page {data.pagination.page} of {data.pagination.totalPages}
+            <span className="font-medium text-slate-900">{data.pagination.total}</span> jobs · Page{' '}
+            {data.pagination.page} of {data.pagination.totalPages}
           </p>
           <div className="flex gap-2">
             <Button

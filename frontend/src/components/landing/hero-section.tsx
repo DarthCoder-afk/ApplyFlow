@@ -13,8 +13,7 @@ export default function HeroSection() {
           <div className="space-y-7">
             <FadeUp delay={0.05}>
               <p className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-3 py-1.5 text-xs font-medium tracking-wide text-slate-600 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 text-violet-600" />
-                A calmer way to job hunt
+                <Sparkles className="h-3.5 w-3.5 text-violet-600" />A calmer way to job hunt
               </p>
             </FadeUp>
 
@@ -69,7 +68,9 @@ export default function HeroSection() {
               <div className="rounded-[1.5rem] bg-slate-950 p-6 text-white sm:p-7">
                 <div className="mb-7 flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400">Overview</p>
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
+                      Overview
+                    </p>
                     <h3 className="mt-1 text-xl font-semibold">Your momentum</h3>
                   </div>
                   <span className="rounded-full bg-emerald-400/15 px-3 py-1.5 text-xs font-medium text-emerald-300">

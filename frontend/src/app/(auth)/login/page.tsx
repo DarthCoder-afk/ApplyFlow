@@ -21,7 +21,9 @@ export default function LoginPage() {
             <LogIn className="h-4 w-4" />
           </div>
           <CardTitle className="text-2xl tracking-tight">Welcome back</CardTitle>
-          <CardDescription className="text-slate-500">Enter your details to pick up where you left off.</CardDescription>
+          <CardDescription className="text-slate-500">
+            Enter your details to pick up where you left off.
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="px-7 pb-7 sm:px-8 sm:pb-8">

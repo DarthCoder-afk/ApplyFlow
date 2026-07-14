@@ -45,7 +45,9 @@ export default function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="name" className="font-medium text-slate-700">Name</Label>
+        <Label htmlFor="name" className="font-medium text-slate-700">
+          Name
+        </Label>
         <Input
           id="name"
           autoComplete="name"
@@ -58,7 +60,9 @@ export default function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email" className="font-medium text-slate-700">Email address</Label>
+        <Label htmlFor="email" className="font-medium text-slate-700">
+          Email address
+        </Label>
         <Input
           id="email"
           type="email"
@@ -72,7 +76,9 @@ export default function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password" className="font-medium text-slate-700">Password</Label>
+        <Label htmlFor="password" className="font-medium text-slate-700">
+          Password
+        </Label>
         <Input
           id="password"
           type="password"
@@ -86,7 +92,9 @@ export default function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword" className="font-medium text-slate-700">Confirm password</Label>
+        <Label htmlFor="confirmPassword" className="font-medium text-slate-700">
+          Confirm password
+        </Label>
         <Input
           id="confirmPassword"
           type="password"

@@ -21,7 +21,9 @@ export default function RegisterPage() {
             <Sparkles className="h-4 w-4" />
           </div>
           <CardTitle className="text-2xl tracking-tight">Create your account</CardTitle>
-          <CardDescription className="text-slate-500">It&apos;s free—start tracking your progress in minutes.</CardDescription>
+          <CardDescription className="text-slate-500">
+            It&apos;s free—start tracking your progress in minutes.
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="px-7 pb-7 sm:px-8 sm:pb-8">

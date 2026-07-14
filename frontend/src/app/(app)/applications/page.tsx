@@ -59,9 +59,13 @@ export default function ApplicationsPage() {
                 <ClipboardList className="h-3.5 w-3.5 text-violet-200" />
                 Application tracker
               </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Applications</h1>
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+                Applications
+              </h1>
               <p className="mt-2 text-sm text-slate-300 sm:text-base">
-                {data ? `${data.pagination.total} applications in your pipeline.` : 'Track your job applications and their statuses.'}
+                {data
+                  ? `${data.pagination.total} applications in your pipeline.`
+                  : 'Track your job applications and their statuses.'}
               </p>
             </div>
 
@@ -77,8 +81,14 @@ export default function ApplicationsPage() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <Select value={statusFilter} onValueChange={(value) => handleStatusChange(value as ApplicationStatus | 'ALL')}>
-            <SelectTrigger className="h-12 w-full rounded-xl border-slate-200 bg-white px-3 shadow-sm sm:w-44" aria-label="Filter applications by status">
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => handleStatusChange(value as ApplicationStatus | 'ALL')}
+          >
+            <SelectTrigger
+              className="h-12 w-full rounded-xl border-slate-200 bg-white px-3 shadow-sm sm:w-44"
+              aria-label="Filter applications by status"
+            >
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent position="popper" align="end">
@@ -133,7 +143,8 @@ export default function ApplicationsPage() {
         {data && data.pagination.totalPages > 1 && (
           <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
             <p className="text-sm text-slate-600">
-              <span className="font-medium text-slate-900">{data.pagination.total}</span> applications · Page {data.pagination.page} of {data.pagination.totalPages}
+              <span className="font-medium text-slate-900">{data.pagination.total}</span>{' '}
+              applications · Page {data.pagination.page} of {data.pagination.totalPages}
             </p>
             <div className="flex gap-2">
               <Button

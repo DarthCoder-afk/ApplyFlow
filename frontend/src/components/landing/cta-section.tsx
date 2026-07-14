@@ -4,7 +4,10 @@ import FadeUp from '../animations/fade-up';
 
 export default function CtaSection() {
   return (
-    <section id="get-started" className="relative mx-auto mb-8 w-[calc(100%-2rem)] max-w-6xl overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-2xl shadow-slate-900/15">
+    <section
+      id="get-started"
+      className="relative mx-auto mb-8 w-[calc(100%-2rem)] max-w-6xl overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-2xl shadow-slate-900/15"
+    >
       <div className="pointer-events-none absolute -left-16 top-0 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-violet-500/25 blur-3xl" />
       <div className="relative mx-auto w-full max-w-4xl px-6 py-20 text-center sm:py-24">
