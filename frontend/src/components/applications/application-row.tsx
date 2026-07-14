@@ -167,7 +167,7 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete this job?</AlertDialogTitle>
                 <AlertDialogDescription>
-                This will permanently remove the application for “{application.job.title}”.
+                  This will permanently remove the application for “{application.job.title}”.
                 </AlertDialogDescription>
               </AlertDialogHeader>
 

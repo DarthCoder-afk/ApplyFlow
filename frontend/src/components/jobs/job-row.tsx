@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteJob } from '@/lib/api/jobs';
 import type { Job } from '@/lib/types/job';
 import { Button } from '@/src/components/ui/button';
-import { Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Pencil, Trash2, EyeIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import {
@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/src/components/ui/alert-dialog';
+import Link from 'next/link';
 
 type JobRowProps = {
   job: Job;
@@ -44,7 +45,9 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
   return (
     <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-slate-900">{job.title}</p>
+        <Link href={`/jobs/${job.id}`} className="font-medium text-slate-900">
+          {job.title}
+        </Link>
         <p className="text-sm text-slate-500">
           {job.company}
           {job.location ? ` · ${job.location}` : ''}
@@ -58,6 +61,16 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
           </span>
         )}
         <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            className="border-[#dee2e6] text-[#495057] hover:bg-[#f8f9fa]"
+          >
+            <Link href={`/jobs/${job.id}`}>
+              <EyeIcon className="h-4 2-4" />
+            </Link>
+          </Button>
           <Button
             type="button"
             variant="outline"

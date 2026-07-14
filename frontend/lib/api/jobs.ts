@@ -54,3 +54,7 @@ export async function deleteJob(id: string) {
     method: 'DELETE',
   });
 }
+
+export async function getJob(id: string) {
+  return apiFetch<{ job: Job }>(`/api/jobs/${id}`);
+}
