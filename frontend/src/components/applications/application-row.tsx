@@ -16,6 +16,17 @@ import {
 } from '@/src/components/ui/select';
 import { Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/src/components/ui/alert-dialog';
 
 type ApplicationRowProps = {
   application: Application;
@@ -25,6 +36,7 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
   const queryClient = useQueryClient();
   const [editingNotes, setEditingNotes] = useState(false);
   const [notes, setNotes] = useState(application.notes ?? '');
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['applications'] });
@@ -39,7 +51,8 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
       setEditingNotes(false);
       toast.success('Notes updated');
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : 'Could not update notes'),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : 'Could not update notes'),
   });
 
   const updateMutation = useMutation({
@@ -48,16 +61,19 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
       invalidate();
       toast.success('Application status updated');
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : 'Could not update status'),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : 'Could not update status'),
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteApplication(application.id),
     onSuccess: () => {
+      setDeleteOpen(false);
       invalidate();
       toast.success('Application deleted');
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : 'Could not delete application'),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : 'Could not delete application'),
   });
 
   function handleDelete() {
@@ -133,21 +149,41 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
         </Select>
 
         <div className="flex items-center justify-end gap-1 sm:justify-start">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            disabled={deleteMutation.isPending}
-            onClick={handleDelete}
-            aria-label={`Delete application for ${application.job.title}`}
-            className="border-[#dee2e6] text-red-600 hover:bg-red-50"
-          >
-            {deleteMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Trash2 className="h-4 w-4" />
-            )}
-          </Button>
+          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                disabled={deleteMutation.isPending}
+                aria-label={`Delete ${application.job.title}`}
+                className="border-red-200 text-red-600 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this job?</AlertDialogTitle>
+                <AlertDialogDescription>
+                This will permanently remove the application for “{application.job.title}”.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+
+                <AlertDialogAction
+                  disabled={deleteMutation.isPending}
+                  onClick={() => deleteMutation.mutate()}
+                  className="bg-red-600 text-white hover:bg-red-700"
+                >
+                  {deleteMutation.isPending ? 'Deleting...' : 'Delete job'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </li>
