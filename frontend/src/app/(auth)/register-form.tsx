@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { register as registerUser } from '@/lib/api/auth';
+import { register as registerUser, setAccessToken } from '@/lib/api/auth';
 import { registerSchema, type RegisterFormValues } from '@/lib/validation/auth';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
@@ -34,8 +34,7 @@ export default function RegisterForm() {
     try {
       const data = await registerUser(values);
 
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
+      setAccessToken(data.accessToken);
 
       router.push('/dashboard');
     } catch (err) {

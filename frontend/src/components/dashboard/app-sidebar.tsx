@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Briefcase, FileText, LayoutDashboard, LogOut, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebar } from './sidebar-context';
+import { logout } from '@/lib/api/auth';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,10 +17,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  function handleLogout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    router.push('/login');
+  async function handleLogout() {
+    try {
+      await logout();
+    } finally {
+      router.push('/login');
+    }
   }
 
   return (
