@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { login } from '@/lib/api/auth';
+import { login, setAccessToken } from '@/lib/api/auth';
 import { loginSchema, type LoginFormValues } from '@/lib/validation/auth';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
@@ -29,8 +29,7 @@ export default function LoginForm() {
     try {
       const data = await login(values);
 
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
+      setAccessToken(data.accessToken);
 
       router.push('/dashboard');
     } catch (err) {
