@@ -5,7 +5,7 @@ import FeatureSpotlight from './feature-spotlight';
 
 export default function FeaturesSection() {
   return (
-    <>
+    <section id="features">
       {FEATURES.map((feature, index) => (
         <FeatureSpotlight
           key={feature.title}
@@ -15,6 +15,6 @@ export default function FeaturesSection() {
           variant="light"
         />
       ))}
-    </>
+    </section>
   );
 }
