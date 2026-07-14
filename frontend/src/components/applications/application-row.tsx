@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/src/components/ui/select';
 import { Trash2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 type ApplicationRowProps = {
   application: Application;
@@ -36,17 +37,27 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
     onSuccess: () => {
       invalidate();
       setEditingNotes(false);
+      toast.success('Notes updated');
     },
+    onError: (error) => toast.error(error instanceof Error ? error.message : 'Could not update notes'),
   });
 
   const updateMutation = useMutation({
     mutationFn: (status: ApplicationStatus) => updateApplication(application.id, { status }),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast.success('Application status updated');
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : 'Could not update status'),
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteApplication(application.id),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast.success('Application deleted');
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : 'Could not delete application'),
   });
 
   function handleDelete() {

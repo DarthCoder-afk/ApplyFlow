@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/src/components/ui/select';
 import { Controller } from 'react-hook-form';
+import { toast } from 'sonner';
 
 type JobFormProps = {
   job?: Job;
@@ -63,10 +64,13 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       queryClient.invalidateQueries({ queryKey: ['applications'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      toast.success(job ? 'Job updated' : 'Job created');
       setError(null);
       onSuccess?.();
     },
-    onError: (err: Error) => setError(err.message),
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong');
+    },
   });
 
   return (

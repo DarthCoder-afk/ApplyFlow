@@ -5,6 +5,7 @@ import { deleteJob } from '@/lib/api/jobs';
 import type { Job } from '@/lib/types/job';
 import { Button } from '@/src/components/ui/button';
 import { Pencil, Trash2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 type JobRowProps = {
   job: Job;
@@ -20,7 +21,9 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       queryClient.invalidateQueries({ queryKey: ['applications'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      toast.success('Job deleted');
     },
+    onError: (error) => toast.error(error instanceof Error ? error.message : 'Could not delete job'),
   });
 
   function handleDelete() {

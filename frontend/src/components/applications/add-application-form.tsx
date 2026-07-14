@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
+import { toast } from 'sonner';
 
 type AddApplicationFormProps = {
   onSuccess?: () => void;
@@ -55,9 +56,13 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       reset();
       setError(null);
+      toast.success('Application added');
       onSuccess?.();
     },
-    onError: (err: Error) => setError(err.message),
+    onError: (err: Error) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
   });
 
   if (jobsLoading) return <p className="text-sm text-slate-600">Loading jobs...</p>;
