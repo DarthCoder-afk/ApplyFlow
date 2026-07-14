@@ -68,7 +68,7 @@ export default function ApplicationsPage() {
             placeholder="Search by job title or company..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-9"
+            className="bg-white pl-9"
           />
         </div>
 

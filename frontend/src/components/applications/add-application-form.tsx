@@ -131,13 +131,15 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
         </p>
       )}
 
-      <Button
-        type="submit"
-        disabled={isSubmitting || mutation.isPending}
-        className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"
-      >
-        {mutation.isPending ? 'Saving...' : 'Save application'}
-      </Button>
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          disabled={isSubmitting || mutation.isPending}
+          className="bg-[#212529] text-white hover:bg-[#343a40]"
+        >
+          {mutation.isPending ? 'Saving...' : 'Save application'}
+        </Button>
+      </div>
     </form>
   );
 }

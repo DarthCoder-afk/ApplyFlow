@@ -72,13 +72,13 @@ export default function JobsPage() {
         </div>
 
         <div className="relative max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6c757d]" />
+          <Search className="pointer-events-none absolute bg-white left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6c757d]" />
           <Input
             type="search"
             placeholder="Search by title, company, or location..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-9"
+            className="bg-white pl-9"
           />
         </div>
 

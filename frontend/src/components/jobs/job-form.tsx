@@ -152,11 +152,11 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
         </p>
       )}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex justify-end">
         <Button
           type="submit"
           disabled={isSubmitting || mutation.isPending}
-          className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"
+          className="bg-[#212529] text-white hover:bg-[#343a40]"
         >
           {mutation.isPending ? 'Saving...' : isEdit ? 'Update job' : 'Save job'}
         </Button>
