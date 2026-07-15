@@ -5,7 +5,11 @@ export const createJobSchema = z.object({
   title: z.string().trim().min(1, { message: 'Title is required' }).max(120),
   company: z.string().trim().min(1, { message: 'Company is required' }).max(120),
   location: z.string().trim().min(1, { message: 'Location is required' }).max(120),
-  description: z.string().trim().min(1, { message: 'Description is required' }).max(1000),
+  description: z
+    .string()
+    .trim()
+    .min(1, { message: 'Description is required' })
+    .max(10_000, { message: 'Description must be 10,000 characters or fewer' }),
   url: z.string().trim().min(1, { message: 'URL is required' }).url({ message: 'Invalid URL' }),
   source: z.enum(JOB_SOURCES),
   notes: z.string().trim().max(1000).optional(),

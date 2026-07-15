@@ -136,7 +136,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
         <Label htmlFor="description">Description</Label>
         <textarea
           id="description"
-          rows={4}
+          rows={12}
           className="w-full rounded-md border border-input bg-transparent px-2.5 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           placeholder="Paste the job description or a short summary"
           {...register('description')}
