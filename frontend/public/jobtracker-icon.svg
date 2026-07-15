@@ -1,0 +1,44 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>JobTracker Icon</title>
+  <desc>Minimal black and white briefcase icon with a progress check mark.</desc>
+
+  <!-- Rounded app tile -->
+  <rect x="16" y="16" width="224" height="224" rx="52" fill="#000000"/>
+
+  <!-- Briefcase handle -->
+  <path
+    d="M92 84V72C92 61 101 52 112 52H144C155 52 164 61 164 72V84"
+    stroke="#FFFFFF"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Briefcase body -->
+  <rect
+    x="52"
+    y="82"
+    width="152"
+    height="116"
+    rx="22"
+    stroke="#FFFFFF"
+    stroke-width="14"
+  />
+
+  <!-- Divider / tracking line -->
+  <path
+    d="M52 124H204"
+    stroke="#FFFFFF"
+    stroke-width="14"
+    stroke-linecap="round"
+  />
+
+  <!-- Check mark -->
+  <path
+    d="M96 158L119 178L163 136"
+    stroke="#FFFFFF"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
