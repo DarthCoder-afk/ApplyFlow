@@ -97,12 +97,6 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-
-            <FloatingCharacter variant="light" />
-
-            <div className="absolute -left-5 bottom-8 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-medium text-slate-600 shadow-lg">
-              <span className="mr-1.5 text-base">🎯</span> Interview on Friday
-            </div>
           </FadeUp>
         </div>
       </section>
