@@ -9,10 +9,12 @@ import { loginSchema, type LoginFormValues } from '@/lib/validation/auth';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -56,19 +58,36 @@ export default function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password" className="font-medium text-slate-700">
-          Password
-        </Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          aria-invalid={!!errors.password}
-          className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 shadow-none placeholder:text-slate-400 focus-visible:bg-white focus-visible:ring-slate-400"
-          {...register('password')}
-        />
-        {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+        <div className='relative'>
+          <Label htmlFor="password" className="font-medium text-slate-700 mb-2">
+            Password
+          </Label>
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            placeholder="••••••••"
+            aria-invalid={!!errors.password}
+            className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 shadow-none placeholder:text-slate-400 focus-visible:bg-white focus-visible:ring-slate-400"
+            {...register('password')}
+          />
+          {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+
+          <Button
+            type='button'
+            variant='ghost'
+            onClick={() => setShowPassword((previous) => !previous)}
+            className="absolute right-1 bottom-1 text-slate-500 hover:bg-transparent hover:text-slate-900"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+          >
+            {showPassword ? (
+              <EyeOff className='h-4 w-4'/>
+            ) : (
+              <Eye className='h-4 w-4'/>
+            )}
+          </Button>
+        </div>
       </div>
 
       {error && (
