@@ -27,15 +27,19 @@ export default function JobsPage() {
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState<JobSource | 'ALL'>('ALL');
   const [page, setPage] = useState(1);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['jobs', search, sourceFilter, page],
+    queryKey: ['jobs', search, sourceFilter, fromDate, toDate, page],
     queryFn: () =>
       getJobs({
         limit: 10,
         page,
         ...(search ? { search } : {}),
         ...(sourceFilter !== 'ALL' ? { source: sourceFilter } : {}),
+        ...(fromDate ? { fromDate } : {}),
+        ...(toDate ? { toDate } : {}),
       }),
     placeholderData: keepPreviousData,
   });
@@ -115,6 +119,49 @@ export default function JobsPage() {
               ))}
             </SelectContent>
           </Select>
+
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="from-date"
+                className="shrink-0 text-sm font-medium text-slate-600"
+              >
+                From
+              </label>
+
+              <Input
+                id="from-date"
+                type="date"
+                value={fromDate}
+                onChange={(event) => {
+                  setFromDate(event.target.value);
+                  setPage(1);
+                }}
+                className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="to-date"
+                className="shrink-0 text-sm font-medium text-slate-600"
+              >
+                To
+              </label>
+
+              <Input
+                id="to-date"
+                type="date"
+                value={toDate}
+                min={fromDate || undefined}
+                onChange={(event) => {
+                  setToDate(event.target.value);
+                  setPage(1);
+                }}
+                className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
+              />
+            </div>
+          </div>
 
           <div className="relative w-full sm:w-[28rem]">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

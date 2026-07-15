@@ -52,6 +52,9 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
           {job.company}
           {job.location ? ` · ${job.location}` : ''}
         </p>
+        <p className="mt-1 text-xs text-slate-400">
+          {new Date(job.createdAt).toLocaleDateString()}
+        </p>
       </div>
 
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">

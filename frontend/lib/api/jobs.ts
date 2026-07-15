@@ -16,6 +16,8 @@ export async function getJobs(params?: {
   source?: string;
   page?: number;
   limit?: number;
+  fromDate?: string;
+  toDate?: string;
   availableOnly?:boolean;
 }) {
   const query = new URLSearchParams();
@@ -23,6 +25,8 @@ export async function getJobs(params?: {
   if (params?.source) query.set('source', params.source);
   if (params?.page) query.set('page', String(params.page));
   if (params?.limit) query.set('limit', String(params.limit));
+  if (params?.fromDate) query.set('fromDate', params.fromDate);
+  if (params?.toDate) query.set('toDate', params.toDate);
   if (params?.availableOnly) {
     query.set('availableOnly', 'true');
   }

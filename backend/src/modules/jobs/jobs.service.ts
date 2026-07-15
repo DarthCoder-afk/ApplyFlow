@@ -32,6 +32,8 @@ type GetJobsFilters = {
   page?: number;
   limit?: number;
   availableOnly?: boolean;
+  fromDate?: string;
+  toDate?: string;
   sort?: JobSortField;
   order?: 'asc' | 'desc';
 };
@@ -58,6 +60,17 @@ export async function getJobsByUser(filters: GetJobsFilters) {
   const skip = (page - 1) * limit;
   const sortField = filters.sort ?? 'createdAt';
   const sortOrder = filters.order ?? 'desc';
+  const createdAtFilter =
+  filters.fromDate || filters.toDate
+    ? {
+        ...(filters.fromDate
+          ? { gte: new Date(`${filters.fromDate}T00:00:00.000Z`) }
+          : {}),
+        ...(filters.toDate
+          ? { lte: new Date(`${filters.toDate}T23:59:59.999Z`) }
+          : {}),
+      }
+    : undefined;
   const where = {
     userId: filters.userId,
 
@@ -70,6 +83,8 @@ export async function getJobsByUser(filters: GetJobsFilters) {
           },
         }
       : {}),
+
+    ...(createdAtFilter ? { createdAt: createdAtFilter } : {}),
 
     ...(filters.source ? { source: filters.source } : {}),
     ...(filters.search

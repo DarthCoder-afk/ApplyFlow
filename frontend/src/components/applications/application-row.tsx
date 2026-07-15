@@ -86,6 +86,9 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
       <div className="min-w-0 flex-1">
         <p className="font-medium text-slate-900">{application.job.title}</p>
         <p className="text-sm text-slate-500">{application.job.company}</p>
+        <p className="mt-1 text-xs text-slate-400">
+          Applied {new Date(application.appliedAt ?? application.createdAt).toLocaleDateString()}
+        </p>
         {editingNotes ? (
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <Input
