@@ -24,6 +24,8 @@ type GetApplicationsFilters = {
   search?: string;
   page?: number;
   limit?: number;
+  fromDate?: string;
+  toDate?: string;
   sort?: ApplicationSortField;
   order?: 'asc' | 'desc';
 };
@@ -75,8 +77,21 @@ export async function getApplications(filters: GetApplicationsFilters) {
   const skip = (page - 1) * limit;
   const sortField = filters.sort ?? 'createdAt';
   const sortOrder = filters.order ?? 'desc';
+  const appliedAtFilter =
+  filters.fromDate || filters.toDate
+    ? {
+        ...(filters.fromDate
+          ? { gte: new Date(`${filters.fromDate}T00:00:00.000Z`) }
+          : {}),
+        ...(filters.toDate
+          ? { lte: new Date(`${filters.toDate}T23:59:59.999Z`) }
+          : {}),
+      }
+    : undefined;
   const where = {
     userId: filters.userId,
+
+    ...(appliedAtFilter ? { appliedAt: appliedAtFilter } : {}),
     ...(filters.status ? { status: filters.status } : {}),
     ...(filters.search
       ? {

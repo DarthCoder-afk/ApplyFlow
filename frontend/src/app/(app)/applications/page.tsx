@@ -25,15 +25,19 @@ export default function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['applications', statusFilter, search, page],
+    queryKey: ['applications', statusFilter, fromDate, toDate, search, page],
     queryFn: () =>
       getApplications({
         page,
         limit: 20,
         ...(statusFilter !== 'ALL' ? { status: statusFilter } : {}),
         ...(search ? { search } : {}),
+        ...(fromDate ? { fromDate } : {}),
+        ...(toDate ? { toDate } : {}),
       }),
     placeholderData: keepPreviousData,
   });
@@ -80,7 +84,7 @@ export default function ApplicationsPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
           <Select
             value={statusFilter}
             onValueChange={(value) => handleStatusChange(value as ApplicationStatus | 'ALL')}
@@ -99,15 +103,61 @@ export default function ApplicationsPage() {
             </SelectContent>
           </Select>
 
-          <div className="relative w-full sm:w-[28rem]">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              type="search"
-              placeholder="Search by job title or company..."
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-sm placeholder:text-slate-400 focus-visible:ring-slate-400"
-            />
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="from-date"
+                  className="shrink-0 text-sm font-medium text-slate-600"
+                >
+                  From
+                </label>
+
+                <Input
+                  id="from-date"
+                  type="date"
+                  value={fromDate}
+                  onChange={(event) => {
+                    setFromDate(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="to-date"
+                  className="shrink-0 text-sm font-medium text-slate-600"
+                >
+                  To
+                </label>
+
+                <Input
+                  id="to-date"
+                  type="date"
+                  value={toDate}
+                  min={fromDate || undefined}
+                  onChange={(event) => {
+                    setToDate(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
+                />
+              </div>
+            </div>
+
+            <div className="relative w-full sm:w-[28rem]">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                type="search"
+                placeholder="Search by job title or company..."
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-sm placeholder:text-slate-400 focus-visible:ring-slate-400"
+              />
+            </div>
           </div>
         </div>
 
@@ -123,7 +173,7 @@ export default function ApplicationsPage() {
             </p>
 
             <p className="mt-1 text-sm text-[#6c757d]">
-              {search || statusFilter !== 'ALL'
+              {search || statusFilter !== 'ALL' || fromDate || toDate
                 ? 'Try clearing search or changing the status filter.'
                 : 'Add your first application to get started.'}
             </p>
