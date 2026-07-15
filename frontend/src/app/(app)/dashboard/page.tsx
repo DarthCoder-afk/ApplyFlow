@@ -7,6 +7,7 @@ import { getCurrentUser, getDashboardStats } from '@/lib/api/dashboard';
 import StatCard from '@/src/components/dashboard/stat-card';
 import StatusChart from '@/src/components/dashboard/stat-chart';
 import DashboardSkeleton from '@/src/components/dashboard/dashboard-skeleton';
+import { motion } from 'framer-motion';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useQuery({
@@ -75,7 +76,12 @@ export default function DashboardPage() {
           <StatusChart data={data.applicationsByStatus} />
         </div>
 
-        <div className="rounded-2xl border border-[#dee2e6] bg-white p-5 shadow-sm">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="rounded-2xl border border-[#dee2e6] bg-white p-5 shadow-sm"
+        >
           <h2 className="mb-4 text-lg font-semibold">Recent activity</h2>
           <ul className="space-y-3">
             {data.recentApplications.length === 0 ? (
@@ -90,7 +96,7 @@ export default function DashboardPage() {
               ))
             )}
           </ul>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
