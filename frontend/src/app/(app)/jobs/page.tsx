@@ -99,7 +99,7 @@ export default function JobsPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
           <Select
             value={sourceFilter}
             onValueChange={(value) => handleSourceChange(value as JobSource | 'ALL')}
@@ -120,58 +120,60 @@ export default function JobsPage() {
             </SelectContent>
           </Select>
 
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <div className="flex items-center gap-2">
-              <label
-                htmlFor="from-date"
-                className="shrink-0 text-sm font-medium text-slate-600"
-              >
-                From
-              </label>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="from-date"
+                  className="shrink-0 text-sm font-medium text-slate-600"
+                >
+                  From
+                </label>
 
-              <Input
-                id="from-date"
-                type="date"
-                value={fromDate}
-                onChange={(event) => {
-                  setFromDate(event.target.value);
-                  setPage(1);
-                }}
-                className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
-              />
+                <Input
+                  id="from-date"
+                  type="date"
+                  value={fromDate}
+                  onChange={(event) => {
+                    setFromDate(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="to-date"
+                  className="shrink-0 text-sm font-medium text-slate-600"
+                >
+                  To
+                </label>
+
+                <Input
+                  id="to-date"
+                  type="date"
+                  value={toDate}
+                  min={fromDate || undefined}
+                  onChange={(event) => {
+                    setToDate(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
+                />
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <label
-                htmlFor="to-date"
-                className="shrink-0 text-sm font-medium text-slate-600"
-              >
-                To
-              </label>
-
+            <div className="relative w-full sm:w-[28rem]">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
-                id="to-date"
-                type="date"
-                value={toDate}
-                min={fromDate || undefined}
-                onChange={(event) => {
-                  setToDate(event.target.value);
-                  setPage(1);
-                }}
-                className="h-11 w-full rounded-xl border-slate-200 bg-white shadow-sm sm:w-40"
+                type="search"
+                placeholder="Search by title, company, or location..."
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-sm placeholder:text-slate-400 focus-visible:ring-slate-400"
               />
             </div>
-          </div>
-
-          <div className="relative w-full sm:w-[28rem]">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              type="search"
-              placeholder="Search by title, company, or location..."
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-sm placeholder:text-slate-400 focus-visible:ring-slate-400"
-            />
           </div>
         </div>
 
