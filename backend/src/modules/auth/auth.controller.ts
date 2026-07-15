@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, refreshAccessToken, logoutUser } from './auth.service';
+import {
+  registerUser,
+  loginUser,
+  refreshAccessToken,
+  logoutUser,
+  getUserById,
+} from './auth.service';
 
 export async function register(req: Request, res: Response) {
   try {
@@ -86,6 +92,25 @@ export async function logout(req: Request, res: Response) {
     return res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
     console.error('Logout error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+export async function me(req: Request, res: Response) {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const user = await getUserById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    console.error('Get current user error:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 }

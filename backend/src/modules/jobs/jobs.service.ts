@@ -35,6 +35,7 @@ type GetJobsFilters = {
   order?: 'asc' | 'desc';
 };
 
+
 export async function createJob(input: CreateJobInput) {
   return prisma.job.create({
     data: {
