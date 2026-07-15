@@ -38,7 +38,8 @@ export async function getAll(req: Request, res: Response) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    const { sort, order, search, source, page, limit } = req.validatedQuery as ListJobsQuery;
+    const { sort, order, search, source, page, limit, availableOnly } = req.validatedQuery as ListJobsQuery;
+
 
     const result = await getJobsByUser({
       userId: req.userId,
@@ -48,6 +49,7 @@ export async function getAll(req: Request, res: Response) {
       limit,
       sort,
       order,
+      availableOnly
     });
 
     return res.status(200).json({

@@ -16,12 +16,16 @@ export async function getJobs(params?: {
   source?: string;
   page?: number;
   limit?: number;
+  availableOnly?:boolean;
 }) {
   const query = new URLSearchParams();
   if (params?.search) query.set('search', params.search);
   if (params?.source) query.set('source', params.source);
   if (params?.page) query.set('page', String(params.page));
   if (params?.limit) query.set('limit', String(params.limit));
+  if (params?.availableOnly) {
+    query.set('availableOnly', 'true');
+  }
 
   const qs = query.toString();
   return apiFetch<JobsListResponse>(`/api/jobs${qs ? `?${qs}` : ''}`);

@@ -20,6 +20,7 @@ export const jobIdParamSchema = z.object({
 export const listJobsQuerySchema = z.object({
   search: z.string().trim().optional(),
   source: z.enum(JOB_SOURCES).optional(),
+  availableOnly: z.coerce.boolean().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(10),
   sort: z.enum(['createdAt', 'updatedAt', 'title', 'company']).default('createdAt'),

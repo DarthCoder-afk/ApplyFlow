@@ -31,6 +31,7 @@ type GetJobsFilters = {
   source?: JobSource;
   page?: number;
   limit?: number;
+  availableOnly?: boolean;
   sort?: JobSortField;
   order?: 'asc' | 'desc';
 };
@@ -59,6 +60,17 @@ export async function getJobsByUser(filters: GetJobsFilters) {
   const sortOrder = filters.order ?? 'desc';
   const where = {
     userId: filters.userId,
+
+    ...(filters.availableOnly
+      ? {
+          applications: {
+            none: {
+              userId: filters.userId,
+            },
+          },
+        }
+      : {}),
+
     ...(filters.source ? { source: filters.source } : {}),
     ...(filters.search
       ? {
