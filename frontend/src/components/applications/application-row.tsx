@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
-import { Trash2, Loader2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -76,11 +76,6 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
       toast.error(error instanceof Error ? error.message : 'Could not delete application'),
   });
 
-  function handleDelete() {
-    if (!confirm(`Remove application for ${application.job.title}?`)) return;
-    deleteMutation.mutate();
-  }
-
   return (
     <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 flex-1">
@@ -130,14 +125,14 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
         )}
       </div>
 
-      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+      <div className="flex w-full items-center gap-2 sm:w-auto">
         <Select
           value={application.status}
           disabled={updateMutation.isPending}
           onValueChange={(value) => updateMutation.mutate(value as ApplicationStatus)}
         >
           <SelectTrigger
-            className="h-11 w-full border-[#ced4da] bg-white sm:h-9 sm:w-[180px]"
+            className="h-11 w-full flex-1 rounded-xl border-slate-200 bg-slate-50 shadow-none sm:h-9 sm:w-[180px] sm:flex-none"
             aria-label="Application status"
           >
             <SelectValue placeholder="Status" />
@@ -151,43 +146,42 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
           </SelectContent>
         </Select>
 
-        <div className="flex items-center justify-end gap-1 sm:justify-start">
-          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <AlertDialogTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-sm"
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={deleteMutation.isPending}
+              aria-label={`Delete ${application.job.title}`}
+              className="h-11 shrink-0 border-red-200 px-3 text-red-600 hover:bg-red-50 sm:h-9 sm:px-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="sm:hidden">Delete</span>
+            </Button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this application?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently remove the application for “{application.job.title}”.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+
+              <AlertDialogAction
                 disabled={deleteMutation.isPending}
-                aria-label={`Delete ${application.job.title}`}
-                className="border-red-200 text-red-600 hover:bg-red-50"
+                onClick={() => deleteMutation.mutate()}
+                className="bg-red-600 text-white hover:bg-red-700"
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete this job?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently remove the application for “{application.job.title}”.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
-
-                <AlertDialogAction
-                  disabled={deleteMutation.isPending}
-                  onClick={() => deleteMutation.mutate()}
-                  className="bg-red-600 text-white hover:bg-red-700"
-                >
-                  {deleteMutation.isPending ? 'Deleting...' : 'Delete job'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+                {deleteMutation.isPending ? 'Deleting...' : 'Delete application'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </li>
   );
