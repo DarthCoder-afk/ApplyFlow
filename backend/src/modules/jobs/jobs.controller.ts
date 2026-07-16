@@ -5,7 +5,7 @@ import { ListJobsQuery, listJobsQuerySchema } from './jobs.schema';
 
 export async function create(req: Request, res: Response) {
   try {
-    const { title, company, location, jobUrl, description, notes, source } = req.body;
+    const { title, company, location, url, description, notes, source } = req.body;
 
     if (!req.userId) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -15,7 +15,7 @@ export async function create(req: Request, res: Response) {
       title,
       company,
       location,
-      jobUrl,
+      jobUrl:url,
       description,
       notes,
       source,
@@ -88,7 +88,7 @@ export async function update(req: Request, res: Response) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
     const { id } = req.params;
-    const { title, company, location, jobUrl, description, notes, source } = req.body;
+    const { title, company, location, url, description, notes, source } = req.body;
     if (source && !JOB_SOURCES.includes(source)) {
       return res.status(400).json({
         message: 'Invalid source',
@@ -99,7 +99,7 @@ export async function update(req: Request, res: Response) {
       title,
       company,
       location,
-      jobUrl,
+      jobUrl:url,
       description,
       notes,
       source,
