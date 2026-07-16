@@ -115,6 +115,7 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
                   onClick={() => deleteMutation.mutate()}
                   className="bg-red-600 text-white hover:bg-red-700"
                 >
+                  <Trash2 className="h-4 w-4" />
                   {deleteMutation.isPending ? 'Deleting...' : 'Delete job'}
                 </AlertDialogAction>
               </AlertDialogFooter>

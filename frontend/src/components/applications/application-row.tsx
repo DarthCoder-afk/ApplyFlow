@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/src/components/ui/alert-dialog';
+import { Trash } from 'lucide-react';
 
 type ApplicationRowProps = {
   application: Application;
@@ -157,7 +158,6 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
               className="h-11 shrink-0 border-red-200 px-3 text-red-600 hover:bg-red-50 sm:h-9 sm:px-2"
             >
               <Trash2 className="h-4 w-4" />
-              <span className="sm:hidden">Delete</span>
             </Button>
           </AlertDialogTrigger>
 
@@ -177,6 +177,7 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
                 onClick={() => deleteMutation.mutate()}
                 className="bg-red-600 text-white hover:bg-red-700"
               >
+                 <Trash2 className="h-4 w-4" />
                 {deleteMutation.isPending ? 'Deleting...' : 'Delete application'}
               </AlertDialogAction>
             </AlertDialogFooter>
