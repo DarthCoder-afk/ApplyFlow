@@ -30,4 +30,25 @@ describe('protected routes', () => {
             message: 'Invalid or expired access token',
         });
     });
+
+    it('rejects an invalid access token', async () => {
+        const response = await request(app)
+            .get('/api/jobs')
+            .set('Authorization', 'Bearer not-a-real-token');
+        
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({
+            message: 'Invalid or expired access token',
+        });
+    });
+
+    it('returns the API health status', async () => {
+        const response = await request(app).get('/api/health')
+            
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({
+            status:  'OK',
+            message: 'Job Tracker API is running',
+        });
+    });
 });
