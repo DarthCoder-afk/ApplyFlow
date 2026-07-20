@@ -43,7 +43,7 @@ jobs:
         run: pnpm prisma generate
         
       - name: Run tests
-        run: pnpm test
+        run: pnpm exec jest --runInBand --verbose
 
       - name: Build backend
         run: pnpm build
