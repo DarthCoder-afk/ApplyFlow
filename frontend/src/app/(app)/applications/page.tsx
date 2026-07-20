@@ -25,15 +25,19 @@ export default function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['applications', statusFilter, search, page],
+    queryKey: ['applications', statusFilter, fromDate, toDate, search, page],
     queryFn: () =>
       getApplications({
         page,
         limit: 20,
         ...(statusFilter !== 'ALL' ? { status: statusFilter } : {}),
         ...(search ? { search } : {}),
+        ...(fromDate ? { fromDate } : {}),
+        ...(toDate ? { toDate } : {}),
       }),
     placeholderData: keepPreviousData,
   });
@@ -80,13 +84,13 @@ export default function ApplicationsPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm xl:flex-row xl:items-center xl:justify-between">
           <Select
             value={statusFilter}
             onValueChange={(value) => handleStatusChange(value as ApplicationStatus | 'ALL')}
           >
             <SelectTrigger
-              className="h-12 w-full rounded-xl border-slate-200 bg-white px-3 shadow-sm sm:w-44"
+              className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 px-3 shadow-none sm:w-44"
               aria-label="Filter applications by status"
             >
               <SelectValue placeholder="Filter by status" />
@@ -99,15 +103,60 @@ export default function ApplicationsPage() {
             </SelectContent>
           </Select>
 
-          <div className="relative w-full sm:w-[28rem]">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              type="search"
-              placeholder="Search by job title or company..."
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-sm placeholder:text-slate-400 focus-visible:ring-slate-400"
-            />
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="from-date"
+                  className="shrink-0 text-sm font-medium text-slate-600"
+                >
+                  From
+                </label>
+
+                <Input
+                  id="from-date"
+                  type="date"
+                  value={fromDate}
+                  onChange={(event) => {
+                    setFromDate(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 min-w-0 flex-1 rounded-xl border-slate-200 bg-slate-50 shadow-none sm:w-40"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="to-date"
+                  className="shrink-0 text-sm font-medium text-slate-600"
+                >
+                  To
+                </label>
+
+                <Input
+                  id="to-date"
+                  type="date"
+                  value={toDate}
+                  min={fromDate || undefined}
+                  onChange={(event) => {
+                    setToDate(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 min-w-0 flex-1 rounded-xl border-slate-200 bg-slate-50 shadow-none sm:w-40"
+                />
+              </div>
+            </div>
+
+            <div className="relative w-full lg:w-[28rem]">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                type="search"
+                placeholder="Search by job title or company..."
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-sm placeholder:text-slate-400 focus-visible:ring-slate-400"
+              />
+            </div>
           </div>
         </div>
 
@@ -117,14 +166,14 @@ export default function ApplicationsPage() {
         {data && data.applications.length === 0 && (
           <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
             <p className="font-medium text-[#212529]">
-              {search || statusFilter !== 'ALL'
+              {search || statusFilter !== 'ALL' || fromDate || toDate
                 ? 'No applications match your filters'
                 : 'No applications tracked yet'}
             </p>
 
             <p className="mt-1 text-sm text-[#6c757d]">
-              {search || statusFilter !== 'ALL'
-                ? 'Try clearing search or changing the status filter.'
+              {search || statusFilter !== 'ALL' || fromDate || toDate
+                ? 'Try clearing search or adjusting your filters.'
                 : 'Add your first application to get started.'}
             </p>
           </div>
@@ -141,17 +190,18 @@ export default function ApplicationsPage() {
         )}
 
         {data && data.pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-600">
               <span className="font-medium text-slate-900">{data.pagination.total}</span>{' '}
               applications · Page {data.pagination.page} of {data.pagination.totalPages}
             </p>
-            <div className="flex gap-2">
+            <div className="flex w-full gap-2 sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 disabled={page <= 1}
                 onClick={() => setPage((currentPage) => currentPage - 1)}
+                className="flex-1 sm:flex-none"
               >
                 <ChevronLeft className="h-4 w-4" />
                 Previous
@@ -161,6 +211,7 @@ export default function ApplicationsPage() {
                 size="sm"
                 disabled={page >= data.pagination.totalPages}
                 onClick={() => setPage((currentPage) => currentPage + 1)}
+                className="flex-1 sm:flex-none"
               >
                 Next
                 <ChevronRight className="h-4 w-4" />

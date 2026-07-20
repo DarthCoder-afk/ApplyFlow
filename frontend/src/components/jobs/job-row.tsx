@@ -52,6 +52,9 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
           {job.company}
           {job.location ? ` · ${job.location}` : ''}
         </p>
+        <p className="mt-1 text-xs text-slate-400">
+          {new Date(job.createdAt).toLocaleDateString()}
+        </p>
       </div>
 
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
@@ -112,6 +115,7 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
                   onClick={() => deleteMutation.mutate()}
                   className="bg-red-600 text-white hover:bg-red-700"
                 >
+                  <Trash2 className="h-4 w-4" />
                   {deleteMutation.isPending ? 'Deleting...' : 'Delete job'}
                 </AlertDialogAction>
               </AlertDialogFooter>

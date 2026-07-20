@@ -9,6 +9,8 @@ export async function getApplications(params?: {
   status?: ApplicationStatus;
   search?: string;
   page?: number;
+  fromDate?: string;
+  toDate?: string;
   limit?: number;
 }) {
   const query = new URLSearchParams();
@@ -16,6 +18,8 @@ export async function getApplications(params?: {
   if (params?.search) query.set('search', params.search);
   if (params?.page) query.set('page', String(params.page));
   if (params?.limit) query.set('limit', String(params.limit));
+  if (params?.fromDate) query.set('fromDate', params.fromDate);
+  if (params?.toDate) query.set('toDate', params.toDate);
 
   const qs = query.toString();
   return apiFetch<ApplicationsListResponse>(`/api/applications${qs ? `?${qs}` : ''}`);

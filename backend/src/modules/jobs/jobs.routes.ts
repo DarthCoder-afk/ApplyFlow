@@ -25,7 +25,7 @@ router.get('/sources', authenticate, (_req, res) => {
 router.get('/', authenticate, validate({ query: listJobsQuerySchema }), getAll);
 router.get('/:id', authenticate, validate({ params: jobIdParamSchema }), getOne);
 router.post('/', authenticate, validate({ body: createJobSchema }), create);
-router.put(
+router.patch(
   '/:id',
   authenticate,
   validate({ params: jobIdParamSchema, body: updateJobSchema }),

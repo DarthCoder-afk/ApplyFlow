@@ -35,7 +35,7 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
 
   const { data: jobsData, isLoading: jobsLoading } = useQuery({
     queryKey: ['jobs', 'for-application'],
-    queryFn: () => getJobs({ limit: 50 }),
+    queryFn: () => getJobs({ limit: 50, availableOnly:true }),
   });
 
   const {

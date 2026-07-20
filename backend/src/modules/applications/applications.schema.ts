@@ -25,6 +25,8 @@ export const listApplicationsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(10),
   sort: z.enum(['createdAt', 'updatedAt', 'appliedAt', 'status']).default('createdAt'),
   order: z.enum(['asc', 'desc']).default('desc'),
+  fromDate: z.string().date().optional(),
+  toDate: z.string().date().optional(),
 });
 
 export type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;
