@@ -36,6 +36,8 @@ jobs:
 
       - name: Generate Prisma client
         run: pnpm prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
 
       - name: Run tests
         run: pnpm test
