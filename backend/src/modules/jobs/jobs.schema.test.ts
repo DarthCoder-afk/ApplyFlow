@@ -1,4 +1,9 @@
-import { createJobSchema, jobIdParamSchema, listJobsQuerySchema, updateJobSchema } from './jobs.schema';
+import {
+  createJobSchema,
+  jobIdParamSchema,
+  listJobsQuerySchema,
+  updateJobSchema,
+} from './jobs.schema';
 
 describe('createJobSchema', () => {
   const validJob = {
@@ -48,6 +53,23 @@ describe('createJobSchema', () => {
     if (!result.success) {
       expect(result.error.issues.some((issue) => issue.path[0] === 'url')).toBe(true);
     }
+  });
+
+  it('removes unsafe HTML from stored text fields', () => {
+    const result = createJobSchema.parse({
+      ...validJob,
+      title: '<img src=x onerror=alert(1)>Frontend Developer',
+      description: 'Safe text<script>alert(1)</script>',
+    });
+
+    expect(result.title).toBe('Frontend Developer');
+    expect(result.description).toBe('Safe text');
+  });
+
+  it('rejects non-HTTP job URLs', () => {
+    expect(createJobSchema.safeParse({ ...validJob, url: 'javascript:alert(1)' }).success).toBe(
+      false
+    );
   });
 });
 

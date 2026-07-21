@@ -22,11 +22,15 @@ describe('createApplicationSchema', () => {
   });
 
   it('rejects an invalid status', () => {
-    expect(createApplicationSchema.safeParse({ jobId: 'job-123', status: 'PENDING' }).success).toBe(false);
+    expect(createApplicationSchema.safeParse({ jobId: 'job-123', status: 'PENDING' }).success).toBe(
+      false
+    );
   });
 
   it('rejects an invalid applied date', () => {
-    expect(createApplicationSchema.safeParse({ jobId: 'job-123', appliedAt: 'tomorrow' }).success).toBe(false);
+    expect(
+      createApplicationSchema.safeParse({ jobId: 'job-123', appliedAt: 'tomorrow' }).success
+    ).toBe(false);
   });
 });
 
@@ -37,6 +41,12 @@ describe('updateApplicationSchema', () => {
 
   it('rejects notes longer than 2,000 characters', () => {
     expect(updateApplicationSchema.safeParse({ notes: 'a'.repeat(2001) }).success).toBe(false);
+  });
+
+  it('removes unsafe HTML from notes', () => {
+    const result = updateApplicationSchema.parse({ notes: '<svg onload=alert(1)>Follow up' });
+
+    expect(result.notes).toBe('Follow up');
   });
 });
 
