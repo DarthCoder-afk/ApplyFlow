@@ -33,9 +33,18 @@ export default function LandingNavbar() {
           Job Tracker
         </Link>
 
-        <div className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
+        <div className="hidden items-center gap-6 text-sm font-medium text-slate-600 lg:flex">
           <a href="#features" className="transition hover:text-slate-950">
             Features
+          </a>
+          <a href="#dashboard" className="transition hover:text-slate-950">
+            Dashboard
+          </a>
+          <a href="#how-it-works" className="transition hover:text-slate-950">
+            How it works
+          </a>
+          <a href="#faq" className="transition hover:text-slate-950">
+            FAQ
           </a>
           <a href="#get-started" className="transition hover:text-slate-950">
             Get started

@@ -27,7 +27,7 @@ export default function JobDetailPage() {
         ← Back
       </Button>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="scrollbar-hidden max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:max-h-[calc(100dvh-8rem)]">
         <h1 className="text-2xl font-bold">{job.title}</h1>
         <p className="text-slate-600">
           {job.company}

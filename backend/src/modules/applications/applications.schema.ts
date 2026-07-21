@@ -1,17 +1,20 @@
 import { z } from 'zod';
 import { APPLICATION_STATUSES } from './applications.constants';
+import { sanitizePlainText } from '../../utils/sanitize';
+
+const plainText = () => z.string().trim().transform(sanitizePlainText);
 
 export const createApplicationSchema = z.object({
   jobId: z.string().min(1, 'jobId is required'),
   status: z.enum(APPLICATION_STATUSES).optional(),
   appliedAt: z.string().datetime().optional(),
-  notes: z.string().trim().max(2000).optional(),
+  notes: plainText().pipe(z.string().max(2000)).optional(),
 });
 
 export const updateApplicationSchema = z.object({
   status: z.enum(APPLICATION_STATUSES).optional(),
   appliedAt: z.string().datetime().optional(),
-  notes: z.string().trim().max(2000).optional(),
+  notes: plainText().pipe(z.string().max(2000)).optional(),
 });
 
 export const applicationIdParamSchema = z.object({
@@ -20,7 +23,7 @@ export const applicationIdParamSchema = z.object({
 
 export const listApplicationsQuerySchema = z.object({
   status: z.enum(APPLICATION_STATUSES).optional(),
-  search: z.string().trim().optional(),
+  search: plainText().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(10),
   sort: z.enum(['createdAt', 'updatedAt', 'appliedAt', 'status']).default('createdAt'),

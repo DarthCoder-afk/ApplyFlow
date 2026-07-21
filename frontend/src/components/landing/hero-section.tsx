@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Check, Sparkles } from 'lucide-react';
 import FadeUp from '../animations/fade-up';
-import FloatingCharacter from '../animations/floating-character';
 
 export default function HeroSection() {
   return (
