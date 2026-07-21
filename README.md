@@ -5,10 +5,11 @@ A full-stack job application tracker that helps you manage your job search in on
 ## Features
 
 - **Authentication** — Register, log in, and manage sessions with JWT access and refresh tokens
-- **Jobs** — Save job postings with title, company, location, source, URL, description, and notes
+- **Jobs** — Save job postings with title, company, location, source, URL, description, and notes; long descriptions stay contained in a scrollable detail card for easier reading
 - **Applications** — Link applications to jobs and track status through the pipeline (Saved → Applied → Interview → Offer, etc.)
 - **Dashboard** — View totals, active applications, status breakdown chart, and recent activity
 - **Search & filtering** — Search jobs and applications with loading skeletons for a smooth UX
+- **Unit testing** — Jest coverage for API routes, controllers, services, schemas, and utilities
 - **Landing page** — Marketing homepage with feature highlights and auth entry points
 
 ## Tech Stack
@@ -112,6 +113,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the app. Register an
 | `pnpm dev`    | Start API with hot reload      |
 | `pnpm build`  | Compile TypeScript to `dist/`  |
 | `pnpm start`  | Run compiled production build  |
+| `pnpm test`   | Run the Jest test suite        |
+| `pnpm test:watch` | Run tests in watch mode    |
 
 ### Frontend (`frontend/`)
 
