@@ -7,11 +7,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <AuthGuard>
       <SidebarProvider>
-        <div className="flex min-h-dvh w-full bg-slate-50 text-slate-900">
+        <div className="flex h-dvh w-full overflow-hidden bg-slate-50 text-slate-900">
           <AppSidebar />
-          <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
+          <div className="flex h-dvh min-w-0 flex-1 flex-col overflow-hidden">
             <DashboardHeader />
-            <main className="flex-1 overflow-auto p-6 md:p-8">{children}</main>
+            <main className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
+              {children}
+            </main>
           </div>
         </div>
       </SidebarProvider>

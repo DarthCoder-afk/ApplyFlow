@@ -126,7 +126,7 @@ export default function AppSidebar() {
       </aside>
 
       {/* Desktop sidebar — full viewport height */}
-      <aside className="hidden h-dvh w-64 shrink-0 flex-col bg-slate-950 lg:flex">
+      <aside className="hidden h-full w-64 shrink-0 flex-col overflow-hidden bg-slate-950 lg:flex">
         <SidebarContent />
       </aside>
     </>
