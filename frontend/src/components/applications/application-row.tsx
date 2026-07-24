@@ -1,11 +1,26 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteApplication, updateApplication } from '@/lib/api/applications';
-import { APPLICATION_STATUSES, APPLICATION_STATUS_LABELS } from '@/lib/validation/application';
-import type { Application, ApplicationStatus } from '@/lib/types/application';
-import { Button } from '@/src/components/ui/button';
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  CalendarDays,
+  Ellipsis,
+  ListRestart,
+  StickyNote,
+  Trash2,
+  X,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { deleteApplication, updateApplication } from '@/lib/api/applications';
+import {
+  APPLICATION_STATUSES,
+  APPLICATION_STATUS_LABELS,
+} from '@/lib/validation/application';
+import type {
+  Application,
+  ApplicationStatus,
+} from '@/lib/types/application';
+import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import {
   Select,
@@ -14,8 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
-import { Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,19 +38,37 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/src/components/ui/alert-dialog';
-import { Trash } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/src/components/ui/dropdown-menu';
+import StatusBadge from './status-badge';
+import InterviewPanel from '../interviews/interview-panel';
 
 type ApplicationRowProps = {
   application: Application;
 };
 
-export default function ApplicationRow({ application }: ApplicationRowProps) {
+export default function ApplicationRow({
+  application,
+}: ApplicationRowProps) {
   const queryClient = useQueryClient();
-  const [editingNotes, setEditingNotes] = useState(false);
-  const [notes, setNotes] = useState(application.notes ?? '');
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [interviewsOpen, setInterviewsOpen] = useState(false);
+  const [notes, setNotes] = useState(application.notes ?? '');
+  const [selectedStatus, setSelectedStatus] =
+    useState<ApplicationStatus>(application.status);
+
+  const interviewCount = application._count?.interviews ?? 0;
+  const canManageInterviews = application.status === 'INTERVIEW';
+  const canViewInterviewHistory =
+    !canManageInterviews && interviewCount > 0;
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['applications'] });
@@ -46,24 +77,36 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
 
   const notesMutation = useMutation({
     mutationFn: (newNotes: string) =>
-      updateApplication(application.id, { notes: newNotes || undefined }),
+      updateApplication(application.id, {
+        notes: newNotes,
+      }),
     onSuccess: () => {
       invalidate();
-      setEditingNotes(false);
+      setNotesOpen(false);
       toast.success('Notes updated');
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : 'Could not update notes'),
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Could not update notes'
+      ),
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (status: ApplicationStatus) => updateApplication(application.id, { status }),
+  const statusMutation = useMutation({
+    mutationFn: (status: ApplicationStatus) =>
+      updateApplication(application.id, { status }),
     onSuccess: () => {
       invalidate();
+      setStatusOpen(false);
       toast.success('Application status updated');
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : 'Could not update status'),
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Could not update status'
+      ),
   });
 
   const deleteMutation = useMutation({
@@ -74,116 +117,333 @@ export default function ApplicationRow({ application }: ApplicationRowProps) {
       toast.success('Application deleted');
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : 'Could not delete application'),
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Could not delete application'
+      ),
   });
 
+  function openNotes() {
+    setNotes(application.notes ?? '');
+    setNotesOpen(true);
+  }
+
+  function openStatus() {
+    setSelectedStatus(application.status);
+    setStatusOpen(true);
+  }
+
   return (
-    <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <li className="flex items-start gap-4 p-4 sm:items-center">
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-slate-900">{application.job.title}</p>
-        <p className="text-sm text-slate-500">{application.job.company}</p>
-        <p className="mt-1 text-xs text-slate-400">
-          Applied {new Date(application.appliedAt ?? application.createdAt).toLocaleDateString()}
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="font-medium text-slate-900">
+            {application.job.title}
+          </p>
+          <StatusBadge status={application.status} />
+        </div>
+
+        <p className="text-sm text-slate-500">
+          {application.job.company}
         </p>
-        {editingNotes ? (
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Input
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add notes..."
-              className="h-8 max-w-xs text-sm"
-              disabled={notesMutation.isPending}
-            />
-            <Button
-              type="button"
-              size="sm"
-              disabled={notesMutation.isPending}
-              onClick={() => notesMutation.mutate(notes)}
-            >
-              {notesMutation.isPending ? 'Saving...' : 'Save'}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              disabled={notesMutation.isPending}
-              onClick={() => {
-                setNotes(application.notes ?? '');
-                setEditingNotes(false);
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setEditingNotes(true)}
-            className="mt-1 text-left text-xs text-slate-500 hover:text-slate-700"
-          >
-            {application.notes ? application.notes : '+ Add notes'}
-          </button>
+
+        <p className="mt-1 text-xs text-slate-400">
+          Applied{' '}
+          {new Date(
+            application.appliedAt ?? application.createdAt
+          ).toLocaleDateString()}
+        </p>
+
+        {application.notes && (
+          <p className="mt-2 line-clamp-1 text-xs text-slate-500">
+            {application.notes}
+          </p>
         )}
       </div>
 
-      <div className="flex w-full items-center gap-2 sm:w-auto">
-        <Select
-          value={application.status}
-          disabled={updateMutation.isPending}
-          onValueChange={(value) => updateMutation.mutate(value as ApplicationStatus)}
-        >
-          <SelectTrigger
-            className="h-11 w-full flex-1 rounded-xl border-slate-200 bg-slate-50 shadow-none sm:h-9 sm:w-[180px] sm:flex-none"
-            aria-label="Application status"
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 w-9 shrink-0 p-0"
+            aria-label={`Actions for ${application.job.title}`}
           >
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent position="popper" align="start">
-            {APPLICATION_STATUSES.map((status) => (
-              <SelectItem key={status} value={status}>
-                {APPLICATION_STATUS_LABELS[status]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            <Ellipsis className="h-5 w-5" />
+          </Button>
+        </DropdownMenuTrigger>
 
-        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={openStatus}>
+            <ListRestart className="h-4 w-4" />
+            Change status
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onSelect={openNotes}>
+            <StickyNote className="h-4 w-4" />
+            {application.notes ? 'Edit notes' : 'Add notes'}
+          </DropdownMenuItem>
+
+          {(canManageInterviews || canViewInterviewHistory) && (
+            <DropdownMenuItem
+              onSelect={() => setInterviewsOpen(true)}
+            >
+              <CalendarDays className="h-4 w-4" />
+              {canManageInterviews
+                ? 'Interview stages'
+                : `Stage history (${interviewCount})`}
+            </DropdownMenuItem>
+          )}
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            onSelect={() => setDeleteOpen(true)}
+            className="text-red-600 focus:bg-red-50 focus:text-red-700"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete application
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {statusOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close status dialog"
+            onClick={() => setStatusOpen(false)}
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+          />
+
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`status-title-${application.id}`}
+            className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  id={`status-title-${application.id}`}
+                  className="text-xl font-semibold text-slate-950"
+                >
+                  Change status
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {application.job.title} · {application.job.company}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatusOpen(false)}
+                className="h-9 w-9 shrink-0 p-0"
+                aria-label="Close status dialog"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="mt-5">
+              <Select
+                value={selectedStatus}
+                onValueChange={(status) =>
+                  setSelectedStatus(status as ApplicationStatus)
+                }
+              >
+                <SelectTrigger className="h-11 w-full">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  {APPLICATION_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {APPLICATION_STATUS_LABELS[status]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={statusMutation.isPending}
+                onClick={() => setStatusOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={
+                  statusMutation.isPending ||
+                  selectedStatus === application.status
+                }
+                onClick={() => statusMutation.mutate(selectedStatus)}
+                className="bg-slate-950 text-white hover:bg-slate-800"
+              >
+                {statusMutation.isPending ? 'Saving...' : 'Save status'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {notesOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close notes dialog"
+            onClick={() => setNotesOpen(false)}
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+          />
+
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`notes-title-${application.id}`}
+            className="relative z-10 w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  id={`notes-title-${application.id}`}
+                  className="text-xl font-semibold text-slate-950"
+                >
+                  Application notes
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {application.job.title} · {application.job.company}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setNotesOpen(false)}
+                className="h-9 w-9 shrink-0 p-0"
+                aria-label="Close notes dialog"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <Input
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Follow-up details, recruiter name, reminders..."
+              className="mt-5 h-11"
+              disabled={notesMutation.isPending}
+              maxLength={2000}
+            />
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={notesMutation.isPending}
+                onClick={() => setNotesOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={notesMutation.isPending}
+                onClick={() => notesMutation.mutate(notes)}
+                className="bg-slate-950 text-white hover:bg-slate-800"
+              >
+                {notesMutation.isPending ? 'Saving...' : 'Save notes'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete this application?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the application for “
+              {application.job.title}” and all of its interview stages.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
               disabled={deleteMutation.isPending}
-              aria-label={`Delete ${application.job.title}`}
-              className="h-11 shrink-0 border-red-200 px-3 text-red-600 hover:bg-red-50 sm:h-9 sm:px-2"
+              onClick={() => deleteMutation.mutate()}
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
+              {deleteMutation.isPending
+                ? 'Deleting...'
+                : 'Delete application'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete this application?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently remove the application for “{application.job.title}”.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
+      {interviewsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close interview stages"
+            onClick={() => setInterviewsOpen(false)}
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+          />
 
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`interviews-title-${application.id}`}
+            className="relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+          >
+            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-6 py-5">
+              <div className="min-w-0">
+                <p
+                  id={`interviews-title-${application.id}`}
+                  className="truncate font-semibold text-slate-950"
+                >
+                  {application.job.title}
+                </p>
+                <p className="truncate text-sm text-slate-500">
+                  {application.job.company}
+                </p>
+              </div>
 
-              <AlertDialogAction
-                disabled={deleteMutation.isPending}
-                onClick={() => deleteMutation.mutate()}
-                className="bg-red-600 text-white hover:bg-red-700"
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setInterviewsOpen(false)}
+                className="h-9 w-9 shrink-0 p-0 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                aria-label="Close interview stages"
               >
-                 <Trash2 className="h-4 w-4" />
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete application'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="overflow-y-auto p-6">
+              <InterviewPanel
+                applicationId={application.id}
+                readOnly={!canManageInterviews}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </li>
   );
 }
