@@ -1,13 +1,25 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
+import {
+  CalendarCheck2,
+  MessageCircleReply,
+  Send,
+  TrendingUp,
+} from 'lucide-react';
 import { getCurrentUser, getDashboardStats } from '@/lib/api/dashboard';
-import StatCard from '@/src/components/dashboard/stat-card';
-import StatusChart from '@/src/components/dashboard/stat-chart';
 import DashboardSkeleton from '@/src/components/dashboard/dashboard-skeleton';
-import { motion } from 'framer-motion';
+import DashboardSummary from '@/src/components/dashboard/dashboard-summary';
+import MetricCard from '@/src/components/dashboard/metric-card';
+import GoalProgress from '@/src/components/dashboard/goal-progress';
+import ApplicationFunnel from '@/src/components/dashboard/application-funnel';
+import WeeklyActivityChart from '@/src/components/dashboard/weekly-activity-chart';
+import SourcePerformance from '@/src/components/dashboard/source-performance';
+import PriorityList from '@/src/components/dashboard/priority-list';
+import UpcomingInterviews from '@/src/components/dashboard/upcoming-interviews';
+import InsightsPanel from '@/src/components/dashboard/insights-panel';
+import ActivityTimeline from '@/src/components/dashboard/activity-timeline';
+import DashboardEmptyState from '@/src/components/dashboard/dashboard-empty-state';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useQuery({
@@ -19,84 +31,84 @@ export default function DashboardPage() {
     queryFn: getCurrentUser,
   });
 
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
+  if (isLoading) return <DashboardSkeleton />;
 
   if (error || !data) {
-    return <p className="text-red-600">Could not load dashboard stats.</p>;
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        Could not load dashboard insights. Please refresh and try again.
+      </div>
+    );
   }
 
-  return (
-    <div className="space-y-8">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-800 to-slate-700 px-6 py-7 text-white shadow-lg sm:px-8 sm:py-8">
-        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 right-1/3 h-52 w-52 rounded-full bg-violet-400/15 blur-3xl" />
-
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-sm">
-              <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-              Your career workspace
-            </div>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Welcome back{user?.name ? `, ${user.name}` : ''}.
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-slate-300 sm:text-base">
-              Keep your momentum going—every application moves you closer to the right role.
-            </p>
-          </div>
-        </div>
+  if (data.totals.totalApplications === 0) {
+    return (
+      <div className="space-y-6">
+        <DashboardSummary name={user?.name} summary={data.summary} />
+        <DashboardEmptyState />
       </div>
+    );
+  }
+
+  const monthDifference =
+    data.summary.applicationsThisMonth -
+    data.summary.previousMonthApplications;
+
+  return (
+    <div className="space-y-6">
+      <DashboardSummary name={user?.name} summary={data.summary} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total jobs" value={data.totalJobs} delay={0} />
-        <StatCard
-          label="Applications"
-          value={data.totalApplications}
-          delay={100}
-          accent="text-[#212529]"
+        <MetricCard
+          label="Applications this month"
+          value={data.summary.applicationsThisMonth}
+          detail={`${monthDifference >= 0 ? '+' : ''}${monthDifference} compared with last month`}
+          icon={Send}
         />
-        <StatCard
-          label="Active"
-          value={data.activeApplications}
-          delay={200}
-          accent="text-[#212529]"
+        <MetricCard
+          label="Response rate"
+          value={`${data.summary.responseRate}%`}
+          detail="Submitted applications that reached interview or offer"
+          icon={MessageCircleReply}
         />
-        <StatCard
-          label="Interviews"
-          value={data.applicationsByStatus.INTERVIEW}
-          delay={300}
-          accent="text-[#212529]"
+        <MetricCard
+          label="Interview rate"
+          value={`${data.summary.interviewRate}%`}
+          detail={`${data.summary.interviewApplications} interviews from ${data.summary.submittedApplications} submitted applications`}
+          icon={TrendingUp}
+        />
+        <MetricCard
+          label="Pending follow-ups"
+          value={data.summary.pendingFollowUps}
+          detail={
+            data.summary.pendingFollowUps
+              ? `Oldest has waited ${data.summary.oldestWaitingDays} days`
+              : 'No applications older than 7 days'
+          }
+          icon={CalendarCheck2}
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <StatusChart data={data.applicationsByStatus} />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,0.8fr)]">
+        <div className="space-y-6">
+          <GoalProgress goal={data.goal} />
+          <div className="grid gap-6 2xl:grid-cols-2">
+            <ApplicationFunnel
+              funnel={data.funnel}
+              rates={data.funnelRates}
+              supporting={data.supportingStatuses}
+            />
+            <WeeklyActivityChart data={data.weeklyActivity} />
+          </div>
+          <SourcePerformance sources={data.sourcePerformance} />
+          <InsightsPanel insights={data.insights} />
+          <ActivityTimeline activity={data.recentActivity} />
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="rounded-2xl border border-[#dee2e6] bg-white p-5 shadow-sm"
-        >
-          <h2 className="mb-4 text-lg font-semibold">Recent activity</h2>
-          <ul className="space-y-3">
-            {data.recentApplications.length === 0 ? (
-              <li className="text-sm text-[#6c757d]">No applications yet.</li>
-            ) : (
-              data.recentApplications.map((app) => (
-                <li key={app.id} className="rounded-xl border border-[#dee2e6] bg-[#f8f9fa] p-3">
-                  <p className="font-medium">{app.job.title}</p>
-                  <p className="text-sm text-[#6c757d]">{app.job.company}</p>
-                  <p className="mt-1 text-xs text-[#212529]">{app.status}</p>
-                </li>
-              ))
-            )}
-          </ul>
-        </motion.div>
+        <aside className="space-y-6">
+          <PriorityList priorities={data.priorities} />
+          <UpcomingInterviews interviews={data.upcomingInterviews} />
+        </aside>
       </div>
     </div>
   );
