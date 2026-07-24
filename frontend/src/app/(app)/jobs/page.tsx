@@ -9,7 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/ca
 import { useState } from 'react';
 import { Job, JobSource } from '@/lib/types/job';
 import { Input } from '@/src/components/ui/input';
-import { BriefcaseBusiness, ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react';
+import {
+  BriefcaseBusiness,
+  ChevronLeft,
+  ChevronRight,
+  ListFilter,
+  Plus,
+  Search,
+} from 'lucide-react';
 import ListSkeleton from '@/src/components/ui/list-skeleton';
 import { keepPreviousData } from '@tanstack/react-query';
 import { JOB_SOURCE_LABELS, JOB_SOURCES } from '@/lib/validation/job';
@@ -20,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
+import JobSourceIcon from '@/src/components/jobs/job-source-icon';
 
 export default function JobsPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -111,9 +119,16 @@ export default function JobsPage() {
               <SelectValue placeholder="Filter by source" />
             </SelectTrigger>
             <SelectContent position="popper" align="end">
-              <SelectItem value="ALL">All sources</SelectItem>
+              <SelectItem value="ALL">
+                <ListFilter className="h-4 w-4 text-slate-500" />
+                All sources
+              </SelectItem>
               {JOB_SOURCES.map((source) => (
                 <SelectItem key={source} value={source}>
+                  <JobSourceIcon
+                    source={source}
+                    className="h-4 w-4"
+                  />
                   {JOB_SOURCE_LABELS[source]}
                 </SelectItem>
               ))}

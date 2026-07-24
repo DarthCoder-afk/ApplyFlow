@@ -9,7 +9,14 @@ import { Button } from '@/src/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import type { ApplicationStatus } from '@/lib/types/application';
 import { Input } from '@/src/components/ui/input';
-import { ChevronLeft, ChevronRight, ClipboardList, Plus, Search } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  ListFilter,
+  Plus,
+  Search,
+} from 'lucide-react';
 import ListSkeleton from '@/src/components/ui/list-skeleton';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
@@ -19,6 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
+import {
+  APPLICATION_STATUSES,
+  APPLICATION_STATUS_LABELS,
+} from '@/lib/validation/application';
+import ApplicationStatusIcon from '@/src/components/applications/application-status-icon';
 
 export default function ApplicationsPage() {
   const [showForm, setShowForm] = useState(false);
@@ -96,10 +108,16 @@ export default function ApplicationsPage() {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent position="popper" align="end">
-              <SelectItem value="ALL">All statuses</SelectItem>
-              <SelectItem value="APPLIED">Applied</SelectItem>
-              <SelectItem value="INTERVIEW">Interview</SelectItem>
-              <SelectItem value="OFFER">Offer</SelectItem>
+              <SelectItem value="ALL">
+                <ListFilter className="h-4 w-4 text-slate-500" />
+                All statuses
+              </SelectItem>
+              {APPLICATION_STATUSES.map((status) => (
+                <SelectItem key={status} value={status}>
+                  <ApplicationStatusIcon status={status} />
+                  {APPLICATION_STATUS_LABELS[status]}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 

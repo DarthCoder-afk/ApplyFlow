@@ -25,6 +25,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/src/components/ui/dropdown-menu';
+import { JOB_SOURCE_LABELS } from '@/lib/validation/job';
+import JobSourceIcon, {
+  JOB_SOURCE_BADGE_STYLES,
+} from './job-source-icon';
+import { cn } from '@/lib/utils';
 
 type JobRowProps = {
   job: Job;
@@ -55,8 +60,17 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
         <div className="flex flex-wrap items-center gap-2">
           <p className="font-medium text-slate-900">{job.title}</p>
           {job.source && (
-            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-              {job.source.replace('_', ' ')}
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium',
+                JOB_SOURCE_BADGE_STYLES[job.source]
+              )}
+            >
+              <JobSourceIcon
+                source={job.source}
+                className="mr-1.5 h-3.5 w-3.5 text-current"
+              />
+              {JOB_SOURCE_LABELS[job.source]}
             </span>
           )}
         </div>

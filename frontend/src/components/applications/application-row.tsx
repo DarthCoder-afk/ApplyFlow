@@ -47,6 +47,7 @@ import {
   DropdownMenuTrigger,
 } from '@/src/components/ui/dropdown-menu';
 import StatusBadge from './status-badge';
+import ApplicationStatusIcon from './application-status-icon';
 import InterviewPanel from '../interviews/interview-panel';
 
 type ApplicationRowProps = {
@@ -260,11 +261,14 @@ export default function ApplicationRow({
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  {APPLICATION_STATUSES.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {APPLICATION_STATUS_LABELS[status]}
-                    </SelectItem>
-                  ))}
+                  {APPLICATION_STATUSES.map((status) => {
+                    return (
+                      <SelectItem key={status} value={status}>
+                        <ApplicationStatusIcon status={status} />
+                        {APPLICATION_STATUS_LABELS[status]}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>

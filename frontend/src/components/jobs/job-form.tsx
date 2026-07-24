@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createJob, updateJob } from '@/lib/api/jobs';
-import type { Job, JobSource } from '@/lib/types/job';
+import type { Job } from '@/lib/types/job';
 import {
   createJobSchema,
   type CreateJobFormValues,
@@ -24,6 +24,7 @@ import {
 } from '@/src/components/ui/select';
 import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
+import JobSourceIcon from './job-source-icon';
 
 type JobFormProps = {
   job?: Job;
@@ -115,6 +116,10 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
                 <SelectContent position="popper" align="start">
                   {JOB_SOURCES.map((source) => (
                     <SelectItem key={source} value={source}>
+                      <JobSourceIcon
+                        source={source}
+                        className="h-4 w-4"
+                      />
                       {JOB_SOURCE_LABELS[source]}
                     </SelectItem>
                   ))}
