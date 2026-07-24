@@ -49,6 +49,13 @@ enum JobSource {
   OTHER
 }
 
+enum JobPriority {
+  HIGH
+  MEDIUM
+  LOW
+  NONE
+}
+
 model Job {
   id           String        @id @default(cuid())
   title        String
@@ -58,12 +65,15 @@ model Job {
   description  String? // job posting text
   notes        String? // your personal notes (optional)
   source       JobSource?
+  priority     JobPriority   @default(NONE)
+  deadline     DateTime?
   userId       String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications Application[]
 
+  @@index([userId, priority])
   @@map("jobs")
 }
 
