@@ -28,6 +28,7 @@ export async function getApplications(params?: {
 export async function createApplication(payload: {
   jobId: string;
   status?: ApplicationStatus;
+  appliedAt?: string;
   notes?: string;
 }) {
   return apiFetch<{ message: string; application: Application }>('/api/applications', {

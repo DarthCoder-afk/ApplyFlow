@@ -20,6 +20,14 @@ export const JOB_SOURCE_LABELS: Record<(typeof JOB_SOURCES)[number], string> = {
   OTHER: 'Other',
 };
 
+export const JOB_PRIORITIES = ['HIGH', 'MEDIUM', 'LOW', 'NONE'] as const;
+export const JOB_PRIORITY_LABELS: Record<(typeof JOB_PRIORITIES)[number], string> = {
+  HIGH: 'High',
+  MEDIUM: 'Medium',
+  LOW: 'Low',
+  NONE: 'None',
+};
+
 export const createJobSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(120),
   company: z.string().trim().min(1, 'Company is required').max(120),
@@ -32,6 +40,8 @@ export const createJobSchema = z.object({
   url: z.string().trim().min(1, 'URL is required').url('Enter a valid URL'),
   source: z.enum(JOB_SOURCES),
   notes: z.string().trim().max(1000).optional(),
+  priority: z.enum(JOB_PRIORITIES),
+  deadline: z.string().optional(),
 });
 
 export type CreateJobFormValues = z.infer<typeof createJobSchema>;

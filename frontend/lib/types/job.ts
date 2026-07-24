@@ -7,6 +7,8 @@ export type JobSource =
   | 'REFERRAL'
   | 'OTHER';
 
+export type JobPriority = 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+
 export type Job = {
   id: string;
   title: string;
@@ -16,13 +18,27 @@ export type Job = {
   description: string | null;
   notes: string | null;
   source: JobSource | null;
+  priority: JobPriority;
+  deadline: string | null;
   createdAt: string;
   updatedAt: string;
+  applications: Array<{
+    id: string;
+    status: string;
+    appliedAt: string | null;
+  }>;
+  possibleDuplicate?: boolean;
 };
 
 export type JobsListResponse = {
   count: number;
   jobs: Job[];
+  summary: {
+    all: number;
+    highPriority: number;
+    hasApplication: number;
+    closingSoon: number;
+  };
   pagination: {
     page: number;
     limit: number;

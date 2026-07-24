@@ -4,10 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteJob } from '@/lib/api/jobs';
 import type { Job } from '@/lib/types/job';
 import { Button } from '@/src/components/ui/button';
-import { Ellipsis, Eye, Pencil, Trash2 } from 'lucide-react';
+import { CheckCircle2, Ellipsis, Eye, Pencil, Send, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,20 +25,25 @@ import {
   DropdownMenuTrigger,
 } from '@/src/components/ui/dropdown-menu';
 import { JOB_SOURCE_LABELS } from '@/lib/validation/job';
-import JobSourceIcon, {
-  JOB_SOURCE_BADGE_STYLES,
-} from './job-source-icon';
-import { cn } from '@/lib/utils';
+import JobSourceIcon from './job-source-icon';
+import {
+  getDeadlineState,
+  getJobAgeLabel,
+  isJobStale,
+} from '@/lib/job-opportunity';
 
 type JobRowProps = {
   job: Job;
   onEdit: (job: Job) => void;
+  onView: (job: Job) => void;
+  onMarkApplied: (job: Job) => void;
 };
 
-export default function JobRow({ job, onEdit }: JobRowProps) {
-  const router = useRouter();
+export default function JobRow({ job, onEdit, onView, onMarkApplied }: JobRowProps) {
   const queryClient = useQueryClient();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const linkedApplication = job.applications[0];
+  const deadline = getDeadlineState(job.deadline);
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteJob(job.id),
@@ -55,33 +59,38 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
   });
 
   return (
-    <li className="flex items-center gap-4 p-4">
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium text-slate-900">{job.title}</p>
-          {job.source && (
-            <span
-              className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium',
-                JOB_SOURCE_BADGE_STYLES[job.source]
-              )}
-            >
-              <JobSourceIcon
-                source={job.source}
-                className="mr-1.5 h-3.5 w-3.5 text-current"
-              />
-              {JOB_SOURCE_LABELS[job.source]}
-            </span>
-          )}
-        </div>
+    <li className="flex items-center gap-3 px-4 py-4 sm:px-5">
+      <button type="button" onClick={() => onView(job)} className="min-w-0 flex-1 text-left">
+        <p className="truncate font-medium text-slate-900">{job.title}</p>
         <p className="text-sm text-slate-500">
           {job.company}
           {job.location ? ` · ${job.location}` : ''}
         </p>
-        <p className="mt-1 text-xs text-slate-400">
-          {new Date(job.createdAt).toLocaleDateString()}
+        <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+          {job.source && (
+            <>
+              <JobSourceIcon source={job.source} className="h-3.5 w-3.5" />
+              <span>{JOB_SOURCE_LABELS[job.source]}</span>
+              <span>·</span>
+            </>
+          )}
+          <span>{getJobAgeLabel(job.createdAt)}</span>
+          {isJobStale(job) && <span className="text-amber-700">· Verify availability</span>}
         </p>
-      </div>
+        <div className="mt-2 flex min-h-6 flex-wrap items-center gap-2">
+          {job.priority === 'HIGH' ? (
+            <span className="text-xs font-medium text-red-700">High priority</span>
+          ) : linkedApplication ? (
+            <span className="inline-flex items-center gap-1 text-xs text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5" />Linked application
+            </span>
+          ) : deadline && (deadline.closed || deadline.closingSoon) ? (
+            <span className="text-xs font-medium text-amber-700">
+              {deadline.label}
+            </span>
+          ) : null}
+        </div>
+      </button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -98,7 +107,7 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
 
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            onSelect={() => router.push(`/jobs/${job.id}`)}
+            onSelect={() => onView(job)}
           >
             <Eye className="h-4 w-4" />
             View job
@@ -108,6 +117,13 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
             <Pencil className="h-4 w-4" />
             Edit job
           </DropdownMenuItem>
+
+          {!linkedApplication && (
+            <DropdownMenuItem onSelect={() => onMarkApplied(job)}>
+              <Send className="h-4 w-4" />
+              Mark as applied
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
 

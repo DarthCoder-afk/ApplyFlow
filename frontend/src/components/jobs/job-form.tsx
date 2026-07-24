@@ -11,6 +11,8 @@ import {
   type CreateJobFormValues,
   JOB_SOURCES,
   JOB_SOURCE_LABELS,
+  JOB_PRIORITIES,
+  JOB_PRIORITY_LABELS,
 } from '@/lib/validation/job';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
@@ -40,6 +42,8 @@ function toFormValues(job?: Job): CreateJobFormValues {
     url: job?.jobUrl ?? '',
     source: job?.source ?? 'LINKEDIN',
     notes: job?.notes ?? '',
+    priority: job?.priority ?? 'NONE',
+    deadline: job?.deadline ? job.deadline.slice(0, 10) : '',
   };
 }
 
@@ -52,6 +56,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
     register,
     control,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<CreateJobFormValues>({
     resolver: zodResolver(createJobSchema),
@@ -59,8 +64,13 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
   });
 
   const mutation = useMutation({
-    mutationFn: (values: CreateJobFormValues) =>
-      isEdit && job ? updateJob(job.id, values) : createJob(values),
+    mutationFn: (values: CreateJobFormValues & { allowDuplicate?: boolean }) => {
+      const payload = {
+        ...values,
+        deadline: values.deadline || null,
+      };
+      return isEdit && job ? updateJob(job.id, payload) : createJob(payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       queryClient.invalidateQueries({ queryKey: ['applications'] });
@@ -70,7 +80,13 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       onSuccess?.();
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : 'Something went wrong');
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      setError(
+        message === 'Possible duplicate job'
+          ? 'A job with the same URL or company and title may already exist.'
+          : message
+      );
+      toast.error(message);
     },
   });
 
@@ -93,6 +109,32 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
           <Label htmlFor="company">Company</Label>
           <Input id="company" placeholder="Acme Co" {...register('company')} />
           {errors.company && <p className="text-sm text-red-600">{errors.company.message}</p>}
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label>Priority</Label>
+          <Controller
+            name="priority"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+                <SelectContent position="popper">
+                  {JOB_PRIORITIES.map((priority) => (
+                    <SelectItem key={priority} value={priority}>
+                      {JOB_PRIORITY_LABELS[priority]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="deadline">Deadline</Label>
+          <Input id="deadline" type="date" {...register('deadline')} />
         </div>
       </div>
 
@@ -156,9 +198,20 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </p>
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <p>{error}</p>
+          {error.includes('may already exist') && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => mutation.mutate({ ...getValues(), allowDuplicate: true })}
+            >
+              Save anyway
+            </Button>
+          )}
+        </div>
       )}
 
       <div className="flex justify-end">
