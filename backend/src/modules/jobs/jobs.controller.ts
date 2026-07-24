@@ -5,7 +5,10 @@ import { ListJobsQuery, listJobsQuerySchema } from './jobs.schema';
 
 export async function create(req: Request, res: Response) {
   try {
-    const { title, company, location, url, description, notes, source } = req.body;
+    const {
+      title, company, location, url, description, notes, source,
+      priority, deadline, allowDuplicate,
+    } = req.body;
 
     if (!req.userId) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -19,6 +22,9 @@ export async function create(req: Request, res: Response) {
       description,
       notes,
       source,
+      priority,
+      deadline,
+      allowDuplicate,
       userId: req.userId,
     });
 
@@ -27,6 +33,12 @@ export async function create(req: Request, res: Response) {
       job,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'POSSIBLE_DUPLICATE') {
+      return res.status(409).json({
+        message: 'Possible duplicate job',
+        code: 'POSSIBLE_DUPLICATE',
+      });
+    }
     console.error('Create job error:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
@@ -38,13 +50,20 @@ export async function getAll(req: Request, res: Response) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    const { sort, order, search, source, page, limit, availableOnly, fromDate, toDate } = req.validatedQuery as ListJobsQuery;
+    const {
+      sort, order, search, location, source, priority, hasApplication,
+      closingSoon, page, limit, availableOnly, fromDate, toDate,
+    } = req.validatedQuery as ListJobsQuery;
 
 
     const result = await getJobsByUser({
       userId: req.userId,
       search,
+      location,
       source,
+      priority,
+      hasApplication,
+      closingSoon,
       page,
       limit,
       sort,
@@ -57,6 +76,7 @@ export async function getAll(req: Request, res: Response) {
     return res.status(200).json({
       count: result.jobs.length,
       jobs: result.jobs,
+      summary: result.summary,
       pagination: result.pagination,
     });
   } catch (error) {
@@ -88,7 +108,10 @@ export async function update(req: Request, res: Response) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
     const { id } = req.params;
-    const { title, company, location, url, description, notes, source } = req.body;
+    const {
+      title, company, location, url, description, notes, source,
+      priority, deadline, allowDuplicate,
+    } = req.body;
     if (source && !JOB_SOURCES.includes(source)) {
       return res.status(400).json({
         message: 'Invalid source',
@@ -103,6 +126,9 @@ export async function update(req: Request, res: Response) {
       description,
       notes,
       source,
+      priority,
+      deadline,
+      allowDuplicate,
       userId: req.userId,
     });
     if (!job) {
@@ -113,6 +139,12 @@ export async function update(req: Request, res: Response) {
       job,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'POSSIBLE_DUPLICATE') {
+      return res.status(409).json({
+        message: 'Possible duplicate job',
+        code: 'POSSIBLE_DUPLICATE',
+      });
+    }
     console.error('Update job error:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }

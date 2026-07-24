@@ -86,6 +86,16 @@ describe('listJobsQuerySchema', () => {
   it('rejects a limit greater than 50', () => {
     expect(listJobsQuerySchema.safeParse({ limit: '51' }).success).toBe(false);
   });
+
+  it('accepts a high-priority filter', () => {
+    expect(
+      listJobsQuerySchema.parse({
+        priority: 'HIGH',
+      })
+    ).toMatchObject({
+      priority: 'HIGH',
+    });
+  });
 });
 
 describe('updateJobSchema', () => {

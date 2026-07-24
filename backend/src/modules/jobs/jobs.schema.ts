@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { JOB_SOURCES } from './jobs.constants';
+import {
+  JOB_PRIORITIES,
+  JOB_SOURCES,
+} from './jobs.constants';
 import { isSafeExternalUrl, sanitizePlainText } from '../../utils/sanitize';
 
 const plainText = () => z.string().trim().transform(sanitizePlainText);
@@ -22,6 +25,9 @@ export const createJobSchema = z.object({
     .refine(isSafeExternalUrl, { message: 'URL must use HTTP or HTTPS' }),
   source: z.enum(JOB_SOURCES),
   notes: plainText().pipe(z.string().max(1000)).optional(),
+  priority: z.enum(JOB_PRIORITIES).optional(),
+  deadline: z.union([z.string().date(), z.string().datetime()]).nullable().optional(),
+  allowDuplicate: z.boolean().optional(),
 });
 
 export const updateJobSchema = createJobSchema.partial();
@@ -32,11 +38,15 @@ export const jobIdParamSchema = z.object({
 
 export const listJobsQuerySchema = z.object({
   search: plainText().optional(),
+  location: plainText().optional(),
   source: z.enum(JOB_SOURCES).optional(),
+  priority: z.enum(JOB_PRIORITIES).optional(),
+  hasApplication: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
+  closingSoon: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
   availableOnly: z.coerce.boolean().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(10),
-  sort: z.enum(['createdAt', 'updatedAt', 'title', 'company']).default('createdAt'),
+  sort: z.enum(['createdAt', 'updatedAt', 'title', 'company', 'priority', 'deadline']).default('createdAt'),
   order: z.enum(['asc', 'desc']).default('desc'),
   fromDate: z.string().date().optional(),
   toDate: z.string().date().optional(),
