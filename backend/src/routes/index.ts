@@ -4,6 +4,7 @@ import authRoutes from '../modules/auth/auth.routes';
 import jobsRoutes from '../modules/jobs/jobs.routes';
 import applicationsRoutes from '../modules/applications/applications.route';
 import dashboardRoutes from '../modules/dashboard/dashboard.route';
+import calendarRoutes from '../modules/calendar/calendar.routes';
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.use('/auth', authRoutes);
 router.use('/jobs', jobsRoutes);
 router.use('/applications', applicationsRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/calendar', calendarRoutes);
 
 export default router;

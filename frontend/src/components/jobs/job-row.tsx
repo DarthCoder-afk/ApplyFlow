@@ -4,9 +4,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteJob } from '@/lib/api/jobs';
 import type { Job } from '@/lib/types/job';
 import { Button } from '@/src/components/ui/button';
-import { Pencil, Trash2, EyeIcon } from 'lucide-react';
+import { Ellipsis, Eye, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,9 +17,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/src/components/ui/alert-dialog';
-import Link from 'next/link';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/src/components/ui/dropdown-menu';
 
 type JobRowProps = {
   job: Job;
@@ -26,6 +32,7 @@ type JobRowProps = {
 };
 
 export default function JobRow({ job, onEdit }: JobRowProps) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -43,11 +50,16 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
   });
 
   return (
-    <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <li className="flex items-center gap-4 p-4">
       <div className="min-w-0 flex-1">
-        <Link href={`/jobs/${job.id}`} className="font-medium text-slate-900">
-          {job.title}
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="font-medium text-slate-900">{job.title}</p>
+          {job.source && (
+            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+              {job.source.replace('_', ' ')}
+            </span>
+          )}
+        </div>
         <p className="text-sm text-slate-500">
           {job.company}
           {job.location ? ` · ${job.location}` : ''}
@@ -57,72 +69,68 @@ export default function JobRow({ job, onEdit }: JobRowProps) {
         </p>
       </div>
 
-      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
-        {job.source && (
-          <span className="inline-flex rounded-full bg-[#f8f9fa] px-2.5 py-1 text-xs font-medium text-[#212529]">
-            {job.source.replace('_', ' ')}
-          </span>
-        )}
-        <div className="flex items-center gap-1">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button
             type="button"
             variant="outline"
-            size="icon-sm"
-            className="border-[#dee2e6] text-[#495057] hover:bg-[#f8f9fa]"
+            size="sm"
+            className="h-9 w-9 shrink-0 p-0"
+            aria-label={`Actions for ${job.title}`}
           >
-            <Link href={`/jobs/${job.id}`}>
-              <EyeIcon className="h-4 2-4" />
-            </Link>
+            <Ellipsis className="h-5 w-5" />
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            onClick={() => onEdit(job)}
-            aria-label={`Edit ${job.title}`}
-            className="border-[#dee2e6] text-[#495057] hover:bg-[#f8f9fa]"
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onSelect={() => router.push(`/jobs/${job.id}`)}
           >
+            <Eye className="h-4 w-4" />
+            View job
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onSelect={() => onEdit(job)}>
             <Pencil className="h-4 w-4" />
-          </Button>
-          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <AlertDialogTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-sm"
-                disabled={deleteMutation.isPending}
-                aria-label={`Delete ${job.title}`}
-                className="border-red-200 text-red-600 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
+            Edit job
+          </DropdownMenuItem>
 
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete this job?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete “{job.title}” at {job.company}. Any linked
-                  applications will also be removed.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
+          <DropdownMenuSeparator />
 
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+          <DropdownMenuItem
+            onSelect={() => setDeleteOpen(true)}
+            className="text-red-600 focus:bg-red-50 focus:text-red-700"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete job
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-                <AlertDialogAction
-                  disabled={deleteMutation.isPending}
-                  onClick={() => deleteMutation.mutate()}
-                  className="bg-red-600 text-white hover:bg-red-700"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  {deleteMutation.isPending ? 'Deleting...' : 'Delete job'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this job?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete “{job.title}” at {job.company}. Any linked
+              applications will also be removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+
+            <AlertDialogAction
+              disabled={deleteMutation.isPending}
+              onClick={() => deleteMutation.mutate()}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete job'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </li>
   );
 }

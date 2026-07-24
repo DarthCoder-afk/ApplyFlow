@@ -8,10 +8,12 @@ import {
   applicationIdParamSchema,
   listApplicationsQuerySchema,
 } from './applications.schema';
+import interviewRoutes from '../interviews/interviews.routes';
 
 const router = Router();
 
 router.get('/', authenticate, validate({ query: listApplicationsQuerySchema }), listApplications);
+router.use('/:applicationId/interviews', interviewRoutes);
 router.get('/:id', authenticate, validate({ params: applicationIdParamSchema }), getOne);
 router.post('/', authenticate, validate({ body: createApplicationSchema }), create);
 router.put(

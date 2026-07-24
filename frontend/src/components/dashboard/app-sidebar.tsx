@@ -2,7 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Briefcase, BriefcaseBusiness, FileText, LayoutDashboard, LogOut, X } from 'lucide-react';
+import {
+  Briefcase,
+  BriefcaseBusiness,
+  CalendarDays,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  X,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebar } from './sidebar-context';
 import { logout } from '@/lib/api/auth';
@@ -11,6 +19,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/jobs', label: 'Jobs', icon: Briefcase },
   { href: '/applications', label: 'Applications', icon: FileText },
+  { href: '/calendar', label: 'Calendar', icon: CalendarDays },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -117,7 +126,7 @@ export default function AppSidebar() {
       </aside>
 
       {/* Desktop sidebar — full viewport height */}
-      <aside className="hidden h-dvh w-64 shrink-0 flex-col bg-slate-950 lg:flex">
+      <aside className="hidden h-full w-64 shrink-0 flex-col overflow-hidden bg-slate-950 lg:flex">
         <SidebarContent />
       </aside>
     </>

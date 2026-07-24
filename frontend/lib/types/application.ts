@@ -14,6 +14,9 @@ export type Application = {
   jobId: string;
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    interviews: number;
+  };
   job: {
     id: string;
     title: string;
