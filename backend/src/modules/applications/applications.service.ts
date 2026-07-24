@@ -121,6 +121,11 @@ export async function getApplications(filters: GetApplicationsFilters) {
             jobUrl: true,
           },
         },
+        _count: {
+          select: {
+            interviews: true,
+          },
+        },
       },
     }),
     prisma.application.count({ where }),
