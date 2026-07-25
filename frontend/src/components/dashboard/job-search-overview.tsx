@@ -57,14 +57,21 @@ export default function JobSearchOverview({
       </div>
       <div className="mt-5 grid flex-1 grid-cols-2 gap-3 lg:grid-cols-4">
         {metrics.map(({ key, label, icon: Icon, style, iconStyle }) => (
-          <div key={key} className={`flex min-h-32 flex-col justify-between rounded-2xl p-4 ${style}`}>
-            <span className={`grid h-8 w-8 place-items-center rounded-xl ${iconStyle}`}>
-              <Icon className="h-4 w-4" />
-            </span>
-            <p className="mt-4 text-2xl font-bold tracking-tight text-slate-950">
-              {totals[key]}
-            </p>
-            <p className="mt-0.5 text-xs font-medium text-slate-600">{label}</p>
+          <div
+            key={key}
+            className={`relative flex min-h-32 flex-col justify-start rounded-2xl p-4 ${style}`}
+          >
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${iconStyle}`}>
+                <Icon className="h-4 w-4" />
+              </span>
+              <p className="truncate text-sm font-medium text-slate-600">{label}</p>
+            </div>
+            <div className="pointer-events-none absolute inset-0 grid place-items-center">
+              <p className="text-3xl font-bold tracking-tight text-slate-950">
+                {totals[key]}
+              </p>
+            </div>
           </div>
         ))}
       </div>
