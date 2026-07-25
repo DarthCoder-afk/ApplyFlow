@@ -16,6 +16,7 @@ ENV DATABASE_URL="postgresql://user:password@localhost:5432/database"
 RUN pnpm prisma generate
 
 COPY tsconfig.json ./
+COPY scripts ./scripts
 COPY src ./src
 
 RUN pnpm build
