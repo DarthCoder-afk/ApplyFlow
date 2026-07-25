@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { APPLICATION_STATUSES } from './applications.constants';
+import { JOB_SOURCES } from '../jobs/jobs.constants';
 import { sanitizePlainText } from '../../utils/sanitize';
 
 const plainText = () => z.string().trim().transform(sanitizePlainText);
@@ -23,6 +24,9 @@ export const applicationIdParamSchema = z.object({
 
 export const listApplicationsQuerySchema = z.object({
   status: z.enum(APPLICATION_STATUSES).optional(),
+  company: plainText().optional(),
+  source: z.enum(JOB_SOURCES).optional(),
+  followUpNeeded: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
   search: plainText().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(10),

@@ -19,3 +19,7 @@ export const JOB_SOURCE_LABELS: Record<JobSource, string> = {
   REFERRAL: 'Referral',
   OTHER: 'Other',
 };
+
+export const JOB_PRIORITIES = ['HIGH', 'MEDIUM', 'LOW', 'NONE'] as const;
+
+export type JobPriority = (typeof JOB_PRIORITIES)[number];

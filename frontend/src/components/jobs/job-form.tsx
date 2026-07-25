@@ -5,12 +5,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createJob, updateJob } from '@/lib/api/jobs';
-import type { Job, JobSource } from '@/lib/types/job';
+import type { Job } from '@/lib/types/job';
 import {
   createJobSchema,
   type CreateJobFormValues,
   JOB_SOURCES,
   JOB_SOURCE_LABELS,
+  JOB_PRIORITIES,
+  JOB_PRIORITY_LABELS,
 } from '@/lib/validation/job';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
@@ -24,6 +26,7 @@ import {
 } from '@/src/components/ui/select';
 import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
+import JobSourceIcon from './job-source-icon';
 
 type JobFormProps = {
   job?: Job;
@@ -39,6 +42,8 @@ function toFormValues(job?: Job): CreateJobFormValues {
     url: job?.jobUrl ?? '',
     source: job?.source ?? 'LINKEDIN',
     notes: job?.notes ?? '',
+    priority: job?.priority ?? 'NONE',
+    deadline: job?.deadline ? job.deadline.slice(0, 10) : '',
   };
 }
 
@@ -51,6 +56,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
     register,
     control,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<CreateJobFormValues>({
     resolver: zodResolver(createJobSchema),
@@ -58,8 +64,13 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
   });
 
   const mutation = useMutation({
-    mutationFn: (values: CreateJobFormValues) =>
-      isEdit && job ? updateJob(job.id, values) : createJob(values),
+    mutationFn: (values: CreateJobFormValues & { allowDuplicate?: boolean }) => {
+      const payload = {
+        ...values,
+        deadline: values.deadline || null,
+      };
+      return isEdit && job ? updateJob(job.id, payload) : createJob(payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       queryClient.invalidateQueries({ queryKey: ['applications'] });
@@ -69,7 +80,13 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       onSuccess?.();
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : 'Something went wrong');
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      setError(
+        message === 'Possible duplicate job'
+          ? 'A job with the same URL or company and title may already exist.'
+          : message
+      );
+      toast.error(message);
     },
   });
 
@@ -97,6 +114,32 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
+          <Label>Priority</Label>
+          <Controller
+            name="priority"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+                <SelectContent position="popper">
+                  {JOB_PRIORITIES.map((priority) => (
+                    <SelectItem key={priority} value={priority}>
+                      {JOB_PRIORITY_LABELS[priority]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="deadline">Deadline</Label>
+          <Input id="deadline" type="date" {...register('deadline')} />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
           <Label htmlFor="location">Location</Label>
           <Input id="location" placeholder="Remote" {...register('location')} />
           {errors.location && <p className="text-sm text-red-600">{errors.location.message}</p>}
@@ -115,6 +158,10 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
                 <SelectContent position="popper" align="start">
                   {JOB_SOURCES.map((source) => (
                     <SelectItem key={source} value={source}>
+                      <JobSourceIcon
+                        source={source}
+                        className="h-4 w-4"
+                      />
                       {JOB_SOURCE_LABELS[source]}
                     </SelectItem>
                   ))}
@@ -151,9 +198,20 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </p>
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <p>{error}</p>
+          {error.includes('may already exist') && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => mutation.mutate({ ...getValues(), allowDuplicate: true })}
+            >
+              Save anyway
+            </Button>
+          )}
+        </div>
       )}
 
       <div className="flex justify-end">

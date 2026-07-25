@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import type { DashboardStats } from '@/lib/types/dashboard';
 
 const LABELS: Record<string, string> = {
   SAVED: 'Saved',
@@ -14,7 +13,7 @@ const LABELS: Record<string, string> = {
 };
 
 type StatusChartProps = {
-  data: DashboardStats['applicationsByStatus'];
+  data: Record<string, number>;
 };
 
 export default function StatusChart({ data }: StatusChartProps) {

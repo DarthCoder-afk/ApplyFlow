@@ -18,7 +18,12 @@ jest.mock('../jobs/jobs.service', () => ({
 
 import { prisma } from '../../config/database';
 import { getJobById } from '../jobs/jobs.service';
-import { createApplication, deleteApplication, updateApplication } from './applications.service';
+import {
+  createApplication,
+  deleteApplication,
+  isFollowUpNeeded,
+  updateApplication,
+} from './applications.service';
 
 const mockedApplication = prisma.application as unknown as {
   findUnique: jest.Mock;
@@ -89,6 +94,49 @@ describe('updateApplication', () => {
 
     await expect(updateApplication('missing-application', 'user-1', { status: 'INTERVIEW' })).resolves.toBeNull();
     expect(mockedApplication.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('isFollowUpNeeded', () => {
+  const now = new Date('2026-07-24T12:00:00.000Z');
+
+  it('recommends follow-up after seven days without activity', () => {
+    expect(
+      isFollowUpNeeded(
+        {
+          status: 'APPLIED',
+          updatedAt: new Date('2026-07-17T12:00:00.000Z'),
+          interviews: [],
+        },
+        now
+      )
+    ).toBe(true);
+  });
+
+  it('does not recommend follow-up when an interview is upcoming', () => {
+    expect(
+      isFollowUpNeeded(
+        {
+          status: 'INTERVIEW',
+          updatedAt: new Date('2026-07-10T12:00:00.000Z'),
+          interviews: [{ scheduledAt: new Date('2026-07-25T12:00:00.000Z') }],
+        },
+        now
+      )
+    ).toBe(false);
+  });
+
+  it('does not recommend follow-up for a terminal application', () => {
+    expect(
+      isFollowUpNeeded(
+        {
+          status: 'REJECTED',
+          updatedAt: new Date('2026-07-10T12:00:00.000Z'),
+          interviews: [],
+        },
+        now
+      )
+    ).toBe(false);
   });
 });
 

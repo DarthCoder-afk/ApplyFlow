@@ -47,14 +47,22 @@ import {
   DropdownMenuTrigger,
 } from '@/src/components/ui/dropdown-menu';
 import StatusBadge from './status-badge';
+import ApplicationStatusIcon from './application-status-icon';
 import InterviewPanel from '../interviews/interview-panel';
+import {
+  getAppliedAgeLabel,
+  getInterviewTimeLabel,
+  getUpcomingInterview,
+} from '@/lib/application-pipeline';
 
 type ApplicationRowProps = {
   application: Application;
+  onView: (application: Application) => void;
 };
 
 export default function ApplicationRow({
   application,
+  onView,
 }: ApplicationRowProps) {
   const queryClient = useQueryClient();
   const [notesOpen, setNotesOpen] = useState(false);
@@ -69,6 +77,7 @@ export default function ApplicationRow({
   const canManageInterviews = application.status === 'INTERVIEW';
   const canViewInterviewHistory =
     !canManageInterviews && interviewCount > 0;
+  const upcomingInterview = getUpcomingInterview(application);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['applications'] });
@@ -135,32 +144,35 @@ export default function ApplicationRow({
   }
 
   return (
-    <li className="flex items-start gap-4 p-4 sm:items-center">
-      <div className="min-w-0 flex-1">
+    <li className="flex items-start gap-3 px-4 py-4 sm:items-center sm:px-5">
+      <button
+        type="button"
+        onClick={() => onView(application)}
+        className="min-w-0 flex-1 text-left"
+      >
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium text-slate-900">
+          <p className="truncate font-medium text-slate-900">
             {application.job.title}
           </p>
           <StatusBadge status={application.status} />
         </div>
 
-        <p className="text-sm text-slate-500">
-          {application.job.company}
-        </p>
+        <p className="text-sm text-slate-500">{application.job.company}</p>
 
         <p className="mt-1 text-xs text-slate-400">
-          Applied{' '}
-          {new Date(
-            application.appliedAt ?? application.createdAt
-          ).toLocaleDateString()}
+          {getAppliedAgeLabel(application)}
         </p>
 
-        {application.notes && (
-          <p className="mt-2 line-clamp-1 text-xs text-slate-500">
-            {application.notes}
+        {upcomingInterview ? (
+          <p className="mt-2 text-xs font-medium text-violet-700">
+            {getInterviewTimeLabel(upcomingInterview)}
           </p>
-        )}
-      </div>
+        ) : application.followUpNeeded ? (
+          <p className="mt-2 text-xs font-medium text-amber-700">
+            Follow-up recommended
+          </p>
+        ) : null}
+      </button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -260,11 +272,14 @@ export default function ApplicationRow({
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  {APPLICATION_STATUSES.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {APPLICATION_STATUS_LABELS[status]}
-                    </SelectItem>
-                  ))}
+                  {APPLICATION_STATUSES.map((status) => {
+                    return (
+                      <SelectItem key={status} value={status}>
+                        <ApplicationStatusIcon status={status} />
+                        {APPLICATION_STATUS_LABELS[status]}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>

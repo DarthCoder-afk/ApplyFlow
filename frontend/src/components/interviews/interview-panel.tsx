@@ -133,7 +133,7 @@ export default function InterviewPanel({
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-slate-950">
+          <h2 className="text-lg font-semibold text-slate-950">
             {readOnly ? 'Interview stage history' : 'Interview stages'}
           </h2>
           <p className="text-sm text-slate-500">
@@ -157,6 +157,7 @@ export default function InterviewPanel({
         ) : !readOnly ? (
           <Button
             type="button"
+            size="sm"
             onClick={() => {
               setEditingStage(null);
               setShowForm(true);
@@ -222,7 +223,9 @@ export default function InterviewPanel({
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
-            Add the first stage for this application.
+            {readOnly
+              ? 'No interview stages have been recorded for this application.'
+              : 'Add the first stage for this application.'}
           </p>
         </div>
       )}
@@ -232,7 +235,7 @@ export default function InterviewPanel({
           {data.interviews.map((interview) => (
             <li
               key={interview.id}
-              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              className="rounded-xl border border-slate-200 bg-white p-4"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
