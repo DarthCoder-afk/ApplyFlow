@@ -9,11 +9,13 @@ import {
 } from '@tanstack/react-query';
 import {
   Bell,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
   Columns3,
   ExternalLink,
   List,
+  MapPin,
   Plus,
   Search,
   SlidersHorizontal,
@@ -76,6 +78,30 @@ import {
 type ViewMode = 'list' | 'board';
 type SortOption = 'appliedAt' | 'updatedAt' | 'status';
 
+function getApplicationTimeline(application: Application) {
+  const createdAt = new Date(application.createdAt);
+  const appliedAt = application.appliedAt
+    ? new Date(application.appliedAt)
+    : null;
+
+  if (
+    appliedAt &&
+    Math.abs(appliedAt.getTime() - createdAt.getTime()) < 60_000
+  ) {
+    return [
+      {
+        title: 'Application created and marked applied',
+        date: appliedAt,
+      },
+    ];
+  }
+
+  return [
+    { title: 'Application created', date: createdAt },
+    ...(appliedAt ? [{ title: 'Applied', date: appliedAt }] : []),
+  ].sort((first, second) => first.date.getTime() - second.date.getTime());
+}
+
 function BoardSkeleton() {
   return (
     <div className="scrollbar-hidden overflow-x-auto pb-3" aria-label="Loading application board">
@@ -123,7 +149,7 @@ export default function ApplicationsPage() {
   const [sort, setSort] = useState<SortOption>('appliedAt');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [showDateFilter, setShowDateFilter] = useState(false);
-  const [view, setView] = useState<ViewMode>('list');
+  const [view, setView] = useState<ViewMode>('board');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [notesDraft, setNotesDraft] = useState('');
   const [draggedApplicationId, setDraggedApplicationId] = useState<string | null>(null);
@@ -645,30 +671,63 @@ export default function ApplicationsPage() {
         <div className="fixed inset-0 z-50">
           <button type="button" aria-label="Close application details" onClick={() => setSelectedApplication(null)} className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" />
           <aside role="dialog" aria-modal="true" aria-label={`${selectedApplication.job.title} details`} className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col bg-white shadow-2xl">
-            <div className="flex items-start justify-between border-b border-slate-200 p-6">
+            <div className="flex items-start justify-between bg-slate-950 p-6 text-white">
               <div className="min-w-0">
-                <h2 className="truncate text-2xl font-semibold text-slate-950">{selectedApplication.job.title}</h2>
-                <p className="text-slate-500">{selectedApplication.job.company}</p>
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
+                  Application details
+                </p>
+                <h2 className="mt-2 truncate text-2xl font-semibold">{selectedApplication.job.title}</h2>
+                <p className="mt-1 text-slate-300">{selectedApplication.job.company}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <StatusBadge status={selectedApplication.status} />
+                  <span className="text-xs text-slate-400">
+                    {getAppliedAgeLabel(selectedApplication)}
+                  </span>
+                </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedApplication(null)} className="h-9 w-9 p-0">
+              <Button variant="ghost" size="sm" onClick={() => setSelectedApplication(null)} className="h-9 w-9 p-0 text-slate-300 hover:bg-white/10 hover:text-white">
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="flex-1 space-y-7 overflow-y-auto p-6">
+            <div className="scrollbar-hidden flex-1 space-y-8 overflow-y-auto p-6">
               <section>
-                <h3 className="font-semibold text-slate-900">Overview</h3>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Overview</h3>
                 <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                  <div><dt className="text-slate-400">Status</dt><dd><StatusBadge status={selectedApplication.status} /></dd></div>
-                  <div><dt className="text-slate-400">Applied</dt><dd>{new Date(selectedApplication.appliedAt ?? selectedApplication.createdAt).toLocaleDateString()}</dd></div>
-                  <div><dt className="text-slate-400">Location</dt><dd>{selectedApplication.job.location ?? 'Not provided'}</dd></div>
-                  <div><dt className="text-slate-400">Source</dt><dd>{selectedApplication.job.source ? JOB_SOURCE_LABELS[selectedApplication.job.source as JobSource] : 'Not provided'}</dd></div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <dt className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <CalendarDays className="h-3.5 w-3.5" />Applied
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-800">
+                      {new Date(selectedApplication.appliedAt ?? selectedApplication.createdAt).toLocaleDateString()}
+                    </dd>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <dt className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <MapPin className="h-3.5 w-3.5" />Location
+                    </dt>
+                    <dd className="mt-1 truncate font-medium text-slate-800">
+                      {selectedApplication.job.location ?? 'Not provided'}
+                    </dd>
+                  </div>
+                  <div className="col-span-2 rounded-xl bg-slate-50 p-3">
+                    <dt className="text-xs text-slate-400">Source</dt>
+                    <dd className="mt-1 flex items-center gap-2 font-medium text-slate-800">
+                      {selectedApplication.job.source && (
+                        <JobSourceIcon source={selectedApplication.job.source as JobSource} />
+                      )}
+                      {selectedApplication.job.source ? JOB_SOURCE_LABELS[selectedApplication.job.source as JobSource] : 'Not provided'}
+                    </dd>
+                  </div>
                 </dl>
+                <label className="mt-4 block text-xs font-medium text-slate-500">
+                  Pipeline status
+                </label>
                 <Select
                   value={selectedApplication.status}
                   disabled={updatingApplicationId === selectedApplication.id}
                   onValueChange={(status) => changeStatus(selectedApplication, status as ApplicationStatus)}
                 >
-                  <SelectTrigger className="mt-4 h-10 w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-2 h-10 w-full bg-white shadow-none"><SelectValue /></SelectTrigger>
                   <SelectContent position="popper">
                     {APPLICATION_STATUSES.map((status) => (
                       <SelectItem key={status} value={status}>
@@ -679,58 +738,63 @@ export default function ApplicationsPage() {
                   </SelectContent>
                 </Select>
                 {selectedApplication.job.jobUrl && (
-                  <a href={selectedApplication.job.jobUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium underline">
+                  <a href={selectedApplication.job.jobUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline">
                     Open job listing<ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 )}
               </section>
 
-              <section>
-                <h3 className="font-semibold text-slate-900">Timeline</h3>
-                <ol className="mt-3 space-y-3 border-l border-slate-200 pl-4 text-sm">
-                  <li>
-                    <p className="font-medium text-slate-800">Application created</p>
-                    <p className="text-slate-400">{new Date(selectedApplication.createdAt).toLocaleString()}</p>
-                  </li>
-                  {selectedApplication.appliedAt && (
-                    <li>
-                      <p className="font-medium text-slate-800">Applied</p>
-                      <p className="text-slate-400">{new Date(selectedApplication.appliedAt).toLocaleString()}</p>
+              <section className="border-t border-slate-100 pt-7">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Timeline</h3>
+                <ol className="mt-4 space-y-4 text-sm">
+                  {getApplicationTimeline(selectedApplication).map((event) => (
+                    <li key={`${event.title}-${event.date.toISOString()}`} className="relative pl-6">
+                      <span className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-slate-950 ring-4 ring-slate-100" />
+                      <p className="font-medium text-slate-800">{event.title}</p>
+                      <p className="mt-0.5 text-xs text-slate-400">
+                        {new Intl.DateTimeFormat(undefined, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        }).format(event.date)}
+                      </p>
                     </li>
-                  )}
+                  ))}
                 </ol>
               </section>
 
-              <section>
+              <section className="border-t border-slate-100 pt-7">
                 <InterviewPanel
                   applicationId={selectedApplication.id}
                   readOnly={selectedApplication.status !== 'INTERVIEW'}
                 />
               </section>
 
-              <section>
-                <h3 className="font-semibold text-slate-900">Notes</h3>
+              <section className="border-t border-slate-100 pt-7">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Notes</h3>
                 <textarea
                   value={notesDraft}
                   onChange={(event) => setNotesDraft(event.target.value)}
                   maxLength={2000}
                   rows={4}
                   placeholder="Follow-up details, recruiter name, preparation notes..."
-                  className="mt-3 w-full resize-y rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  className="mt-3 w-full resize-y rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
                 />
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={notesMutation.isPending || notesDraft === (selectedApplication.notes ?? '')}
-                  onClick={() => notesMutation.mutate()}
-                  className="mt-2 bg-slate-950 text-white"
-                >
-                  {notesMutation.isPending ? 'Saving...' : 'Save notes'}
-                </Button>
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <span className="text-xs text-slate-400">{notesDraft.length}/2000</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={notesMutation.isPending || notesDraft === (selectedApplication.notes ?? '')}
+                    onClick={() => notesMutation.mutate()}
+                    className="bg-slate-950 text-white"
+                  >
+                    {notesMutation.isPending ? 'Saving...' : 'Save notes'}
+                  </Button>
+                </div>
               </section>
             </div>
-            <div className="border-t border-slate-200 p-4">
-              <Button type="button" variant="ghost" onClick={() => setDeleteOpen(true)} className="text-red-600 hover:bg-red-50 hover:text-red-700">
+            <div className="flex justify-end border-t border-slate-200 bg-white p-4">
+              <Button type="button" variant="outline" onClick={() => setDeleteOpen(true)} className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
                 <Trash2 className="h-4 w-4" />Delete application
               </Button>
             </div>

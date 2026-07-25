@@ -10,8 +10,13 @@ import { useDeferredValue, useState } from 'react';
 import { Job, JobPriority, JobSource } from '@/lib/types/job';
 import { Input } from '@/src/components/ui/input';
 import {
+  CalendarDays,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
+  Flag,
+  Pencil,
   Plus,
   Search,
   SlidersHorizontal,
@@ -200,7 +205,6 @@ export default function JobsPage() {
             className="h-11 rounded-xl bg-transparent px-3 shadow-none"
           >
             <SlidersHorizontal className="h-4 w-4 " />
-            Filters
           </Button>
         </div>
 
@@ -438,26 +442,83 @@ export default function JobsPage() {
             aria-label={`${selectedJob.title} details`}
             className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col bg-white shadow-2xl"
           >
-            <div className="flex items-start justify-between border-b border-slate-200 p-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-slate-950">{selectedJob.title}</h2>
-                <p className="text-slate-500">{selectedJob.company} · {selectedJob.location}</p>
+            <div className="flex items-start justify-between bg-slate-950 p-6 text-white">
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
+                  Saved opportunity
+                </p>
+                <div className="mt-2 flex min-w-0 items-center gap-2">
+                  <h2 className="truncate text-2xl font-semibold">{selectedJob.title}</h2>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedJob(null);
+                      openEdit(selectedJob);
+                    }}
+                    className="h-8 w-8 shrink-0 p-0 text-slate-300 hover:bg-white/10 hover:text-white"
+                    aria-label={`Edit ${selectedJob.title}`}
+                    title="Edit job"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="mt-1 text-slate-300">
+                  {selectedJob.company}
+                  {selectedJob.location ? ` · ${selectedJob.location}` : ''}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
+                    {JOB_PRIORITY_LABELS[selectedJob.priority]} priority
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {getJobAgeLabel(selectedJob.createdAt)}
+                  </span>
+                </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedJob(null)} className="h-9 w-9 p-0">
+              <Button variant="ghost" size="sm" onClick={() => setSelectedJob(null)} className="h-9 w-9 p-0 text-slate-300 hover:bg-white/10 hover:text-white">
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="flex-1 space-y-6 overflow-y-auto p-6">
+            <div className="scrollbar-hidden flex-1 space-y-8 overflow-y-auto p-6">
               <section>
-                <h3 className="font-semibold text-slate-900">Overview</h3>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Overview</h3>
                 <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                  <div><dt className="text-slate-400">Source</dt><dd>{selectedJob.source ? JOB_SOURCE_LABELS[selectedJob.source] : 'Not provided'}</dd></div>
-                  <div><dt className="text-slate-400">Date saved</dt><dd>{getJobAgeLabel(selectedJob.createdAt)}</dd></div>
-                  <div><dt className="text-slate-400">Priority</dt><dd>{JOB_PRIORITY_LABELS[selectedJob.priority]}</dd></div>
-                  <div><dt className="text-slate-400">Deadline</dt><dd>{getDeadlineState(selectedJob.deadline)?.label ?? 'Not provided'}</dd></div>
-                  <div>
-                    <dt className="text-slate-400">Application</dt>
-                    <dd>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <dt className="flex items-center gap-1.5 text-xs text-slate-400">
+                      {selectedJob.source ? (
+                        <JobSourceIcon source={selectedJob.source} className="h-3.5 w-3.5" />
+                      ) : null}
+                      Source
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-800">
+                      {selectedJob.source ? JOB_SOURCE_LABELS[selectedJob.source] : 'Not provided'}
+                    </dd>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <dt className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <CalendarDays className="h-3.5 w-3.5" />Date saved
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-800">{getJobAgeLabel(selectedJob.createdAt)}</dd>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <dt className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <Flag className="h-3.5 w-3.5" />Priority
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-800">{JOB_PRIORITY_LABELS[selectedJob.priority]}</dd>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <dt className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <CalendarDays className="h-3.5 w-3.5" />Deadline
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-800">{getDeadlineState(selectedJob.deadline)?.label ?? 'Not provided'}</dd>
+                  </div>
+                  <div className="col-span-2 rounded-xl bg-slate-50 p-3">
+                    <dt className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" />Application
+                    </dt>
+                    <dd className="mt-1 font-medium text-slate-800">
                       {selectedJob.applications[0]
                         ? 'Linked to application'
                         : 'Not applied yet'}
@@ -465,27 +526,33 @@ export default function JobsPage() {
                   </div>
                 </dl>
                 {selectedJob.possibleDuplicate && (
-                  <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
-                    A similar saved opportunity may already exist. Review it before taking
-                    action.
-                  </p>
+                  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                    <p className="text-sm font-medium text-amber-900">Possible duplicate</p>
+                    <p className="mt-0.5 text-sm text-amber-700">
+                      A similar saved opportunity may already exist. Review it before taking action.
+                    </p>
+                  </div>
                 )}
-                {selectedJob.jobUrl && <a href={selectedJob.jobUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-sm font-medium underline">Open original listing</a>}
+                {selectedJob.jobUrl && (
+                  <a href={selectedJob.jobUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline">
+                    Open original listing<ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                )}
               </section>
-              <section>
-                <h3 className="font-semibold text-slate-900">Job details</h3>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">{selectedJob.description || 'No description saved.'}</p>
+              <section className="border-t border-slate-100 pt-7">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Job details</h3>
+                <div className="mt-3 rounded-xl bg-slate-50 p-4">
+                  <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedJob.description || 'No description saved.'}</p>
+                </div>
               </section>
-              <section>
-                <h3 className="font-semibold text-slate-900">Evaluation</h3>
-                <p className="mt-3 text-sm text-slate-600">{selectedJob.notes || 'No personal notes yet.'}</p>
-                <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
-                  Fit scoring is unavailable because user preferences and structured skills are not stored.
-                </p>
+              <section className="border-t border-slate-100 pt-7">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Personal notes</h3>
+                <div className="mt-3 rounded-xl bg-slate-50 p-4">
+                  <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedJob.notes || 'No personal notes yet.'}</p>
+                </div>
               </section>
             </div>
-            <div className="flex gap-2 border-t border-slate-200 p-4">
-              <Button variant="outline" onClick={() => { setSelectedJob(null); openEdit(selectedJob); }}>Edit job</Button>
+            <div className="flex justify-end border-t border-slate-200 bg-white p-4">
               {selectedJob.applications[0] ? (
                 <Button onClick={() => window.location.assign('/applications')} className="bg-slate-950 text-white">Open application</Button>
               ) : (
