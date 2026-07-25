@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Inter } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import QueryProvider from '../components/providers/query-provider';
 import { Toaster } from '../components/ui/sonner';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -19,8 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Job Tracker',
-    template: '%s | Job Tracker',
+    default: 'ApplyFlow',
+    template: '%s | ApplyFlow',
   },
   description: 'Track job applications, monitor progress, and stay organized in one place.',
 };
@@ -38,8 +36,7 @@ export default function RootLayout({
         'antialiased',
         geistSans.variable,
         geistMono.variable,
-        'font-sans',
-        inter.variable
+        'font-sans'
       )}
     >
       <body className="min-h-dvh flex flex-col">

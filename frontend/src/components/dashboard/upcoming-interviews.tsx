@@ -13,7 +13,7 @@ export default function UpcomingInterviews({
   interviews: DashboardStats['upcomingInterviews'];
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30">
       <h2 className="font-semibold text-slate-950">Upcoming interviews</h2>
       <p className="text-sm text-slate-500">Prepare for what&apos;s next.</p>
       {interviews.length === 0 ? (
@@ -24,7 +24,7 @@ export default function UpcomingInterviews({
       ) : (
         <ul className="mt-4 space-y-3">
           {interviews.map((interview) => (
-            <li key={interview.id} className="border-l-2 border-violet-500 pl-3">
+            <li key={interview.id} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
               <p className="text-sm font-medium text-slate-900">{interview.role}</p>
               <p className="text-xs text-slate-500">{interview.company} · {interview.typeLabel}</p>
               <p className="mt-1 text-xs font-medium text-slate-700">
@@ -34,7 +34,7 @@ export default function UpcomingInterviews({
           ))}
         </ul>
       )}
-      <Link href="/calendar" className="mt-4 inline-block text-xs font-medium text-slate-700 hover:underline">
+      <Link href="/calendar" className="mt-4 inline-block text-xs font-medium text-indigo-600 hover:text-indigo-700">
         View calendar
       </Link>
     </section>

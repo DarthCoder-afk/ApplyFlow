@@ -5,8 +5,9 @@ export default function SourcePerformance({
 }: {
   sources: DashboardStats['sourcePerformance'];
 }) {
+  const max = Math.max(...sources.map((source) => source.totalApplications), 1);
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30">
       <h2 className="font-semibold text-slate-950">Source performance</h2>
       <p className="text-sm text-slate-500">Which channels lead to interviews.</p>
       {sources.length === 0 ? (
@@ -14,22 +15,25 @@ export default function SourcePerformance({
           Add a source to jobs with applications to unlock source analytics.
         </p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[420px] text-left text-sm">
-            <thead className="text-xs uppercase tracking-wide text-slate-400">
-              <tr><th className="pb-3">Source</th><th className="pb-3">Applications</th><th className="pb-3">Interviews</th><th className="pb-3 text-right">Rate</th></tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {sources.map((source) => (
-                <tr key={source.source}>
-                  <td className="py-3 font-medium text-slate-800">{source.source.replace('_', ' ')}</td>
-                  <td className="py-3 text-slate-600">{source.totalApplications}</td>
-                  <td className="py-3 text-slate-600">{source.interviews}</td>
-                  <td className="py-3 text-right font-medium text-slate-800">{source.interviewRate}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-5 space-y-4">
+          {sources.map((source) => (
+            <div key={source.source}>
+              <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
+                <span className="font-medium capitalize text-slate-800">
+                  {source.source.toLowerCase().replaceAll('_', ' ')}
+                </span>
+                <span className="text-xs text-slate-500">
+                  {source.totalApplications} applications · {source.interviewRate}% interview rate
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-indigo-500"
+                  style={{ width: `${(source.totalApplications / max) * 100}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </section>

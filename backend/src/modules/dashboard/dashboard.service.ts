@@ -1,6 +1,5 @@
 import { prisma } from '../../config/database';
 
-export const DEFAULT_MONTHLY_GOAL = 20;
 export const DEFAULT_FOLLOW_UP_DAYS = 7;
 
 type AnalyticsInterview = {
@@ -61,8 +60,9 @@ export function buildDashboardAnalytics(
   applications: AnalyticsApplication[],
   totalJobs: number,
   now = new Date(),
-  monthlyGoal = DEFAULT_MONTHLY_GOAL,
-  followUpDays = DEFAULT_FOLLOW_UP_DAYS
+  monthlyGoal: number | null = null,
+  followUpDays = DEFAULT_FOLLOW_UP_DAYS,
+  jobCreatedDates: Date[] = []
 ) {
   const currentMonthStart = startOfMonth(now);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -137,11 +137,38 @@ export function buildDashboardAnalytics(
     date.setHours(0, 0, 0, 0);
     date.setDate(date.getDate() - (6 - index));
     const end = new Date(date.getTime() + DAY);
+    const applicationsSubmitted = applications.filter(
+      (app) => (app.appliedAt ?? app.createdAt) >= date && (app.appliedAt ?? app.createdAt) < end
+    ).length;
     return {
       date: date.toISOString(),
       label: date.toLocaleDateString('en-US', { weekday: 'short' }),
-      count: applications.filter(
-        (app) => app.createdAt >= date && app.createdAt < end
+      count: applicationsSubmitted,
+      applications: applicationsSubmitted,
+      jobsSaved: jobCreatedDates.filter((createdAt) => createdAt >= date && createdAt < end).length,
+    };
+  });
+
+  const applicationActivity = Array.from({ length: 6 }, (_, index) => {
+    const start = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
+    const end = new Date(start.getFullYear(), start.getMonth() + 1, 1);
+    return {
+      date: start.toISOString(),
+      label: start.toLocaleDateString('en-US', { month: 'short' }),
+      applications: submitted.filter((app) => {
+        const submittedAt = app.appliedAt ?? app.createdAt;
+        return submittedAt >= start && submittedAt < end;
+      }).length,
+      interviews: applications.reduce(
+        (count, app) =>
+          count +
+          app.interviews.filter(
+            (interview) => interview.scheduledAt >= start && interview.scheduledAt < end
+          ).length,
+        0
+      ),
+      offers: offerApplications.filter(
+        (app) => app.offeredAt !== null && app.offeredAt >= start && app.offeredAt < end
       ).length,
     };
   });
@@ -164,7 +191,9 @@ export function buildDashboardAnalytics(
     .sort((a, b) => b.totalApplications - a.totalApplications);
 
   const goalCurrent = currentMonth.length;
-  const goalRemaining = Math.max(monthlyGoal - goalCurrent, 0);
+  const goalTarget = monthlyGoal ?? 0;
+  const goalConfigured = goalTarget > 0;
+  const goalRemaining = goalConfigured ? Math.max(goalTarget - goalCurrent, 0) : 0;
   const priorities = [
     ...upcoming.slice(0, 3).map((interview) => ({
       id: `interview-${interview.id}`,
@@ -186,7 +215,7 @@ export function buildDashboardAnalytics(
       href: '/applications',
       actionLabel: 'View application',
     })),
-    ...(goalRemaining > 0
+    ...(goalConfigured && goalRemaining > 0
       ? [{
           id: 'monthly-goal',
           kind: 'GOAL' as const,
@@ -258,8 +287,27 @@ export function buildDashboardAnalytics(
     .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime())
     .slice(0, 8);
 
+  const recentApplications = [...applications]
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+    .slice(0, 5)
+    .map((application) => ({
+      id: application.id,
+      role: application.job.title,
+      company: application.job.company,
+      status: application.status,
+      updatedAt: application.updatedAt,
+    }));
+
   return {
-    totals: { totalJobs, totalApplications: applications.length },
+    totals: {
+      totalJobs,
+      totalApplications: applications.length,
+      totalInterviews: applications.reduce(
+        (count, application) => count + application.interviews.length,
+        0
+      ),
+      totalOffers: offerApplications.length,
+    },
     summary: {
       applicationsThisMonth: currentMonth.length,
       previousMonthApplications: previousMonth.length,
@@ -275,9 +323,11 @@ export function buildDashboardAnalytics(
       goalRemaining,
     },
     goal: {
-      target: monthlyGoal,
+      configured: goalConfigured,
+      target: goalTarget,
       current: goalCurrent,
-      percentage: Math.min(percentage(goalCurrent, monthlyGoal), 100),
+      remaining: goalRemaining,
+      percentage: goalConfigured ? Math.min(percentage(goalCurrent, goalTarget), 100) : 0,
       monthLabel: now.toLocaleDateString('en-US', { month: 'long' }),
     },
     funnel,
@@ -290,17 +340,22 @@ export function buildDashboardAnalytics(
       withdrawn: applications.filter((app) => app.status === 'WITHDRAWN').length,
     },
     weeklyActivity,
+    applicationActivity,
     sourcePerformance,
     priorities,
     upcomingInterviews: upcoming.slice(0, 5),
     insights,
     recentActivity,
+    recentApplications,
   };
 }
 
 export async function getDashboardStats(userId: string) {
-  const [totalJobs, applications] = await Promise.all([
-    prisma.job.count({ where: { userId } }),
+  const [jobs, applications] = await Promise.all([
+    prisma.job.findMany({
+      where: { userId },
+      select: { createdAt: true },
+    }),
     prisma.application.findMany({
       where: { userId },
       include: {
@@ -325,5 +380,12 @@ export async function getDashboardStats(userId: string) {
     }),
   ]);
 
-  return buildDashboardAnalytics(applications, totalJobs);
+  return buildDashboardAnalytics(
+    applications,
+    jobs.length,
+    new Date(),
+    null,
+    DEFAULT_FOLLOW_UP_DAYS,
+    jobs.map((job) => job.createdAt)
+  );
 }

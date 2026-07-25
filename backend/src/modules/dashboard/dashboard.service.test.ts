@@ -33,6 +33,7 @@ describe('dashboard analytics', () => {
     expect(result.summary.responseRate).toBe(0);
     expect(result.summary.interviewRate).toBe(0);
     expect(result.goal.percentage).toBe(0);
+    expect(result.goal.configured).toBe(false);
     expect(result.funnel[0].count).toBe(0);
   });
 
@@ -137,6 +138,47 @@ describe('dashboard analytics', () => {
     expect(result.weeklyActivity).toHaveLength(7);
     expect(result.weeklyActivity.reduce((sum, day) => sum + day.count, 0)).toBe(1);
     expect(result.weeklyActivity.some((day) => day.count === 0)).toBe(true);
+  });
+
+  it('separates jobs saved from applications submitted in weekly activity', () => {
+    const result = buildDashboardAnalytics(
+      [application({ createdAt: new Date(2026, 6, 15, 8) })],
+      1,
+      now,
+      null,
+      7,
+      [new Date(2026, 6, 15, 9)]
+    );
+
+    expect(result.weeklyActivity.reduce((sum, day) => sum + day.applications, 0)).toBe(1);
+    expect(result.weeklyActivity.reduce((sum, day) => sum + day.jobsSaved, 0)).toBe(1);
+  });
+
+  it('builds six months of real application, interview, and offer activity', () => {
+    const result = buildDashboardAnalytics(
+      [
+        application({
+          status: 'OFFER',
+          offeredAt: new Date(2026, 6, 14),
+          interviews: [{
+            id: 'i-1',
+            type: 'FINAL',
+            status: 'COMPLETED',
+            scheduledAt: new Date(2026, 6, 13),
+            createdAt: new Date(2026, 6, 12),
+          }],
+        }),
+      ],
+      1,
+      now
+    );
+
+    expect(result.applicationActivity).toHaveLength(6);
+    expect(result.applicationActivity[result.applicationActivity.length - 1]).toMatchObject({
+      applications: 1,
+      interviews: 1,
+      offers: 1,
+    });
   });
 
   it('does not name a best source from fewer than three applications', () => {
