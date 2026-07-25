@@ -10,14 +10,20 @@ import { useDeferredValue, useEffect, useState } from 'react';
 import { Job, JobPriority, JobSource } from '@/lib/types/job';
 import { Input } from '@/src/components/ui/input';
 import {
+  BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Clock3,
   ExternalLink,
   Flag,
+  Globe2,
+  Link2,
+  MapPin,
   Pencil,
   Plus,
+  RotateCcw,
   Search,
   SlidersHorizontal,
   X,
@@ -333,19 +339,31 @@ export default function JobsPage() {
             role="dialog"
             aria-modal="true"
             aria-label="Job filters"
-            className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-2xl"
+            className="absolute inset-y-0 right-0 flex w-full max-w-[26rem] flex-col bg-white shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 p-5">
-              <h2 className="text-lg font-semibold text-slate-950">Filters</h2>
-              <Button variant="ghost" size="sm" onClick={() => setFiltersOpen(false)} className="h-9 w-9 p-0">
+            <div className="flex items-start justify-between px-5 py-5">
+              <div className="flex items-center gap-3">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <SlidersHorizontal className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-950">Filter jobs</h2>
+                  <p className="mt-0.5 text-xs text-slate-500">Refine your saved opportunities</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setFiltersOpen(false)} className="h-9 w-9 rounded-xl p-0">
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="flex-1 space-y-5 overflow-y-auto p-5">
-              <div>
-                <label className="mb-2 block text-sm font-medium">Source</label>
+            <div className="scrollbar-hidden flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-5">
+              <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Globe2 className="h-4 w-4 text-indigo-500" />
+                  Source
+                </label>
                 <Select value={sourceFilter} onValueChange={(value) => handleSourceChange(value as JobSource | 'ALL')}>
-                  <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
                   <SelectContent position="popper">
                     <SelectItem value="ALL">All sources</SelectItem>
                     {JOB_SOURCES.map((source) => (
@@ -357,9 +375,12 @@ export default function JobsPage() {
                 </Select>
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium">Priority</label>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Flag className="h-4 w-4 text-indigo-500" />
+                  Priority
+                </label>
                 <Select value={priority} onValueChange={(value) => setPriority(value as JobPriority | 'ALL')}>
-                  <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
                   <SelectContent position="popper">
                     <SelectItem value="ALL">All priorities</SelectItem>
                     {JOB_PRIORITIES.map((value) => (
@@ -369,16 +390,22 @@ export default function JobsPage() {
                 </Select>
               </div>
               <div>
-                <label htmlFor="job-location-filter" className="mb-2 block text-sm font-medium">Location</label>
-                <Input id="job-location-filter" value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)} placeholder="City or location" />
+                <label htmlFor="job-location-filter" className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <MapPin className="h-4 w-4 text-indigo-500" />
+                  Location
+                </label>
+                <Input id="job-location-filter" value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)} placeholder="City or location" className="h-11 rounded-xl border-slate-200 bg-slate-50 shadow-none" />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium">Application link</label>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Link2 className="h-4 w-4 text-indigo-500" />
+                  Application link
+                </label>
                 <Select
                   value={hasApplication === undefined ? 'ALL' : String(hasApplication)}
                   onValueChange={(value) => setHasApplication(value === 'ALL' ? undefined : value === 'true')}
                 >
-                  <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
                   <SelectContent position="popper">
                     <SelectItem value="ALL">Any</SelectItem>
                     <SelectItem value="true">Has application</SelectItem>
@@ -386,19 +413,28 @@ export default function JobsPage() {
                   </SelectContent>
                 </Select>
               </div>
+              </section>
+
+              <section className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  Quick filters
+                </p>
               <Button
                 type="button"
                 variant={closingSoon ? 'default' : 'outline'}
                 onClick={() => setClosingSoon(closingSoon ? undefined : true)}
-                className="w-full justify-start"
+                className={`h-11 w-full justify-start rounded-xl shadow-none ${
+                  closingSoon
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'border-slate-200 bg-white text-slate-700'
+                }`}
               >
+                <Clock3 className="h-4 w-4" />
                 Closing within 7 days
               </Button>
-              <div>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
+                  variant={showDateFilter ? 'secondary' : 'outline'}
                   onClick={() => {
                     if (showDateFilter) {
                       setFromDate('');
@@ -406,20 +442,33 @@ export default function JobsPage() {
                     }
                     setShowDateFilter((value) => !value);
                   }}
+                  className="h-11 w-full justify-start rounded-xl border-slate-200 bg-white text-slate-700 shadow-none hover:bg-slate-50"
                 >
+                  <CalendarDays className="h-4 w-4 text-indigo-500" />
                   {showDateFilter ? 'Remove date filter' : 'Filter by date saved'}
                 </Button>
                 {showDateFilter && (
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    <Input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} aria-label="Saved from" />
-                    <Input type="date" value={toDate} min={fromDate || undefined} onChange={(event) => setToDate(event.target.value)} aria-label="Saved to" />
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <label className="text-xs font-medium text-slate-500">
+                      From
+                      <Input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} aria-label="Saved from" className="mt-1.5 rounded-xl bg-slate-50" />
+                    </label>
+                    <label className="text-xs font-medium text-slate-500">
+                      To
+                      <Input type="date" value={toDate} min={fromDate || undefined} onChange={(event) => setToDate(event.target.value)} aria-label="Saved to" className="mt-1.5 rounded-xl bg-slate-50" />
+                    </label>
                   </div>
                 )}
-              </div>
+              </section>
             </div>
-            <div className="flex gap-2 border-t border-slate-200 p-4">
-              <Button variant="outline" onClick={clearFilters} className="flex-1">Clear all</Button>
-              <Button onClick={() => setFiltersOpen(false)} className="flex-1 bg-slate-950 text-white">Show results</Button>
+            <div className="flex gap-2 bg-white p-4 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
+              <Button variant="outline" onClick={clearFilters} className="h-11 flex-1 rounded-xl border-slate-200">
+                <RotateCcw className="h-4 w-4" />
+                Clear all
+              </Button>
+              <Button onClick={() => setFiltersOpen(false)} className="h-11 flex-1 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">
+                Show results
+              </Button>
             </div>
           </aside>
         </div>
@@ -439,13 +488,17 @@ export default function JobsPage() {
             aria-label={`${selectedJob.title} details`}
             className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col bg-white shadow-2xl"
           >
-            <div className="flex items-start justify-between bg-slate-950 p-6 text-white">
-              <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
-                  Saved opportunity
-                </p>
-                <div className="mt-2 flex min-w-0 items-center gap-2">
-                  <h2 className="truncate text-2xl font-semibold">{selectedJob.title}</h2>
+            <div className="flex items-start justify-between gap-4 bg-white px-6 py-5 shadow-sm">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <BriefcaseBusiness className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-indigo-500">
+                    Saved opportunity
+                  </p>
+                  <div className="mt-1 flex min-w-0 items-center gap-2">
+                  <h2 className="truncate text-xl font-semibold text-slate-950">{selectedJob.title}</h2>
                   <Button
                     type="button"
                     variant="ghost"
@@ -454,33 +507,34 @@ export default function JobsPage() {
                       setSelectedJob(null);
                       openEdit(selectedJob);
                     }}
-                    className="h-8 w-8 shrink-0 p-0 text-slate-300 hover:bg-white/10 hover:text-white"
+                    className="h-8 w-8 shrink-0 rounded-lg p-0 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
                     aria-label={`Edit ${selectedJob.title}`}
                     title="Edit job"
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="mt-1 text-slate-300">
+                <p className="mt-1 text-sm text-slate-500">
                   {selectedJob.company}
                   {selectedJob.location ? ` · ${selectedJob.location}` : ''}
                 </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
                     {JOB_PRIORITY_LABELS[selectedJob.priority]} priority
                   </span>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-500">
                     {getJobAgeLabel(selectedJob.createdAt)}
                   </span>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedJob(null)} className="h-9 w-9 p-0 text-slate-300 hover:bg-white/10 hover:text-white">
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedJob(null)} className="h-9 w-9 shrink-0 rounded-xl p-0 text-slate-500 hover:bg-slate-100 hover:text-slate-900">
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="scrollbar-hidden flex-1 space-y-8 overflow-y-auto p-6">
-              <section>
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Overview</h3>
+            <div className="scrollbar-hidden flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-5">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">Overview</h3>
                 <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-xl bg-slate-50 p-3">
                     <dt className="flex items-center gap-1.5 text-xs text-slate-400">
@@ -531,29 +585,29 @@ export default function JobsPage() {
                   </div>
                 )}
                 {selectedJob.jobUrl && (
-                  <a href={selectedJob.jobUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline">
+                  <a href={selectedJob.jobUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
                     Open original listing<ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 )}
               </section>
-              <section className="border-t border-slate-100 pt-7">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Job details</h3>
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">Job details</h3>
                 <div className="mt-3 rounded-xl bg-slate-50 p-4">
                   <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedJob.description || 'No description saved.'}</p>
                 </div>
               </section>
-              <section className="border-t border-slate-100 pt-7">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Personal notes</h3>
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">Personal notes</h3>
                 <div className="mt-3 rounded-xl bg-slate-50 p-4">
                   <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedJob.notes || 'No personal notes yet.'}</p>
                 </div>
               </section>
             </div>
-            <div className="flex justify-end border-t border-slate-200 bg-white p-4">
+            <div className="flex justify-end bg-white p-4 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
               {selectedJob.applications[0] ? (
-                <Button onClick={() => window.location.assign('/applications')} className="bg-slate-950 text-white">Open application</Button>
+                <Button onClick={() => window.location.assign('/applications')} className="h-11 rounded-xl bg-indigo-600 px-5 text-white hover:bg-indigo-700">Open application</Button>
               ) : (
-                <Button onClick={() => { setMarkAppliedJob(selectedJob); setSelectedJob(null); }} className="bg-slate-950 text-white">Mark as applied</Button>
+                <Button onClick={() => { setMarkAppliedJob(selectedJob); setSelectedJob(null); }} className="h-11 rounded-xl bg-indigo-600 px-5 text-white hover:bg-indigo-700">Mark as applied</Button>
               )}
             </div>
           </aside>
