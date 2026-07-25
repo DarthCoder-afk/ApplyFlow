@@ -14,6 +14,8 @@ export type Application = {
   jobId: string;
   createdAt: string;
   updatedAt: string;
+  followUpNeeded?: boolean;
+  interviews?: Interview[];
   _count?: {
     interviews: number;
   };
@@ -30,6 +32,12 @@ export type Application = {
 export type ApplicationsListResponse = {
   count: number;
   applications: Application[];
+  summary: {
+    active: number;
+    needsFollowUp: number;
+    upcomingInterviews: number;
+    offers: number;
+  };
   pagination: {
     page: number;
     limit: number;
@@ -37,3 +45,4 @@ export type ApplicationsListResponse = {
     totalPages: number;
   };
 };
+import type { Interview } from './interview';
