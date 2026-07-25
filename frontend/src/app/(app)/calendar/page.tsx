@@ -2,12 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  Clock3,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock3 } from 'lucide-react';
 import { getCalendarEvents } from '@/lib/api/calendar';
 import type {
   CalendarEvent,
@@ -125,25 +120,8 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-800 to-slate-700 px-6 py-7 text-white shadow-lg sm:px-8">
-        <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full bg-violet-400/20 blur-3xl" />
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
-            <CalendarDays className="h-3.5 w-3.5 text-violet-200" />
-            Pipeline calendar
-          </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Calendar
-          </h1>
-          <p className="mt-2 text-sm text-slate-300 sm:text-base">
-            View applications, interview stages, and offers by date.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold text-slate-950">
               {new Intl.DateTimeFormat(undefined, {
@@ -217,7 +195,7 @@ export default function CalendarPage() {
                         <div
                           className={`mb-2 grid h-7 w-7 place-items-center rounded-full text-sm ${
                             isToday
-                              ? 'bg-slate-950 font-semibold text-white'
+                              ? 'bg-indigo-600 font-semibold text-white'
                               : inCurrentMonth
                                 ? 'text-slate-700'
                                 : 'text-slate-400'
@@ -258,7 +236,7 @@ export default function CalendarPage() {
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="font-semibold text-slate-950">Legend</h2>
             <div className="mt-4 space-y-3 text-sm text-slate-600">
               <p className="flex items-center gap-2">
@@ -276,7 +254,7 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2">
               <Clock3 className="h-4 w-4 text-violet-600" />
               <h2 className="font-semibold text-slate-950">Upcoming</h2>
@@ -314,7 +292,6 @@ export default function CalendarPage() {
             )}
           </div>
         </aside>
-      </div>
     </div>
   );
 }

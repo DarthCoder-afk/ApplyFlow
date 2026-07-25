@@ -6,7 +6,7 @@ import JobForm from '@/src/components/jobs/job-form';
 import JobRow from '@/src/components/jobs/job-row';
 import { Button } from '@/src/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
-import { useDeferredValue, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { Job, JobPriority, JobSource } from '@/lib/types/job';
 import { Input } from '@/src/components/ui/input';
 import {
@@ -40,7 +40,6 @@ import {
 import JobSourceIcon from '@/src/components/jobs/job-source-icon';
 import { createApplication } from '@/lib/api/applications';
 import { buildApplicationPayloadFromJob, getDeadlineState, getJobAgeLabel } from '@/lib/job-opportunity';
-import { buildJobsSummaryText } from '@/lib/job-opportunity';
 import { toast } from 'sonner';
 
 export default function JobsPage() {
@@ -65,6 +64,17 @@ export default function JobsPage() {
     () => new Date().toISOString().slice(0, 10)
   );
   const deferredSearch = useDeferredValue(search);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const globalSearch = new URLSearchParams(window.location.search).get('search');
+      if (globalSearch) {
+        setSearch(globalSearch);
+        setPage(1);
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['jobs', deferredSearch, locationFilter, sourceFilter, priority, hasApplication, closingSoon, sort, fromDate, toDate, page],
@@ -151,61 +161,48 @@ export default function JobsPage() {
 
   return (
     <>
-      <div className="space-y-6">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-800 to-slate-700 px-6 py-5 text-white shadow-sm sm:px-8">
-          <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full bg-cyan-400/20 blur-3xl" />
-          <div className="relative flex items-center justify-between gap-5">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Jobs</h1>
-              <p className="mt-1 text-sm text-slate-300">
-                {data
-                  ? buildJobsSummaryText(data.summary)
-                  : 'Save and organize opportunities you want to pursue.'}
-              </p>
-            </div>
-
-            <Button
-              type="button"
-              onClick={openCreate}
-              className="bg-white text-slate-900 shadow-sm hover:bg-slate-100"
-            >
-              <Plus className="h-4 w-4" />
-              Add job
-            </Button>
-          </div>
-        </div>
-
+      <div className="space-y-5">
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
               type="search"
-              placeholder="Search jobs..."
+              placeholder="Search saved jobs..."
               value={search}
               onChange={(event) => handleSearchChange(event.target.value)}
               className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-none"
             />
           </div>
-          <Select value={sort} onValueChange={(value) => setSort(value as typeof sort)}>
-            <SelectTrigger className="w-full rounded-xl border-slate-200 bg-white shadow-none data-[size=default]:h-11 sm:w-44">
-              <SelectValue placeholder="Sort" />
-            </SelectTrigger>
-            <SelectContent position="popper">
-              <SelectItem value="createdAt">Newest saved</SelectItem>
-              <SelectItem value="priority">Highest priority</SelectItem>
-              <SelectItem value="deadline">Closing soon</SelectItem>
-              <SelectItem value="company">Company A–Z</SelectItem>
-              <SelectItem value="title">Job title A–Z</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setFiltersOpen(true)}
-            className="h-11 rounded-xl bg-transparent px-3 shadow-none"
-          >
-            <SlidersHorizontal className="h-4 w-4 " />
-          </Button>
+          <div className="flex flex-wrap gap-2 sm:contents">
+            <Select value={sort} onValueChange={(value) => setSort(value as typeof sort)}>
+              <SelectTrigger className="min-w-0 flex-1 rounded-xl border-slate-200 bg-white shadow-none data-[size=default]:h-11 sm:w-44 sm:flex-none">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="createdAt">Newest saved</SelectItem>
+                <SelectItem value="priority">Highest priority</SelectItem>
+                <SelectItem value="deadline">Closing soon</SelectItem>
+                <SelectItem value="company">Company A–Z</SelectItem>
+                <SelectItem value="title">Job title A–Z</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setFiltersOpen(true)}
+              className="h-11 shrink-0 rounded-xl bg-transparent px-4 shadow-none"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              onClick={openCreate}
+              className="h-11 shrink-0 bg-indigo-600 px-4 text-white shadow-sm hover:bg-indigo-700"
+            >
+              <Plus className="h-4 w-4" />
+              Add job
+            </Button>
+          </div>
         </div>
 
         {(sourceFilter !== 'ALL' || priority !== 'ALL' ||
@@ -225,7 +222,7 @@ export default function JobsPage() {
         {error && <p className="text-red-600">Could not load jobs.</p>}
 
         {data && data.jobs.length === 0 && (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
             <p className="font-medium text-[#212529]">
               {hasActiveFilters
                 ? 'No jobs match your filters'
@@ -244,7 +241,7 @@ export default function JobsPage() {
         )}
 
         {data && data.jobs.length > 0 && (
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <ul className="divide-y divide-slate-100">
               {data.jobs.map((job) => (
                 <JobRow

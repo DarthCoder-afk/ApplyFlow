@@ -191,22 +191,6 @@ export default function ApplicationsPage() {
     placeholderData: keepPreviousData,
   });
 
-  const summary = data?.summary ?? {
-    active:
-      data?.applications.filter((application) =>
-        ['SAVED', 'APPLIED', 'INTERVIEW'].includes(application.status)
-      ).length ?? 0,
-    needsFollowUp:
-      data?.applications.filter((application) => application.followUpNeeded).length ?? 0,
-    upcomingInterviews:
-      data?.applications.reduce(
-        (total, application) => total + (application.interviews?.length ?? 0),
-        0
-      ) ?? 0,
-    offers:
-      data?.applications.filter((application) => application.status === 'OFFER').length ?? 0,
-  };
-
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: ApplicationStatus }) =>
       updateApplication(id, { status }),
@@ -308,27 +292,7 @@ export default function ApplicationsPage() {
 
   return (
     <>
-      <div className="space-y-6">
-        <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-800 to-slate-700 px-6 py-5 text-white shadow-sm sm:px-8">
-          <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-          <div className="relative flex items-center justify-between gap-5">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Applications</h1>
-              <p className="mt-1 text-sm text-slate-300">
-                {data ? `${summary.active} active applications` : 'Your hiring pipeline'}
-              </p>
-            </div>
-            <Button
-              type="button"
-              onClick={() => setShowForm(true)}
-              className="bg-white text-slate-900 shadow-sm hover:bg-slate-100"
-            >
-              <Plus className="h-4 w-4" />
-              Add application
-            </Button>
-          </div>
-        </header>
-
+      <div className="space-y-5">
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -340,24 +304,34 @@ export default function ApplicationsPage() {
               className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-none"
             />
           </div>
-          <Select value={sort} onValueChange={(value) => { setSort(value as SortOption); setPage(1); }}>
-            <SelectTrigger className="w-full rounded-xl border-slate-200 bg-white shadow-none data-[size=default]:h-11 sm:w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent position="popper">
-              <SelectItem value="appliedAt">Newest applied</SelectItem>
-              <SelectItem value="updatedAt">Recently updated</SelectItem>
-              <SelectItem value="status">Status</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setFiltersOpen(true)}
-            className="h-11 bg-transparent px-3 shadow-none"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-          </Button>
+          <div className="flex flex-wrap gap-2 sm:contents">
+            <Select value={sort} onValueChange={(value) => { setSort(value as SortOption); setPage(1); }}>
+              <SelectTrigger className="min-w-0 flex-1 rounded-xl border-slate-200 bg-white shadow-none data-[size=default]:h-11 sm:w-44 sm:flex-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="appliedAt">Newest applied</SelectItem>
+                <SelectItem value="updatedAt">Recently updated</SelectItem>
+                <SelectItem value="status">Status</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setFiltersOpen(true)}
+              className="h-11 shrink-0 rounded-xl bg-transparent px-4 shadow-none"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              onClick={() => setShowForm(true)}
+              className="h-11 shrink-0 bg-indigo-600 px-4 text-white shadow-sm hover:bg-indigo-700"
+            >
+              <Plus className="h-4 w-4" />
+              Add application
+            </Button>
+          </div>
         </div>
 
         {hasActiveFilters && (
@@ -422,7 +396,7 @@ export default function ApplicationsPage() {
         {error && <p className="text-red-600">Could not load applications.</p>}
 
         {data && data.applications.length === 0 && (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
             <p className="font-medium text-slate-900">
               {hasActiveFilters ? 'No applications match your filters' : 'No applications tracked yet'}
             </p>
@@ -437,7 +411,7 @@ export default function ApplicationsPage() {
         )}
 
         {data && data.applications.length > 0 && view === 'list' && (
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <ul className="divide-y divide-slate-100">
               {data.applications.map((application) => (
                 <ApplicationRow
