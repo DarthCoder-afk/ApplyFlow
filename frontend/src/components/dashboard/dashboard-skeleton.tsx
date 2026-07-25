@@ -1,6 +1,6 @@
 export default function DashboardSkeleton() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       <div className="space-y-2">
         <div className="h-8 w-40 animate-pulse rounded bg-slate-200" />
         <div className="h-4 w-64 animate-pulse rounded bg-slate-100" />
@@ -15,9 +15,12 @@ export default function DashboardSkeleton() {
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white xl:col-span-2" />
-        <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white" />
+      <div className="grid gap-5 xl:grid-cols-12">
+        <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white xl:col-span-7" />
+        <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white xl:col-span-5" />
+        <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white xl:col-span-5" />
+        <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white xl:col-span-4" />
+        <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white xl:col-span-3" />
       </div>
     </div>
   );

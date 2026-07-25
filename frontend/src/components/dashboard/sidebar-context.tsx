@@ -5,9 +5,11 @@ import { usePathname } from 'next/navigation';
 
 type SidebarContextValue = {
   isOpen: boolean;
+  isCollapsed: boolean;
   open: () => void;
   close: () => void;
   toggle: () => void;
+  toggleCollapsed: () => void;
 };
 
 const SidebarContext = createContext<SidebarContextValue | null>(null);
@@ -15,6 +17,7 @@ const SidebarContext = createContext<SidebarContextValue | null>(null);
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
 
   if (pathname !== prevPathname) {
@@ -25,6 +28,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
   const toggle = useCallback(() => setIsOpen((v) => !v), []);
+  const toggleCollapsed = useCallback(() => setIsCollapsed((value) => !value), []);
 
   // Prevent body scroll when drawer is open
   useEffect(() => {
@@ -35,7 +39,9 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   }, [isOpen]);
 
   return (
-    <SidebarContext.Provider value={{ isOpen, open, close, toggle }}>
+    <SidebarContext.Provider
+      value={{ isOpen, isCollapsed, open, close, toggle, toggleCollapsed }}
+    >
       {children}
     </SidebarContext.Provider>
   );
