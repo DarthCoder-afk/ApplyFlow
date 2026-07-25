@@ -3,24 +3,23 @@
 @import 'shadcn/tailwind.css';
 
 :root {
-  /* your existing custom vars stay */
-  --background: #f8f9fa;
-  --foreground: #212529;
+  --background: #f8fafc;
+  --foreground: #111827;
   --popover: #ffffff;
-  --popover-foreground: #212529;
+  --popover-foreground: #111827;
   --card: #ffffff;
-  --card-foreground: #212529;
-  --primary: #212529;
+  --card-foreground: #111827;
+  --primary: #4f46e5;
   --primary-foreground: #ffffff;
-  --secondary: #e9ecef;
-  --secondary-foreground: #212529;
-  --muted: #e9ecef;
-  --muted-foreground: #6c757d;
-  --accent: #e9ecef;
-  --accent-foreground: #212529;
-  --border: #dee2e6;
-  --input: #ced4da;
-  --ring: #adb5bd;
+  --secondary: #eef2ff;
+  --secondary-foreground: #4338ca;
+  --muted: #f1f5f9;
+  --muted-foreground: #6b7280;
+  --accent: #eef2ff;
+  --accent-foreground: #4338ca;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #4f46e5;
 }
 
 html {
@@ -44,6 +43,7 @@ html {
 }
 
 @theme inline {
+  --font-sans: var(--font-geist-sans);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-popover: var(--popover);
