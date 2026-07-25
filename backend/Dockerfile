@@ -20,6 +20,6 @@ COPY src ./src
 
 RUN pnpm build
 
-EXPOSE 10000
+EXPOSE 4000
 
 CMD ["sh", "-c", "pnpm prisma migrate deploy && pnpm start"]
