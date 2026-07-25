@@ -12,6 +12,8 @@ export type DashboardStats = {
   totals: {
     totalJobs: number;
     totalApplications: number;
+    totalInterviews: number;
+    totalOffers: number;
   };
   summary: {
     applicationsThisMonth: number;
@@ -26,8 +28,10 @@ export type DashboardStats = {
     goalRemaining: number;
   };
   goal: {
+    configured: boolean;
     target: number;
     current: number;
+    remaining: number;
     percentage: number;
     monthLabel: string;
   };
@@ -49,6 +53,15 @@ export type DashboardStats = {
     date: string;
     label: string;
     count: number;
+    applications: number;
+    jobsSaved: number;
+  }>;
+  applicationActivity: Array<{
+    date: string;
+    label: string;
+    applications: number;
+    interviews: number;
+    offers: number;
   }>;
   sourcePerformance: Array<{
     source: string;
@@ -75,5 +88,12 @@ export type DashboardStats = {
     occurredAt: string;
     title: string;
     detail: string;
+  }>;
+  recentApplications: Array<{
+    id: string;
+    role: string;
+    company: string;
+    status: 'SAVED' | 'APPLIED' | 'INTERVIEW' | 'OFFER' | 'REJECTED' | 'WITHDRAWN';
+    updatedAt: string;
   }>;
 };
