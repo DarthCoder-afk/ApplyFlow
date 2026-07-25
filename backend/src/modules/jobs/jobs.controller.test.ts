@@ -49,6 +49,8 @@ describe('create job controller', () => {
         url: 'https://example.com/job',
         description: 'Build web applications.',
         source: 'LINKEDIN',
+        priority: 'HIGH',
+        deadline: '2026-08-01',
       },
     } as unknown as Request;
     const res = createResponseMock();
@@ -56,10 +58,39 @@ describe('create job controller', () => {
     await create(req, res);
 
     expect(mockedCreateJob).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 'user-1', jobUrl: 'https://example.com/job' })
+      expect.objectContaining({
+        userId: 'user-1',
+        jobUrl: 'https://example.com/job',
+        priority: 'HIGH',
+        deadline: '2026-08-01',
+      })
     );
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({ message: 'Job created successfully', job });
+  });
+
+  it('returns 409 when the job is a possible duplicate', async () => {
+    mockedCreateJob.mockRejectedValue(new Error('POSSIBLE_DUPLICATE'));
+    const req = {
+      userId: 'user-1',
+      body: {
+        title: 'Frontend Developer',
+        company: 'Example Inc.',
+        location: 'Manila',
+        url: 'https://example.com/job',
+        description: 'Build web applications.',
+        source: 'LINKEDIN',
+      },
+    } as unknown as Request;
+    const res = createResponseMock();
+
+    await create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Possible duplicate job',
+      code: 'POSSIBLE_DUPLICATE',
+    });
   });
 });
 
@@ -74,10 +105,11 @@ describe('list jobs controller', () => {
     expect(mockedGetJobsByUser).not.toHaveBeenCalled();
   });
 
-  it('returns jobs and pagination information', async () => {
+  it('returns jobs, summary, and pagination information', async () => {
     const jobs = [{ id: 'job-1', title: 'Frontend Developer' }];
     const pagination = { page: 1, limit: 10, total: 1, totalPages: 1 };
-    mockedGetJobsByUser.mockResolvedValue({ jobs, pagination });
+    const summary = { all: 1, highPriority: 0, hasApplication: 0, closingSoon: 0 };
+    mockedGetJobsByUser.mockResolvedValue({ jobs, summary, pagination });
     const req = {
       userId: 'user-1',
       validatedQuery: { page: 1, limit: 10, sort: 'createdAt', order: 'desc' },
@@ -88,7 +120,40 @@ describe('list jobs controller', () => {
 
     expect(mockedGetJobsByUser).toHaveBeenCalledWith(expect.objectContaining({ userId: 'user-1' }));
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ count: 1, jobs, pagination });
+    expect(res.json).toHaveBeenCalledWith({ count: 1, jobs, summary, pagination });
+  });
+
+  it('forwards priority, hasApplication, and closingSoon filters to the service', async () => {
+    mockedGetJobsByUser.mockResolvedValue({
+      jobs: [],
+      summary: { all: 0, highPriority: 0, hasApplication: 0, closingSoon: 0 },
+      pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+    });
+    const req = {
+      userId: 'user-1',
+      validatedQuery: {
+        page: 1,
+        limit: 10,
+        sort: 'deadline',
+        order: 'asc',
+        priority: 'HIGH',
+        hasApplication: true,
+        closingSoon: true,
+        location: 'Manila',
+      },
+    } as unknown as Request;
+    const res = createResponseMock();
+
+    await getAll(req, res);
+
+    expect(mockedGetJobsByUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        priority: 'HIGH',
+        hasApplication: true,
+        closingSoon: true,
+        location: 'Manila',
+      })
+    );
   });
 });
 
@@ -167,6 +232,24 @@ describe('update job controller', () => {
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ message: 'Job updated successfully', job });
+  });
+
+  it('returns 409 when the update creates a possible duplicate', async () => {
+    mockedUpdateJob.mockRejectedValue(new Error('POSSIBLE_DUPLICATE'));
+    const req = {
+      userId: 'user-1',
+      params: { id: 'job-1' },
+      body: { title: 'Senior Developer' },
+    } as unknown as Request;
+    const res = createResponseMock();
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Possible duplicate job',
+      code: 'POSSIBLE_DUPLICATE',
+    });
   });
 });
 

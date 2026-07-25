@@ -178,4 +178,77 @@ describe('dashboard analytics', () => {
 
     expect(result.insights.some((insight) => insight.id === 'source')).toBe(true);
   });
+
+  it('caps the monthly goal percentage at 100 even when applications exceed the target', () => {
+    const apps = Array.from({ length: 10 }, (_, index) =>
+      application({ id: `app-${index}`, createdAt: new Date(2026, 6, 5) })
+    );
+    const result = buildDashboardAnalytics(apps, 10, now, 5);
+
+    expect(result.goal.current).toBe(10);
+    expect(result.goal.target).toBe(5);
+    expect(result.goal.percentage).toBe(100);
+    expect(result.summary.goalRemaining).toBe(0);
+  });
+
+  it('selects the earliest upcoming scheduled interview and ignores completed or past ones', () => {
+    const result = buildDashboardAnalytics(
+      [
+        application({
+          id: 'app-completed',
+          status: 'INTERVIEW',
+          interviews: [
+            {
+              id: 'i-completed',
+              type: 'INITIAL',
+              status: 'COMPLETED',
+              scheduledAt: new Date(2026, 6, 20),
+              createdAt: new Date(2026, 6, 14),
+            },
+            {
+              id: 'i-past',
+              type: 'HR',
+              status: 'SCHEDULED',
+              scheduledAt: new Date(2026, 6, 10),
+              createdAt: new Date(2026, 6, 5),
+            },
+          ],
+        }),
+        application({
+          id: 'app-upcoming',
+          status: 'INTERVIEW',
+          job: { id: 'job-2', title: 'Backend Developer', company: 'Globex', source: 'INDEED' },
+          interviews: [
+            {
+              id: 'i-later',
+              type: 'FINAL',
+              status: 'SCHEDULED',
+              scheduledAt: new Date(2026, 6, 25),
+              createdAt: new Date(2026, 6, 14),
+            },
+            {
+              id: 'i-soonest',
+              type: 'TECHNICAL',
+              status: 'RESCHEDULED',
+              scheduledAt: new Date(2026, 6, 18),
+              createdAt: new Date(2026, 6, 14),
+            },
+          ],
+        }),
+      ],
+      2,
+      now
+    );
+
+    expect(result.summary.nextInterview).toMatchObject({
+      id: 'i-soonest',
+      applicationId: 'app-upcoming',
+      role: 'Backend Developer',
+      company: 'Globex',
+    });
+    expect(result.upcomingInterviews.map((interview) => interview.id)).toEqual([
+      'i-soonest',
+      'i-later',
+    ]);
+  });
 });
