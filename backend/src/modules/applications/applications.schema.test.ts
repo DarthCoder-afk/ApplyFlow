@@ -65,4 +65,18 @@ describe('listApplicationsQuerySchema', () => {
       order: 'desc',
     });
   });
+
+  it('accepts company, source, and follow-up filters', () => {
+    expect(
+      listApplicationsQuerySchema.parse({
+        company: 'Acme',
+        source: 'LINKEDIN',
+        followUpNeeded: 'true',
+      })
+    ).toMatchObject({
+      company: 'Acme',
+      source: 'LINKEDIN',
+      followUpNeeded: true,
+    });
+  });
 });

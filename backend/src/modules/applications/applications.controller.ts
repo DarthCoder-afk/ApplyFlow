@@ -49,11 +49,26 @@ export async function listApplications(req: Request, res: Response) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    const { status, search, page, limit, sort, order, fromDate, toDate } = req.validatedQuery as ListApplicationsQuery;
+    const {
+      status,
+      company,
+      source,
+      followUpNeeded,
+      search,
+      page,
+      limit,
+      sort,
+      order,
+      fromDate,
+      toDate,
+    } = req.validatedQuery as ListApplicationsQuery;
 
     const result = await getApplications({
       userId: req.userId,
       status,
+      company,
+      source,
+      followUpNeeded,
       search,
       page,
       limit,

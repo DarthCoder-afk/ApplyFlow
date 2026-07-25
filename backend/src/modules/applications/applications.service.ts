@@ -1,6 +1,7 @@
 import { prisma } from '../../config/database';
 import { getJobById } from '../jobs/jobs.service';
 import { ApplicationStatus } from './applications.constants';
+import { JobSource } from '../jobs/jobs.constants';
 
 type ApplicationSortField = 'createdAt' | 'updatedAt' | 'appliedAt' | 'status';
 
@@ -21,6 +22,9 @@ type UpdateApplicationInput = {
 type GetApplicationsFilters = {
   userId: string;
   status?: ApplicationStatus;
+  company?: string;
+  source?: JobSource;
+  followUpNeeded?: boolean;
   search?: string;
   page?: number;
   limit?: number;
@@ -29,6 +33,26 @@ type GetApplicationsFilters = {
   sort?: ApplicationSortField;
   order?: 'asc' | 'desc';
 };
+
+const ACTIVE_APPLICATION_STATUSES: ApplicationStatus[] = ['SAVED', 'APPLIED', 'INTERVIEW'];
+const UPCOMING_INTERVIEW_STATUSES = ['SCHEDULED', 'RESCHEDULED'] as const;
+const FOLLOW_UP_DAYS = 7;
+
+export function isFollowUpNeeded(
+  application: {
+    status: ApplicationStatus;
+    updatedAt: Date;
+    interviews: Array<{ scheduledAt: Date }>;
+  },
+  now = new Date()
+) {
+  const cutoff = new Date(now.getTime() - FOLLOW_UP_DAYS * 86_400_000);
+  return (
+    ACTIVE_APPLICATION_STATUSES.includes(application.status) &&
+    application.updatedAt <= cutoff &&
+    application.interviews.length === 0
+  );
+}
 
 export async function createApplication(input: CreateApplicationInput) {
   const job = await getJobById(input.jobId, input.userId);
@@ -77,6 +101,12 @@ export async function getApplications(filters: GetApplicationsFilters) {
   const skip = (page - 1) * limit;
   const sortField = filters.sort ?? 'createdAt';
   const sortOrder = filters.order ?? 'desc';
+  const now = new Date();
+  const followUpCutoff = new Date(now.getTime() - FOLLOW_UP_DAYS * 86_400_000);
+  const upcomingInterviewWhere = {
+    scheduledAt: { gte: now },
+    status: { in: [...UPCOMING_INTERVIEW_STATUSES] },
+  };
   const appliedAtFilter =
   filters.fromDate || filters.toDate
     ? {
@@ -93,18 +123,33 @@ export async function getApplications(filters: GetApplicationsFilters) {
 
     ...(appliedAtFilter ? { appliedAt: appliedAtFilter } : {}),
     ...(filters.status ? { status: filters.status } : {}),
-    ...(filters.search
+    ...(filters.followUpNeeded
       ? {
-          job: {
-            OR: [
-              { title: { contains: filters.search, mode: 'insensitive' as const } },
-              { company: { contains: filters.search, mode: 'insensitive' as const } },
-            ],
-          },
+          updatedAt: { lte: followUpCutoff },
+          interviews: { none: upcomingInterviewWhere },
         }
       : {}),
+    AND: [
+      ...(filters.followUpNeeded
+        ? [{ status: { in: ACTIVE_APPLICATION_STATUSES } }]
+        : []),
+      ...(filters.company
+        ? [{ job: { company: { contains: filters.company, mode: 'insensitive' as const } } }]
+        : []),
+      ...(filters.source ? [{ job: { source: filters.source } }] : []),
+      ...(filters.search
+        ? [{
+            job: {
+              OR: [
+                { title: { contains: filters.search, mode: 'insensitive' as const } },
+                { company: { contains: filters.search, mode: 'insensitive' as const } },
+              ],
+            },
+          }]
+        : []),
+    ],
   };
-  const [applications, total] = await Promise.all([
+  const [applications, total, summaryApplications] = await Promise.all([
     prisma.application.findMany({
       where,
       skip,
@@ -126,12 +171,59 @@ export async function getApplications(filters: GetApplicationsFilters) {
             interviews: true,
           },
         },
+        interviews: {
+          where: upcomingInterviewWhere,
+          orderBy: { scheduledAt: 'asc' },
+          take: 1,
+          select: {
+            id: true,
+            type: true,
+            status: true,
+            scheduledAt: true,
+            completedAt: true,
+            location: true,
+            meetingUrl: true,
+            interviewer: true,
+            notes: true,
+            applicationId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     }),
     prisma.application.count({ where }),
+    prisma.application.findMany({
+      where: { userId: filters.userId },
+      select: {
+        status: true,
+        updatedAt: true,
+        interviews: {
+          where: upcomingInterviewWhere,
+          select: { scheduledAt: true },
+        },
+      },
+    }),
   ]);
   return {
-    applications,
+    applications: applications.map((application) => ({
+      ...application,
+      followUpNeeded: isFollowUpNeeded(application, now),
+    })),
+    summary: {
+      active: summaryApplications.filter((application) =>
+        ACTIVE_APPLICATION_STATUSES.includes(application.status)
+      ).length,
+      needsFollowUp: summaryApplications.filter((application) =>
+        isFollowUpNeeded(application, now)
+      ).length,
+      upcomingInterviews: summaryApplications.reduce(
+        (totalInterviews, application) =>
+          totalInterviews + application.interviews.length,
+        0
+      ),
+      offers: summaryApplications.filter((application) => application.status === 'OFFER').length,
+    },
     pagination: {
       page,
       limit,
