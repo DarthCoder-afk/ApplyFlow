@@ -9,14 +9,19 @@ import {
 } from '@tanstack/react-query';
 import {
   Bell,
+  Building2,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
   Columns3,
   ExternalLink,
+  FileText,
+  Globe2,
   List,
+  ListChecks,
   MapPin,
   Plus,
+  RotateCcw,
   Search,
   SlidersHorizontal,
   Trash2,
@@ -560,18 +565,30 @@ export default function ApplicationsPage() {
       {filtersOpen && (
         <div className="fixed inset-0 z-50">
           <button type="button" aria-label="Close filters" onClick={() => setFiltersOpen(false)} className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" />
-          <aside role="dialog" aria-modal="true" aria-label="Application filters" className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 p-5">
-              <h2 className="text-lg font-semibold text-slate-950">Filters</h2>
-              <Button variant="ghost" size="sm" onClick={() => setFiltersOpen(false)} className="h-9 w-9 p-0">
+          <aside role="dialog" aria-modal="true" aria-label="Application filters" className="absolute inset-y-0 right-0 flex w-full max-w-[26rem] flex-col bg-white shadow-2xl">
+            <div className="flex items-start justify-between px-5 py-5">
+              <div className="flex items-center gap-3">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <SlidersHorizontal className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-950">Filter applications</h2>
+                  <p className="mt-0.5 text-xs text-slate-500">Focus your application pipeline</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setFiltersOpen(false)} className="h-9 w-9 rounded-xl p-0">
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="flex-1 space-y-5 overflow-y-auto p-5">
+            <div className="scrollbar-hidden flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-5">
+              <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <div>
-                <label className="mb-2 block text-sm font-medium">Status</label>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <ListChecks className="h-4 w-4 text-indigo-500" />
+                  Status
+                </label>
                 <Select value={statusFilter} onValueChange={(value) => { setStatusFilter(value as ApplicationStatus | 'ALL'); setPage(1); }}>
-                  <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
                   <SelectContent position="popper">
                     <SelectItem value="ALL">All statuses</SelectItem>
                     {APPLICATION_STATUSES.map((status) => (
@@ -584,13 +601,19 @@ export default function ApplicationsPage() {
                 </Select>
               </div>
               <div>
-                <label htmlFor="application-company" className="mb-2 block text-sm font-medium">Company</label>
-                <Input id="application-company" value={company} onChange={(event) => { setCompany(event.target.value); setPage(1); }} placeholder="Company name" />
+                <label htmlFor="application-company" className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Building2 className="h-4 w-4 text-indigo-500" />
+                  Company
+                </label>
+                <Input id="application-company" value={company} onChange={(event) => { setCompany(event.target.value); setPage(1); }} placeholder="Company name" className="h-11 rounded-xl border-slate-200 bg-slate-50 shadow-none" />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium">Source</label>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Globe2 className="h-4 w-4 text-indigo-500" />
+                  Source
+                </label>
                 <Select value={source} onValueChange={(value) => { setSource(value as JobSource | 'ALL'); setPage(1); }}>
-                  <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
                   <SelectContent position="popper">
                     <SelectItem value="ALL">All sources</SelectItem>
                     {JOB_SOURCES.map((jobSource) => (
@@ -602,19 +625,27 @@ export default function ApplicationsPage() {
                   </SelectContent>
                 </Select>
               </div>
+              </section>
+
+              <section className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  Quick filters
+                </p>
               <Button
                 type="button"
                 variant={followUpOnly ? 'default' : 'outline'}
                 onClick={() => { setFollowUpOnly((value) => !value); setPage(1); }}
-                className="w-full justify-start"
+                className={`h-11 w-full justify-start rounded-xl shadow-none ${
+                  followUpOnly
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'border-slate-200 bg-white text-slate-700'
+                }`}
               >
                 <Bell className="h-4 w-4" />Follow-up needed
               </Button>
-              <div>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
+                  variant={showDateFilter ? 'secondary' : 'outline'}
                   onClick={() => {
                     if (showDateFilter) {
                       setFromDate('');
@@ -622,20 +653,33 @@ export default function ApplicationsPage() {
                     }
                     setShowDateFilter((value) => !value);
                   }}
+                  className="h-11 w-full justify-start rounded-xl border-slate-200 bg-white text-slate-700 shadow-none hover:bg-slate-50"
                 >
+                  <CalendarDays className="h-4 w-4 text-indigo-500" />
                   {showDateFilter ? 'Remove date filter' : 'Filter by date applied'}
                 </Button>
                 {showDateFilter && (
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    <Input type="date" value={fromDate} onChange={(event) => { setFromDate(event.target.value); setPage(1); }} aria-label="Applied from" />
-                    <Input type="date" value={toDate} min={fromDate || undefined} onChange={(event) => { setToDate(event.target.value); setPage(1); }} aria-label="Applied to" />
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <label className="text-xs font-medium text-slate-500">
+                      From
+                      <Input type="date" value={fromDate} onChange={(event) => { setFromDate(event.target.value); setPage(1); }} aria-label="Applied from" className="mt-1.5 rounded-xl bg-slate-50" />
+                    </label>
+                    <label className="text-xs font-medium text-slate-500">
+                      To
+                      <Input type="date" value={toDate} min={fromDate || undefined} onChange={(event) => { setToDate(event.target.value); setPage(1); }} aria-label="Applied to" className="mt-1.5 rounded-xl bg-slate-50" />
+                    </label>
                   </div>
                 )}
-              </div>
+              </section>
             </div>
-            <div className="flex gap-2 border-t border-slate-200 p-4">
-              <Button variant="outline" onClick={clearFilters} className="flex-1">Clear all</Button>
-              <Button onClick={() => setFiltersOpen(false)} className="flex-1 bg-slate-950 text-white">Show results</Button>
+            <div className="flex gap-2 bg-white p-4 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
+              <Button variant="outline" onClick={clearFilters} className="h-11 flex-1 rounded-xl border-slate-200">
+                <RotateCcw className="h-4 w-4" />
+                Clear all
+              </Button>
+              <Button onClick={() => setFiltersOpen(false)} className="h-11 flex-1 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">
+                Show results
+              </Button>
             </div>
           </aside>
         </div>
@@ -645,27 +689,32 @@ export default function ApplicationsPage() {
         <div className="fixed inset-0 z-50">
           <button type="button" aria-label="Close application details" onClick={() => setSelectedApplication(null)} className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" />
           <aside role="dialog" aria-modal="true" aria-label={`${selectedApplication.job.title} details`} className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col bg-white shadow-2xl">
-            <div className="flex items-start justify-between bg-slate-950 p-6 text-white">
-              <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
+            <div className="flex items-start justify-between gap-4 bg-white px-6 py-5 shadow-sm">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <FileText className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-indigo-500">
                   Application details
                 </p>
-                <h2 className="mt-2 truncate text-2xl font-semibold">{selectedApplication.job.title}</h2>
-                <p className="mt-1 text-slate-300">{selectedApplication.job.company}</p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
+                <h2 className="mt-1 truncate text-xl font-semibold text-slate-950">{selectedApplication.job.title}</h2>
+                <p className="mt-1 text-sm text-slate-500">{selectedApplication.job.company}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
                   <StatusBadge status={selectedApplication.status} />
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-500">
                     {getAppliedAgeLabel(selectedApplication)}
                   </span>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedApplication(null)} className="h-9 w-9 p-0 text-slate-300 hover:bg-white/10 hover:text-white">
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedApplication(null)} className="h-9 w-9 shrink-0 rounded-xl p-0 text-slate-500 hover:bg-slate-100 hover:text-slate-900">
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="scrollbar-hidden flex-1 space-y-8 overflow-y-auto p-6">
-              <section>
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Overview</h3>
+            <div className="scrollbar-hidden flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-5">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">Overview</h3>
                 <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-xl bg-slate-50 p-3">
                     <dt className="flex items-center gap-1.5 text-xs text-slate-400">
@@ -712,18 +761,18 @@ export default function ApplicationsPage() {
                   </SelectContent>
                 </Select>
                 {selectedApplication.job.jobUrl && (
-                  <a href={selectedApplication.job.jobUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline">
+                  <a href={selectedApplication.job.jobUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
                     Open job listing<ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 )}
               </section>
 
-              <section className="border-t border-slate-100 pt-7">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Timeline</h3>
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">Timeline</h3>
                 <ol className="mt-4 space-y-4 text-sm">
                   {getApplicationTimeline(selectedApplication).map((event) => (
                     <li key={`${event.title}-${event.date.toISOString()}`} className="relative pl-6">
-                      <span className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-slate-950 ring-4 ring-slate-100" />
+                      <span className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-indigo-600 ring-4 ring-indigo-50" />
                       <p className="font-medium text-slate-800">{event.title}</p>
                       <p className="mt-0.5 text-xs text-slate-400">
                         {new Intl.DateTimeFormat(undefined, {
@@ -736,22 +785,22 @@ export default function ApplicationsPage() {
                 </ol>
               </section>
 
-              <section className="border-t border-slate-100 pt-7">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <InterviewPanel
                   applicationId={selectedApplication.id}
                   readOnly={selectedApplication.status !== 'INTERVIEW'}
                 />
               </section>
 
-              <section className="border-t border-slate-100 pt-7">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Notes</h3>
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">Notes</h3>
                 <textarea
                   value={notesDraft}
                   onChange={(event) => setNotesDraft(event.target.value)}
                   maxLength={2000}
                   rows={4}
                   placeholder="Follow-up details, recruiter name, preparation notes..."
-                  className="mt-3 w-full resize-y rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
+                  className="mt-3 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100"
                 />
                 <div className="mt-2 flex items-center justify-between gap-3">
                   <span className="text-xs text-slate-400">{notesDraft.length}/2000</span>
@@ -760,15 +809,15 @@ export default function ApplicationsPage() {
                     size="sm"
                     disabled={notesMutation.isPending || notesDraft === (selectedApplication.notes ?? '')}
                     onClick={() => notesMutation.mutate()}
-                    className="bg-slate-950 text-white"
+                    className="rounded-xl bg-indigo-600 text-white hover:bg-indigo-700"
                   >
                     {notesMutation.isPending ? 'Saving...' : 'Save notes'}
                   </Button>
                 </div>
               </section>
             </div>
-            <div className="flex justify-end border-t border-slate-200 bg-white p-4">
-              <Button type="button" variant="outline" onClick={() => setDeleteOpen(true)} className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+            <div className="flex justify-end bg-white p-4 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
+              <Button type="button" variant="outline" onClick={() => setDeleteOpen(true)} className="h-11 rounded-xl border-red-200 px-5 text-red-600 hover:bg-red-50 hover:text-red-700">
                 <Trash2 className="h-4 w-4" />Delete application
               </Button>
             </div>
