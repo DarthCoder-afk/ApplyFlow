@@ -18,7 +18,7 @@ A full-stack job application tracker that helps you manage your job search in on
 | -------- | ------------ |
 | Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS 4, TanStack Query, React Hook Form, Zod, Recharts, Framer Motion, shadcn/ui |
 | Backend  | Node.js, Express 5, TypeScript, Prisma, PostgreSQL, Zod, JWT, bcrypt |
-| Database | PostgreSQL 17 (via Docker) |
+| Database | PostgreSQL 17 (via Docker Compose) |
 
 ## Project Structure
 
@@ -31,7 +31,7 @@ Job Tracker/
 ├── backend/           # Express API (port 4000)
 │   ├── src/modules/   # auth, jobs, applications, dashboard
 │   └── prisma/        # Schema and migrations
-└── docker-compose.yml # PostgreSQL database
+└── docker-compose.yml # Frontend, API, and PostgreSQL
 ```
 
 ## Prerequisites
@@ -42,17 +42,37 @@ Job Tracker/
 
 ## Getting Started
 
-### 1. Start the database
+### Run the complete application with Docker
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-This starts PostgreSQL on port `5432` with:
+This starts the frontend at http://localhost:3000, API at http://localhost:4000, and PostgreSQL on port `5432`. The API runs database migrations automatically after PostgreSQL is healthy.
+
+For detached mode:
+
+```bash
+docker compose up --build -d
+```
+
+Stop the stack with `docker compose down`. Add `-v` only when you also want to delete the local database volume.
+
+PostgreSQL uses:
 
 - **Database:** `applyflow`
 - **User:** `postgres`
 - **Password:** `postgres`
+
+### Run services locally (alternative)
+
+Start only PostgreSQL:
+
+```bash
+docker compose up -d postgres
+```
+
+Then configure environment variables and run the frontend/backend as described below.
 
 ### 2. Configure environment variables
 
