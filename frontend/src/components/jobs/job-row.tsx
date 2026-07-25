@@ -44,6 +44,10 @@ export default function JobRow({ job, onEdit, onView, onMarkApplied }: JobRowPro
   const [deleteOpen, setDeleteOpen] = useState(false);
   const linkedApplication = job.applications[0];
   const deadline = getDeadlineState(job.deadline);
+  const showDeadline =
+    !linkedApplication &&
+    job.priority !== 'HIGH' &&
+    Boolean(deadline && (deadline.closed || deadline.closingSoon));
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteJob(job.id),
@@ -59,7 +63,7 @@ export default function JobRow({ job, onEdit, onView, onMarkApplied }: JobRowPro
   });
 
   return (
-    <li className="flex items-center gap-3 px-4 py-4 sm:px-5">
+    <li className="flex items-center gap-3 px-4 py-3 sm:px-5">
       <button type="button" onClick={() => onView(job)} className="min-w-0 flex-1 text-left">
         <p className="truncate font-medium text-slate-900">{job.title}</p>
         <p className="text-sm text-slate-500">
@@ -77,19 +81,26 @@ export default function JobRow({ job, onEdit, onView, onMarkApplied }: JobRowPro
           <span>{getJobAgeLabel(job.createdAt)}</span>
           {isJobStale(job) && <span className="text-amber-700">· Verify availability</span>}
         </p>
-        <div className="mt-2 flex min-h-6 flex-wrap items-center gap-2">
-          {job.priority === 'HIGH' ? (
-            <span className="text-xs font-medium text-red-700">High priority</span>
-          ) : linkedApplication ? (
-            <span className="inline-flex items-center gap-1 text-xs text-emerald-700">
-              <CheckCircle2 className="h-3.5 w-3.5" />Linked application
-            </span>
-          ) : deadline && (deadline.closed || deadline.closingSoon) ? (
-            <span className="text-xs font-medium text-amber-700">
-              {deadline.label}
-            </span>
-          ) : null}
-        </div>
+        {job.priority === 'HIGH' || linkedApplication || showDeadline ? (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {job.priority === 'HIGH' ? (
+              <span className="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">
+                High priority
+              </span>
+            ) : null}
+            {linkedApplication ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Linked application
+              </span>
+            ) : null}
+            {showDeadline && deadline ? (
+              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
+                {deadline.label}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </button>
 
       <DropdownMenu>
