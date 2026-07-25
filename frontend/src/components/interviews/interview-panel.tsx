@@ -222,7 +222,9 @@ export default function InterviewPanel({
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
-            Add the first stage for this application.
+            {readOnly
+              ? 'No interview stages have been recorded for this application.'
+              : 'Add the first stage for this application.'}
           </p>
         </div>
       )}
