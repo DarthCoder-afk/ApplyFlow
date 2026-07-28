@@ -56,6 +56,18 @@ For detached mode:
 docker compose up --build -d
 ```
 
+### Automatically refresh Docker services while developing
+
+After the initial image build, run Compose Watch instead of rebuilding manually:
+
+```bash
+docker compose watch
+```
+
+It watches `backend/` and `frontend/`, then rebuilds and recreates only the service
+whose application files changed. Dependency folders and build output are ignored.
+Use `Ctrl+C` to stop watching. Compose Watch requires Docker Compose 2.22 or newer.
+
 Stop the stack with `docker compose down`. Add `-v` only when you also want to delete the local database volume.
 
 PostgreSQL uses:
