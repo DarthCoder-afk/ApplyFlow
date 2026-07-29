@@ -23,11 +23,26 @@ const workflow = [
   ['04', 'See progress without the noise', 'A calm dashboard shows what is moving, what needs attention, and how far you have come.', CircleCheck],
 ] as const;
 
+const capabilities = [
+  ['Save', 'Jobs', BriefcaseBusiness],
+  ['Track', 'Applications', FileText],
+  ['Prepare', 'Interviews', CalendarDays],
+  ['Plan', 'Calendar', Bell],
+  ['Learn', 'Progress', Target],
+] as const;
+
 const focusAreas = [
   ['Jobs', 'Keep promising roles, sources, and notes in one deliberate shortlist.'],
   ['Applications', 'See exactly where each application stands, with no spreadsheet archaeology.'],
   ['Interviews', 'Make every conversation count with dates, preparation notes, and next steps.'],
   ['Progress', 'Understand your momentum at a glance and keep the search moving.'],
+];
+
+const dashboardViews = [
+  { nav: 'Jobs', title: 'Saved jobs', description: 'A considered shortlist of your best opportunities', metrics: [['18', 'Saved roles', 'bg-slate-300'], ['6', 'New this week', 'bg-blue-500'], ['4', 'Closing soon', 'bg-amber-400']], chartTitle: 'Roles added', status: 'Curated', bars: [36, 55, 42, 72, 48, 84, 63] },
+  { nav: 'Applications', title: 'Application pipeline', description: 'Every application, with a clear next step', metrics: [['12', 'Applied', 'bg-blue-500'], ['5', 'Awaiting reply', 'bg-violet-500'], ['3', 'Follow-ups due', 'bg-amber-400']], chartTitle: 'Applications sent', status: 'Moving', bars: [28, 62, 48, 78, 58, 88, 70] },
+  { nav: 'Calendar', title: 'Interview schedule', description: 'Prepare for every conversation with context', metrics: [['4', 'Interviews', 'bg-violet-500'], ['2', 'This week', 'bg-blue-500'], ['1', 'Prep notes ready', 'bg-emerald-500']], chartTitle: 'Interview activity', status: 'Prepared', bars: [22, 42, 76, 52, 86, 63, 74] },
+  { nav: 'Overview', title: 'Search overview', description: 'A focused view of your momentum', metrics: [['18', 'Active applications', 'bg-blue-500'], ['4', 'Interviews', 'bg-violet-500'], ['1', 'Offer', 'bg-emerald-500']], chartTitle: 'This week', status: 'On track', bars: [35, 58, 42, 74, 52, 88, 68] },
 ];
 
 function ProductBoard({ compact = false }: { compact?: boolean }) {
@@ -62,6 +77,7 @@ export default function ApplyFlowLanding() {
   const root = useRef<HTMLDivElement>(null);
   const heroVisual = useRef<HTMLDivElement>(null);
   const [activeFocus, setActiveFocus] = useState(0);
+  const dashboardView = dashboardViews[activeFocus];
 
   useGSAP(() => {
     const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -77,10 +93,23 @@ export default function ApplyFlowLanding() {
       gsap.from(element, { y: index % 2 ? 24 : 34, autoAlpha: 0, duration: .7, ease: 'power3.out', scrollTrigger: { trigger: element, start: 'top 84%', once: true } });
     });
 
-    gsap.to('[data-workflow-line]', { scaleY: 1, ease: 'none', scrollTrigger: { trigger: '[data-workflow]', start: 'top 70%', end: 'bottom 65%', scrub: true } });
+    gsap.to('[data-workflow-line]', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: '[data-workflow]', start: 'top 70%', end: 'bottom 65%', scrub: true } });
 
-    gsap.utils.toArray<HTMLElement>('[data-focus-step]').forEach((step, index) => {
-      ScrollTrigger.create({ trigger: step, start: 'top 54%', end: 'bottom 54%', onEnter: () => setActiveFocus(index), onEnterBack: () => setActiveFocus(index) });
+    const focusMedia = gsap.matchMedia();
+    focusMedia.add('(min-width: 1024px)', () => {
+      ScrollTrigger.create({
+        trigger: '[data-dashboard-story]',
+        start: 'top top+=88',
+        end: '+=1200',
+        pin: true,
+        anticipatePin: 1,
+        onUpdate: (self) => setActiveFocus(Math.min(3, Math.floor(self.progress * 4))),
+      });
+    });
+    focusMedia.add('(max-width: 1023px)', () => {
+      gsap.utils.toArray<HTMLElement>('[data-focus-step]').forEach((step, index) => {
+        ScrollTrigger.create({ trigger: step, start: 'top 54%', end: 'bottom 54%', onEnter: () => setActiveFocus(index), onEnterBack: () => setActiveFocus(index) });
+      });
     });
   }, { scope: root });
 
@@ -110,11 +139,43 @@ export default function ApplyFlowLanding() {
         </div>
       </section>
 
-      <section id="features" className="border-y border-[#e8e7e2] bg-[#f7f7f4]"><div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10 sm:flex-row sm:items-center sm:justify-between"><p className="max-w-sm text-sm leading-6 text-slate-600">One considered workspace for the parts of a job search that deserve your attention.</p><div className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-slate-700"><span>Jobs</span><span>Applications</span><span>Interviews</span><span>Calendar</span><span>Progress</span></div></div></section>
+      <section id="features" className="border-y border-[#e8e7e2] bg-[#f7f7f4]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#6657d9]">One focused system</p>
+            <p className="mt-3 max-w-md text-lg leading-7 tracking-tight text-slate-700">From the role you save to the offer you accept, each part of the search stays connected.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-5 sm:gap-x-8 lg:flex-nowrap lg:justify-between lg:gap-x-4">
+            {capabilities.map(([verb, label, Icon], index) => <div key={label} className="flex items-center gap-4 lg:gap-3"><div className="flex items-center gap-2 whitespace-nowrap"><div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#e1dff0] bg-white text-[#6657d9]"><Icon className="h-3.5 w-3.5" /></div><div><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-slate-400">{verb}</p><p className="mt-0.5 text-sm font-semibold text-slate-800">{label}</p></div></div>{index < capabilities.length - 1 && <ArrowRight className="h-4 w-4 shrink-0 text-[#b9b4e8]" />}</div>)}
+          </div>
+        </div>
+      </section>
 
-      <section id="workflow" data-workflow className="mx-auto max-w-7xl px-6 py-28 sm:py-36"><div data-reveal className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#6657d9]">The workflow</p><h2 className="mt-4 text-4xl font-semibold tracking-[-.045em] text-slate-950 sm:text-5xl">A job search with a place for every next move.</h2><p className="mt-5 text-lg leading-8 text-slate-600">ApplyFlow turns the messy middle of searching into a simple, steady rhythm.</p></div><div className="relative mt-16 grid gap-6 md:grid-cols-2"><div className="absolute left-[1.4rem] top-7 hidden h-[calc(100%-3.5rem)] w-px origin-top bg-[#6657d9] md:block" data-workflow-line style={{ transform: 'scaleY(0)' }} />{workflow.map(([number, title, copy, Icon]) => <article data-reveal key={number} className="relative rounded-2xl border border-[#e5e4df] bg-white p-7 transition-shadow hover:shadow-[0_18px_50px_-30px_rgba(15,23,42,.4)]"><div className="flex items-center justify-between"><span className="text-xs font-semibold tracking-[.14em] text-[#6657d9]">{number}</span><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f1f0fb] text-[#6657d9]"><Icon className="h-4 w-4" /></div></div><h3 className="mt-10 text-xl font-semibold tracking-tight">{title}</h3><p className="mt-3 max-w-sm text-sm leading-6 text-slate-600">{copy}</p></article>)}</div></section>
+      <section id="workflow" data-workflow className="mx-auto max-w-7xl px-6 py-28 sm:py-36"><div data-reveal className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#6657d9]">The workflow</p><h2 className="mt-4 text-4xl font-semibold tracking-[-.045em] text-slate-950 sm:text-5xl">A job search with a place for every next move.</h2><p className="mt-5 text-lg leading-8 text-slate-600">ApplyFlow turns the messy middle of searching into a simple, steady rhythm.</p></div><div className="relative mt-16 grid gap-5 md:grid-cols-2 lg:grid-cols-4"><div className="absolute left-[13%] right-[13%] top-[3.7rem] hidden h-px origin-left bg-[#a9a1ef] lg:block" data-workflow-line style={{ transform: 'scaleX(0)' }} />{workflow.map(([number, title, copy, Icon]) => <article data-reveal key={number} className="relative rounded-2xl border border-[#e5e4df] bg-white p-6 transition-shadow hover:shadow-[0_18px_50px_-30px_rgba(15,23,42,.4)]"><div className="flex items-center justify-between"><span className="text-xs font-semibold tracking-[.14em] text-[#6657d9]">{number}</span><div className="relative z-10 grid h-10 w-10 place-items-center rounded-xl bg-[#f1f0fb] text-[#6657d9]"><Icon className="h-4 w-4" /></div></div><h3 className="mt-10 text-lg font-semibold tracking-tight">{title}</h3><p className="mt-3 text-sm leading-6 text-slate-600">{copy}</p></article>)}</div></section>
 
-      <section id="dashboard" className="border-y border-[#e8e7e2] bg-[#f4f3ef] py-28 sm:py-36"><div className="mx-auto max-w-7xl px-6"><div data-reveal className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#6657d9]">Your command center</p><h2 className="mt-4 text-4xl font-semibold tracking-[-.045em] text-slate-950 sm:text-5xl">Everything important, without the visual noise.</h2></div><div className="mt-16 grid gap-10 lg:grid-cols-[.52fr_1fr]"><div className="space-y-3 lg:py-10">{focusAreas.map(([label, copy], index) => <div data-focus-step key={label} className={`rounded-xl border p-5 transition-colors ${activeFocus === index ? 'border-[#c9c4f2] bg-white shadow-sm' : 'border-transparent'}`}><p className={`text-sm font-semibold ${activeFocus === index ? 'text-[#6657d9]' : 'text-slate-500'}`}>{label}</p><p className="mt-2 text-sm leading-6 text-slate-600">{copy}</p></div>)}</div><div data-reveal className="lg:sticky lg:top-28 lg:h-fit"><div className="overflow-hidden rounded-[1.7rem] border border-slate-200 bg-white p-4 shadow-[0_28px_70px_-35px_rgba(15,23,42,.35)]"><div className="flex items-center gap-3 border-b border-slate-100 pb-4"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[#1d1c25] text-white"><BriefcaseBusiness className="h-4 w-4" /></div><p className="text-sm font-semibold">ApplyFlow</p><div className="ml-auto flex gap-1"><span className="h-2 w-2 rounded-full bg-slate-200" /><span className="h-2 w-2 rounded-full bg-slate-200" /></div></div><div className="mt-4 grid gap-4 sm:grid-cols-[9rem_1fr]"><aside className="rounded-xl bg-[#f7f7f5] p-3"><p className="px-2 text-[10px] font-semibold uppercase tracking-[.12em] text-slate-400">Workspace</p>{['Overview','Jobs','Applications','Calendar'].map((item, index) => <p key={item} className={`mt-2 rounded-lg px-2 py-2 text-xs font-medium ${activeFocus === index ? 'bg-white text-[#6657d9] shadow-sm' : 'text-slate-500'}`}>{item}</p>)}</aside><div><div className="flex items-start justify-between"><div><p className="text-lg font-semibold tracking-tight">Search overview</p><p className="mt-1 text-xs text-slate-500">A focused view of your momentum</p></div><Search className="h-4 w-4 text-slate-400" /></div><div className="mt-4 grid grid-cols-3 gap-2">{stages.slice(0, 3).map((stage) => <div key={stage.name} className="rounded-xl border border-slate-100 p-2.5"><span className={`block h-1 w-6 rounded-full ${stage.color}`} /><p className="mt-3 text-lg font-semibold">{stage.count}</p><p className="text-[10px] text-slate-500">{stage.name}</p></div>)}</div><div className="mt-4 rounded-xl border border-slate-100 p-3"><div className="flex justify-between"><p className="text-xs font-semibold">This week</p><p className="text-[10px] text-emerald-600">On track</p></div><div className="mt-4 flex h-16 items-end gap-1.5">{[35, 58, 42, 74, 52, 88, 68].map((h, i) => <span key={i} className="flex-1 rounded-t bg-[#dcd8fa]" style={{ height: `${h}%` }} />)}</div></div></div></div></div></div></div></div></section>
+      <section id="dashboard" className="border-y border-[#e8e7e2] bg-[#f4f3ef] py-28 sm:py-36">
+        <div className="mx-auto max-w-7xl px-6">
+          <div data-reveal className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#6657d9]">Your command center</p><h2 className="mt-4 text-4xl font-semibold tracking-[-.045em] text-slate-950 sm:text-5xl">Everything important, without the visual noise.</h2></div>
+          <div data-dashboard-story className="mt-16 grid gap-10 lg:grid-cols-[.52fr_1fr] lg:items-center">
+            <div className="space-y-3 lg:py-10">
+              {focusAreas.map(([label, copy], index) => <button data-focus-step type="button" onClick={() => setActiveFocus(index)} key={label} className={`block w-full rounded-xl border p-5 text-left transition-colors ${activeFocus === index ? 'border-[#c9c4f2] bg-white shadow-sm' : 'border-transparent'}`}><p className={`text-sm font-semibold ${activeFocus === index ? 'text-[#6657d9]' : 'text-slate-500'}`}>{label}</p><p className="mt-2 text-sm leading-6 text-slate-600">{copy}</p></button>)}
+            </div>
+            <div data-reveal>
+              <div className="overflow-hidden rounded-[1.7rem] border border-slate-200 bg-white p-4 shadow-[0_28px_70px_-35px_rgba(15,23,42,.35)]">
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[#1d1c25] text-white"><BriefcaseBusiness className="h-4 w-4" /></div><p className="text-sm font-semibold">ApplyFlow</p><div className="ml-auto flex gap-1"><span className="h-2 w-2 rounded-full bg-slate-200" /><span className="h-2 w-2 rounded-full bg-slate-200" /></div></div>
+                <div className="mt-4 grid gap-4 sm:grid-cols-[9rem_1fr]">
+                  <aside className="rounded-xl bg-[#f7f7f5] p-3"><p className="px-2 text-[10px] font-semibold uppercase tracking-[.12em] text-slate-400">Workspace</p>{['Overview', 'Jobs', 'Applications', 'Calendar'].map((item) => <p key={item} className={`mt-2 rounded-lg px-2 py-2 text-xs font-medium ${dashboardView.nav === item ? 'bg-white text-[#6657d9] shadow-sm' : 'text-slate-500'}`}>{item}</p>)}</aside>
+                  <div>
+                    <div className="flex items-start justify-between"><div><p className="text-lg font-semibold tracking-tight">{dashboardView.title}</p><p className="mt-1 text-xs text-slate-500">{dashboardView.description}</p></div><Search className="h-4 w-4 text-slate-400" /></div>
+                    <div className="mt-4 grid grid-cols-3 gap-2">{dashboardView.metrics.map(([value, label, color]) => <div key={label} className="rounded-xl border border-slate-100 p-2.5"><span className={`block h-1 w-6 rounded-full ${color}`} /><p className="mt-3 text-lg font-semibold">{value}</p><p className="text-[10px] text-slate-500">{label}</p></div>)}</div>
+                    <div className="mt-4 rounded-xl border border-slate-100 p-3"><div className="flex justify-between"><p className="text-xs font-semibold">{dashboardView.chartTitle}</p><p className="text-[10px] text-emerald-600">{dashboardView.status}</p></div><div className="mt-4 flex h-16 items-end gap-1.5">{dashboardView.bars.map((height, index) => <span key={index} className="flex-1 rounded-t bg-[#dcd8fa] transition-[height] duration-500" style={{ height: `${height}%` }} />)}</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto max-w-7xl px-6 py-28 sm:py-36"><div className="grid gap-10 lg:grid-cols-[.85fr_1.15fr] lg:items-end"><div data-reveal><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#6657d9]">Less stress, more clarity</p><h2 className="mt-4 text-4xl font-semibold tracking-[-.045em] text-slate-950 sm:text-5xl">A calmer way to keep showing up.</h2></div><div className="grid gap-px overflow-hidden rounded-2xl border border-[#e5e4df] bg-[#e5e4df] sm:grid-cols-2">{[['Never forget a follow-up','The next step sits beside the application—not buried in an inbox.'],['Know where every application stands','A considered pipeline replaces a dozen disconnected lists.'],['Prepare for interviews with context','Dates, roles, and notes stay together when it matters.'],['Recognize your momentum','Useful progress, presented quietly and clearly.']].map(([title, copy]) => <article data-reveal key={title} className="bg-[#fcfcfa] p-7"><ChevronRight className="h-4 w-4 text-[#6657d9]" /><h3 className="mt-8 font-semibold tracking-tight">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{copy}</p></article>)}</div></div></section>
 
