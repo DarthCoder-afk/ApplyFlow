@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ArrowRight, BriefcaseBusiness } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function LandingNavbar() {
   const header = useRef<HTMLElement>(null);
@@ -36,9 +37,7 @@ export default function LandingNavbar() {
           href="/"
           className="inline-flex items-center gap-2.5 text-lg font-semibold tracking-tight text-slate-950"
         >
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-slate-950 text-white shadow-lg shadow-slate-950/15">
-            <BriefcaseBusiness className="h-4 w-4" />
-          </span>
+          <Image src="/applyflow-icon.svg" alt="" width={36} height={36} className="h-9 w-9" />
           ApplyFlow
         </Link>
 
