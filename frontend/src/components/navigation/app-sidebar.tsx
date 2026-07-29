@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useSidebar } from '../dashboard/sidebar-context';
+import { useSidebar } from './sidebar-context';
 import { logout } from '@/lib/api/auth';
 
 const navItems = [
