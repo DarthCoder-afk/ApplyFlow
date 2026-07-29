@@ -9,7 +9,7 @@ import { loginSchema, type LoginFormValues } from '@/lib/validation/auth';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -40,9 +40,9 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="email" className="font-medium text-slate-700">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <div data-auth="field" className="space-y-2">
+        <Label htmlFor="email" className="font-medium text-slate-800">
           Email address
         </Label>
         <Input
@@ -51,15 +51,16 @@ export default function LoginForm() {
           autoComplete="email"
           placeholder="you@example.com"
           aria-invalid={!!errors.email}
-          className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 shadow-none placeholder:text-slate-400 focus-visible:bg-white focus-visible:ring-slate-400"
+          aria-describedby={errors.email ? 'email-error' : undefined}
+          className="h-12 rounded-xl border-slate-200 bg-[#fbfbfa] px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-[#6657d9] focus-visible:bg-white focus-visible:ring-[#6657d9]/20"
           {...register('email')}
         />
-        {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+        {errors.email && <p id="email-error" role="alert" className="text-sm text-red-700">{errors.email.message}</p>}
       </div>
 
-      <div className="space-y-2">
-        <div className='relative'>
-          <Label htmlFor="password" className="font-medium text-slate-700 mb-2">
+      <div data-auth="field" className="space-y-2">
+        <div className="relative">
+          <Label htmlFor="password" className="mb-2 font-medium text-slate-800">
             Password
           </Label>
           <Input
@@ -68,40 +69,42 @@ export default function LoginForm() {
             autoComplete="current-password"
             placeholder="••••••••"
             aria-invalid={!!errors.password}
-            className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 shadow-none placeholder:text-slate-400 focus-visible:bg-white focus-visible:ring-slate-400"
+            aria-describedby={errors.password ? 'password-error' : undefined}
+            className="h-12 rounded-xl border-slate-200 bg-[#fbfbfa] px-3.5 pr-12 shadow-none placeholder:text-slate-400 focus-visible:border-[#6657d9] focus-visible:bg-white focus-visible:ring-[#6657d9]/20"
             {...register('password')}
           />
-          {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+          {errors.password && <p id="password-error" role="alert" className="mt-2 text-sm text-red-700">{errors.password.message}</p>}
 
           <Button
-            type='button'
+            type="button"
             variant='ghost'
             onClick={() => setShowPassword((previous) => !previous)}
-            className="absolute right-1 bottom-1 text-slate-500 hover:bg-transparent hover:text-slate-900"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            className="absolute right-1 top-7 h-10 w-10 rounded-lg text-slate-500 hover:bg-transparent hover:text-[#6657d9]"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
             aria-pressed={showPassword}
           >
             {showPassword ? (
-              <EyeOff className='h-4 w-4'/>
+              <EyeOff className="h-4 w-4" />
             ) : (
-              <Eye className='h-4 w-4'/>
+              <Eye className="h-4 w-4" />
             )}
           </Button>
         </div>
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-800">
           {error}
         </p>
       )}
 
-      <Button
+      <Button data-auth="action"
         type="submit"
         disabled={isSubmitting}
-        className="h-11 w-full rounded-xl bg-slate-950 text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5 hover:bg-slate-800"
+        className="h-12 w-full rounded-xl bg-[#1d1c25] text-white shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-[#302d41]"
       >
-        {isSubmitting ? 'Logging in...' : 'Log in'}
+        {isSubmitting && <LoaderCircle className="h-4 w-4 animate-spin" />}
+        {isSubmitting ? 'Signing in…' : 'Sign in'}
       </Button>
     </form>
   );
