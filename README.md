@@ -65,8 +65,10 @@ After the initial image build, run Compose Watch instead of rebuilding manually:
 docker compose watch
 ```
 
-It watches `backend/` and `frontend/`, then rebuilds and recreates only the service
-whose application files changed. Dependency folders and build output are ignored.
+It syncs application-source changes into the development containers: Next.js refreshes
+the frontend and the API restarts with its TypeScript watcher. Changes to package files,
+lockfiles, or TypeScript configuration rebuild only the affected development image.
+Dependency folders and build output are ignored.
 Use `Ctrl+C` to stop watching. Compose Watch requires Docker Compose 2.22 or newer.
 
 Stop the stack with `docker compose down`. Add `-v` only when you also want to delete the local database volume.
