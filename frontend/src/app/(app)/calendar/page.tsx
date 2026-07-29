@@ -13,9 +13,15 @@ import { Button } from '@/src/components/ui/button';
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const EVENT_STYLES: Record<CalendarEventCategory, string> = {
-  APPLICATION: 'border-blue-200 bg-blue-50 text-blue-700',
-  INTERVIEW_STAGE: 'border-violet-200 bg-violet-50 text-violet-700',
-  OFFER: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  APPLICATION: 'sm:border-blue-200 sm:bg-blue-50 sm:text-blue-700',
+  INTERVIEW_STAGE: 'sm:border-violet-200 sm:bg-violet-50 sm:text-violet-700',
+  OFFER: 'sm:border-emerald-200 sm:bg-emerald-50 sm:text-emerald-700',
+};
+
+const EVENT_DOT_STYLES: Record<CalendarEventCategory, string> = {
+  APPLICATION: 'bg-blue-500',
+  INTERVIEW_STAGE: 'bg-violet-500',
+  OFFER: 'bg-emerald-500',
 };
 
 function startOfCalendarGrid(month: Date) {
@@ -122,8 +128,8 @@ export default function CalendarPage() {
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-semibold text-slate-950">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-3 sm:p-4">
+            <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">
               {new Intl.DateTimeFormat(undefined, {
                 month: 'long',
                 year: 'numeric',
@@ -155,15 +161,16 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <div className="min-w-[760px]">
+          <div>
+            <div className="min-w-0">
               <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
                 {WEEKDAYS.map((weekday) => (
                   <div
                     key={weekday}
-                    className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wide text-slate-500"
+                    className="px-1 py-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:px-3 sm:text-xs"
                   >
-                    {weekday}
+                    <span className="sm:hidden">{weekday.slice(0, 1)}</span>
+                    <span className="hidden sm:inline">{weekday}</span>
                   </div>
                 ))}
               </div>
@@ -188,12 +195,12 @@ export default function CalendarPage() {
                     return (
                       <div
                         key={key}
-                        className={`min-h-32 border-b border-r border-slate-100 p-2 ${
+                        className={`min-h-[4.75rem] border-b border-r border-slate-100 p-1 sm:min-h-32 sm:p-2 ${
                           inCurrentMonth ? 'bg-white' : 'bg-slate-50/70'
                         }`}
                       >
                         <div
-                          className={`mb-2 grid h-7 w-7 place-items-center rounded-full text-sm ${
+                          className={`mb-1 grid h-6 w-6 place-items-center rounded-full text-xs sm:mb-2 sm:h-7 sm:w-7 sm:text-sm ${
                             isToday
                               ? 'bg-indigo-600 font-semibold text-white'
                               : inCurrentMonth
@@ -204,12 +211,14 @@ export default function CalendarPage() {
                           {day.getDate()}
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="flex flex-wrap gap-1 sm:block sm:space-y-1">
                           {events.map((event) => (
                             <div
                               key={event.id}
                               title={`${event.title} · ${event.company}`}
-                              className={`rounded-lg border px-2 py-1.5 text-xs ${
+                              className={`h-1.5 w-1.5 rounded-full sm:h-auto sm:w-auto sm:rounded-lg sm:border sm:px-2 sm:py-1.5 sm:text-xs ${
+                                EVENT_DOT_STYLES[event.category]
+                              } ${
                                 EVENT_STYLES[event.category]
                               } ${
                                 event.interviewStatus === 'CANCELLED'
@@ -217,9 +226,9 @@ export default function CalendarPage() {
                                   : ''
                               }`}
                             >
-                              <p className="truncate font-medium">{event.title}</p>
+                              <p className="hidden truncate font-medium sm:block">{event.title}</p>
                               {eventTime(event) && (
-                                <p className="mt-0.5 truncate opacity-80">
+                                <p className="mt-0.5 hidden truncate opacity-80 sm:block">
                                   {eventTime(event)}
                                 </p>
                               )}
