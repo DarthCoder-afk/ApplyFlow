@@ -14,15 +14,27 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  password      String
-  name          String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  refreshTokens RefreshToken[]
-  jobs          Job[]
-  applications  Application[]
+  id             String         @id @default(cuid())
+  email          String         @unique
+  password       String
+  name           String?
+  firstName      String
+  middleName     String?
+  lastName       String
+  suffix         String?
+  headline       String?
+  phone          String?
+  location       String?
+  avatarUrl      String?
+  avatarPublicId String?
+  linkedinUrl    String?
+  githubUrl      String?
+  portfolioUrl   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  refreshTokens  RefreshToken[]
+  jobs           Job[]
+  applications   Application[]
 
   @@map("users")
 }
