@@ -21,6 +21,11 @@ export const metadata: Metadata = {
     template: '%s | ApplyFlow',
   },
   description: 'Track job applications, monitor progress, and stay organized in one place.',
+  icons: {
+    icon: [{ url: '/applyflow-icon.svg', type: 'image/svg+xml' }],
+    shortcut: '/applyflow-icon.svg',
+    apple: '/applyflow-icon.svg',
+  },
 };
 
 export default function RootLayout({
