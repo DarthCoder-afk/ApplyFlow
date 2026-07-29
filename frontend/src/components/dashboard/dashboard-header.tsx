@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { getCurrentUser } from '@/lib/api/dashboard';
 import { logout } from '@/lib/api/auth';
-import { useSidebar } from '@/src/components/dashboard/sidebar-context';
+import { useSidebar } from '@/src/components/navigation/sidebar-context';
 import { Button } from '@/src/components/ui/button';
 import {
   DropdownMenu,
