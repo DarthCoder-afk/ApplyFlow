@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   BriefcaseBusiness,
@@ -11,11 +12,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
-  Sparkles,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useSidebar } from './sidebar-context';
+import { useSidebar } from '../dashboard/sidebar-context';
 import { logout } from '@/lib/api/auth';
 
 const navItems = [
@@ -68,14 +68,13 @@ function SidebarContent({
           onClick={onNavigate}
           aria-label={collapsed ? 'ApplyFlow dashboard' : undefined}
         >
-          <span
-            className={cn(
-              'grid shrink-0 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm',
-              collapsed ? 'h-8 w-8' : 'h-9 w-9'
-            )}
-          >
-            <Sparkles className="h-4 w-4" />
-          </span>
+          <Image
+            src="/applyflow-icon.svg"
+            alt=""
+            width={36}
+            height={36}
+            className={cn('shrink-0', collapsed ? 'h-8 w-8' : 'h-9 w-9')}
+          />
           {!collapsed && <span>ApplyFlow</span>}
         </Link>
 

@@ -1,4 +1,4 @@
-import AppSidebar from '@/src/components/dashboard/app-sidebar';
+import AppSidebar from '@/src/components/navigation/app-sidebar';
 import AuthGuard from '@/src/components/auth/auth-guard';
 import DashboardHeader from '@/src/components/dashboard/dashboard-header';
 import { SidebarProvider } from '@/src/components/dashboard/sidebar-context';
