@@ -1,4 +1,4 @@
-# Job Tracker
+# ApplyFlow
 
 A full-stack job application tracker that helps you manage your job search in one place — save roles, track application status, and monitor progress from a dashboard instead of juggling spreadsheets.
 
@@ -7,6 +7,7 @@ A full-stack job application tracker that helps you manage your job search in on
 - **Authentication** — Register, log in, and manage sessions with JWT access and refresh tokens
 - **Jobs** — Save job postings with title, company, location, source, URL, description, and notes; long descriptions stay contained in a scrollable detail card for easier reading
 - **Applications** — Link applications to jobs and track status through the pipeline (Saved → Applied → Interview → Offer, etc.)
+- **Calendar** — Browse application submissions, scheduled interview stages, and offers in a monthly view with upcoming events, color-coded categories, and month navigation
 - **Dashboard** — View totals, active applications, status breakdown chart, and recent activity
 - **Search & filtering** — Search jobs and applications with loading skeletons for a smooth UX
 - **Unit testing** — Jest coverage for API routes, controllers, services, schemas, and utilities
@@ -23,13 +24,13 @@ A full-stack job application tracker that helps you manage your job search in on
 ## Project Structure
 
 ```
-Job Tracker/
+ApplyFlow/
 ├── frontend/          # Next.js app (port 3000)
-│   ├── src/app/       # App Router pages (landing, auth, dashboard, jobs, applications)
+│   ├── src/app/       # App Router pages (landing, auth, dashboard, jobs, applications, calendar)
 │   ├── src/components/
 │   └── lib/           # API clients, types, validation schemas
 ├── backend/           # Express API (port 4000)
-│   ├── src/modules/   # auth, jobs, applications, dashboard
+│   ├── src/modules/   # auth, jobs, applications, calendar, dashboard
 │   └── prisma/        # Schema and migrations
 └── docker-compose.yml # Frontend, API, and PostgreSQL
 ```
@@ -134,7 +135,7 @@ cd backend && pnpm dev
 cd frontend && pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the app. Register an account, then use the dashboard, jobs, and applications pages.
+Open [http://localhost:3000](http://localhost:3000) to view the app. Register an account, then use the dashboard, jobs, applications, and calendar pages.
 
 ## Scripts
 
@@ -181,6 +182,7 @@ All API routes are prefixed with `/api`. Protected routes require a `Bearer` tok
 | GET    | `/api/applications/:id` | Get application        |
 | PUT    | `/api/applications/:id` | Update application     |
 | DELETE | `/api/applications/:id` | Delete application     |
+| GET    | `/api/calendar/events?from=<ISO-8601>&to=<ISO-8601>` | List application, interview, and offer events in a date range (protected) |
 | GET    | `/api/dashboard/stats`| Dashboard statistics     |
 
 ## Data Models
