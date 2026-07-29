@@ -20,6 +20,16 @@ type ApiError = {
   message?: string;
 };
 
+async function readJsonResponse<T>(res: Response): Promise<T> {
+  const contentType = res.headers.get('content-type') ?? '';
+
+  if (!contentType.includes('application/json')) {
+    throw new Error('The authentication service returned an unexpected response. Please try again.');
+  }
+
+  return res.json() as Promise<T>;
+}
+
 export function setAccessToken(token: string) {
   localStorage.setItem('accessToken', token);
 }
@@ -35,7 +45,7 @@ export async function refreshAccessToken(): Promise<string> {
     credentials: 'include', // sends httpOnly cookie
   });
 
-  const data = await res.json();
+  const data = await readJsonResponse<{ accessToken: string; message?: string }>(res);
 
   if (!res.ok) {
     throw new Error(data.message ?? 'Session expired');
@@ -61,7 +71,7 @@ export async function login(values: LoginFormValues): Promise<LoginResponse> {
     body: JSON.stringify(values),
   });
 
-  const data = (await res.json()) as LoginResponse & ApiError;
+  const data = await readJsonResponse<LoginResponse & ApiError>(res);
 
   if (!res.ok) {
     throw new Error(data.message ?? 'Invalid email or password');
@@ -81,7 +91,7 @@ export async function register(values: RegisterFormValues): Promise<LoginRespons
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  const data = (await res.json()) as LoginResponse & ApiError;
+  const data = await readJsonResponse<LoginResponse & ApiError>(res);
   if (!res.ok) {
     throw new Error(data.message ?? 'Could not create account');
   }

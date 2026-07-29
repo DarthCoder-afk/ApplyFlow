@@ -47,6 +47,11 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     }
   }
 
+  const contentType = res.headers.get('content-type') ?? '';
+  if (!contentType.includes('application/json')) {
+    throw new Error('The API returned an unexpected response. Please try again.');
+  }
+
   const data = await res.json();
 
   if (!res.ok) {
