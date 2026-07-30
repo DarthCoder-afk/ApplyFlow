@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -16,16 +16,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  applicationName: 'ApplyFlow',
   title: {
     default: 'ApplyFlow',
     template: '%s | ApplyFlow',
   },
   description: 'Track job applications, monitor progress, and stay organized in one place.',
+  appleWebApp: {
+    capable: true,
+    title: 'ApplyFlow',
+    statusBarStyle: 'default',
+  },
   icons: {
     icon: [{ url: '/applyflow-icon.svg', type: 'image/svg+xml' }],
     shortcut: '/applyflow-icon.svg',
-    apple: '/applyflow-icon.svg',
+    apple: [
+      {
+        url: '/icons/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+    ],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#1D1C25',
 };
 
 export default function RootLayout({

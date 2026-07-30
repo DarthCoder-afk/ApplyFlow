@@ -1,6 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type {
+  AnimationEvent as ReactAnimationEvent,
+  PointerEvent as ReactPointerEvent,
+} from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Dialog as DialogPrimitive } from 'radix-ui';
@@ -46,6 +50,9 @@ const EVENT_ACCENTS: Record<CalendarEventCategory, string> = {
   INTERVIEW_STAGE: 'border-violet-200 bg-violet-50 text-violet-700',
   OFFER: 'border-emerald-200 bg-emerald-50 text-emerald-700',
 };
+
+const SHEET_TRANSITION =
+  'transform 240ms cubic-bezier(0.22, 1, 0.36, 1)';
 
 function startOfCalendarGrid(month: Date) {
   const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
@@ -108,6 +115,23 @@ export default function CalendarPage() {
   );
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [dayDialogOpen, setDayDialogOpen] = useState(false);
+  const sheetPanelRef = useRef<HTMLDivElement>(null);
+  const sheetDragRef = useRef<{
+    pointerId: number;
+    startY: number;
+    startedAt: number;
+  } | null>(null);
+  const dismissTimerRef = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (dismissTimerRef.current !== null) {
+        window.clearTimeout(dismissTimerRef.current);
+      }
+    },
+    []
+  );
 
   const gridStart = startOfCalendarGrid(currentMonth);
   const gridEnd = endOfCalendarGrid(currentMonth);
@@ -171,11 +195,95 @@ export default function CalendarPage() {
     const events = eventsByDay.get(dayKey(day)) ?? [];
     setSelectedDay(day);
     setSelectedEventId(events[0]?.id ?? null);
+    setDayDialogOpen(true);
   }
 
   function closeDay() {
-    setSelectedDay(null);
+    if (dismissTimerRef.current !== null) {
+      window.clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = null;
+    }
+
+    setDayDialogOpen(false);
     setSelectedEventId(null);
+  }
+
+  function setSheetPosition(offset: number, animated: boolean) {
+    const panel = sheetPanelRef.current;
+    if (!panel) return;
+
+    panel.style.transition = animated ? SHEET_TRANSITION : 'none';
+    panel.style.transform = `translate3d(0, ${offset}px, 0)`;
+  }
+
+  function handleSheetPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (
+      event.button !== 0 ||
+      window.matchMedia('(min-width: 640px)').matches
+    ) {
+      return;
+    }
+
+    sheetDragRef.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startedAt: performance.now(),
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setSheetPosition(0, false);
+  }
+
+  function handleSheetPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    const drag = sheetDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    event.preventDefault();
+    setSheetPosition(Math.max(0, event.clientY - drag.startY), false);
+  }
+
+  function finishSheetDrag(
+    event: ReactPointerEvent<HTMLDivElement>,
+    cancelled = false
+  ) {
+    const drag = sheetDragRef.current;
+    const panel = sheetPanelRef.current;
+    if (!drag || drag.pointerId !== event.pointerId || !panel) return;
+
+    const distance = Math.max(0, event.clientY - drag.startY);
+    const elapsed = Math.max(performance.now() - drag.startedAt, 1);
+    const velocity = distance / elapsed;
+    const dismissDistance = Math.min(160, panel.offsetHeight * 0.28);
+    const shouldDismiss =
+      !cancelled &&
+      (distance >= dismissDistance || (distance >= 36 && velocity >= 0.65));
+
+    sheetDragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    if (!shouldDismiss) {
+      setSheetPosition(0, true);
+      return;
+    }
+
+    setSheetPosition(panel.offsetHeight + 32, true);
+    dismissTimerRef.current = window.setTimeout(() => {
+      dismissTimerRef.current = null;
+      closeDay();
+    }, 220);
+  }
+
+  function handleDialogAnimationEnd(
+    event: ReactAnimationEvent<HTMLDivElement>
+  ) {
+    if (
+      event.target === event.currentTarget &&
+      event.currentTarget.dataset.state === 'closed'
+    ) {
+      setSelectedDay(null);
+      setSheetPosition(0, false);
+    }
   }
 
   return (
@@ -254,7 +362,7 @@ export default function CalendarPage() {
                         aria-label={`View ${events.length} ${events.length === 1 ? 'event' : 'events'} on ${new Intl.DateTimeFormat(undefined, { month: 'long', day: 'numeric', year: 'numeric' }).format(day)}`}
                         className={`min-h-[4.75rem] border-b border-r border-slate-100 p-1 text-left transition hover:bg-indigo-50/40 focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 sm:min-h-32 sm:p-2 ${
                           inCurrentMonth ? 'bg-white' : 'bg-slate-50/70'
-                        } ${selectedDay && key === dayKey(selectedDay) ? 'ring-2 ring-inset ring-indigo-400' : ''}`}
+                        } ${dayDialogOpen && selectedDay && key === dayKey(selectedDay) ? 'ring-2 ring-inset ring-indigo-400' : ''}`}
                       >
                         <div
                           className={`mb-1 grid h-6 w-6 place-items-center rounded-full text-xs sm:mb-2 sm:h-7 sm:w-7 sm:text-sm ${
@@ -361,17 +469,31 @@ export default function CalendarPage() {
       </div>
 
       <DialogPrimitive.Root
-        open={selectedDay !== null}
+        open={dayDialogOpen}
         onOpenChange={(open) => {
           if (!open) closeDay();
         }}
       >
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-950/25 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-          <DialogPrimitive.Content className="fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] overflow-hidden rounded-t-[1.75rem] border border-slate-200 bg-white shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-6 data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-6 sm:inset-y-4 sm:left-auto sm:right-4 sm:bottom-auto sm:w-[28rem] sm:max-h-none sm:rounded-[1.75rem] sm:data-[state=closed]:slide-out-to-right-8 sm:data-[state=open]:slide-in-from-right-8">
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-950/25 backdrop-blur-[2px] duration-300 ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+          <DialogPrimitive.Content
+            onAnimationEnd={handleDialogAnimationEnd}
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] outline-none duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom sm:inset-y-4 sm:left-auto sm:right-4 sm:bottom-auto sm:w-[28rem] sm:max-h-none sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right"
+          >
             {selectedDay && (
-              <div className="flex max-h-[88dvh] flex-col sm:h-full sm:max-h-none">
-                <div className="border-b border-slate-200 px-5 pb-5 pt-4 sm:px-6 sm:pt-6">
+              <div
+                ref={sheetPanelRef}
+                data-sheet-panel
+                className="flex max-h-[88dvh] flex-col overflow-hidden rounded-t-[1.75rem] border border-slate-200 bg-white shadow-2xl will-change-transform sm:h-full sm:max-h-none sm:rounded-[1.75rem]"
+              >
+                <div
+                  data-sheet-drag-handle
+                  className="touch-none cursor-grab select-none border-b border-slate-200 px-5 pb-5 pt-4 active:cursor-grabbing sm:cursor-default sm:select-auto sm:px-6 sm:pt-6"
+                  onPointerDown={handleSheetPointerDown}
+                  onPointerMove={handleSheetPointerMove}
+                  onPointerUp={finishSheetDrag}
+                  onPointerCancel={(event) => finishSheetDrag(event, true)}
+                >
                   <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200 sm:hidden" />
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -391,7 +513,7 @@ export default function CalendarPage() {
                           : `${selectedDayEvents.length} ${selectedDayEvents.length === 1 ? 'event' : 'events'} in your job search.`}
                       </DialogPrimitive.Description>
                     </div>
-                    <DialogPrimitive.Close className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-950" aria-label="Close day details">
+                    <DialogPrimitive.Close className="hidden h-9 w-9 shrink-0 place-items-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-950 sm:grid" aria-label="Close day details">
                       <X className="h-4 w-4" />
                     </DialogPrimitive.Close>
                   </div>
