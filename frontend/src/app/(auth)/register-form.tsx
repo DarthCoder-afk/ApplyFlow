@@ -24,7 +24,10 @@ export default function RegisterForm() {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      suffix: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -47,20 +50,72 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-      <div data-auth="field" className="space-y-2">
-        <Label htmlFor="name" className="font-medium text-slate-800">
-          Name
-        </Label>
-        <Input
-          id="name"
-          autoComplete="name"
-          placeholder="Your name"
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? 'name-error' : undefined}
-          className="h-12 rounded-xl border-slate-200 bg-[#fbfbfa] px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-[#6657d9] focus-visible:bg-white focus-visible:ring-[#6657d9]/20"
-          {...register('name')}
-        />
-        {errors.name && <p id="name-error" role="alert" className="text-sm text-red-700">{errors.name.message}</p>}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div data-auth="field" className="space-y-2">
+          <Label htmlFor="firstName" className="font-medium text-slate-800">
+            First name
+          </Label>
+          <Input
+            id="firstName"
+            required
+            autoComplete="given-name"
+            placeholder="First name"
+            aria-invalid={!!errors.firstName}
+            aria-describedby={errors.firstName ? 'first-name-error' : undefined}
+            className="h-12 rounded-xl border-slate-200 bg-[#fbfbfa] px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-[#6657d9] focus-visible:bg-white focus-visible:ring-[#6657d9]/20"
+            {...register('firstName')}
+          />
+          {errors.firstName && <p id="first-name-error" role="alert" className="text-sm text-red-700">{errors.firstName.message}</p>}
+        </div>
+
+        <div data-auth="field" className="space-y-2">
+          <Label htmlFor="middleName" className="font-medium text-slate-800">
+            Middle name <span className="font-normal text-slate-400">(optional)</span>
+          </Label>
+          <Input
+            id="middleName"
+            autoComplete="additional-name"
+            placeholder="Middle name"
+            aria-invalid={!!errors.middleName}
+            aria-describedby={errors.middleName ? 'middle-name-error' : undefined}
+            className="h-12 rounded-xl border-slate-200 bg-[#fbfbfa] px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-[#6657d9] focus-visible:bg-white focus-visible:ring-[#6657d9]/20"
+            {...register('middleName')}
+          />
+          {errors.middleName && <p id="middle-name-error" role="alert" className="text-sm text-red-700">{errors.middleName.message}</p>}
+        </div>
+
+        <div data-auth="field" className="space-y-2">
+          <Label htmlFor="lastName" className="font-medium text-slate-800">
+            Last name
+          </Label>
+          <Input
+            id="lastName"
+            required
+            autoComplete="family-name"
+            placeholder="Last name"
+            aria-invalid={!!errors.lastName}
+            aria-describedby={errors.lastName ? 'last-name-error' : undefined}
+            className="h-12 rounded-xl border-slate-200 bg-[#fbfbfa] px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-[#6657d9] focus-visible:bg-white focus-visible:ring-[#6657d9]/20"
+            {...register('lastName')}
+          />
+          {errors.lastName && <p id="last-name-error" role="alert" className="text-sm text-red-700">{errors.lastName.message}</p>}
+        </div>
+
+        <div data-auth="field" className="space-y-2">
+          <Label htmlFor="suffix" className="font-medium text-slate-800">
+            Suffix <span className="font-normal text-slate-400">(optional)</span>
+          </Label>
+          <Input
+            id="suffix"
+            autoComplete="honorific-suffix"
+            placeholder="Jr., Sr., III"
+            aria-invalid={!!errors.suffix}
+            aria-describedby={errors.suffix ? 'suffix-error' : undefined}
+            className="h-12 rounded-xl border-slate-200 bg-[#fbfbfa] px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-[#6657d9] focus-visible:bg-white focus-visible:ring-[#6657d9]/20"
+            {...register('suffix')}
+          />
+          {errors.suffix && <p id="suffix-error" role="alert" className="text-sm text-red-700">{errors.suffix.message}</p>}
+        </div>
       </div>
 
       <div data-auth="field" className="space-y-2">
@@ -70,6 +125,7 @@ export default function RegisterForm() {
         <Input
           id="email"
           type="email"
+          required
           autoComplete="email"
           placeholder="you@example.com"
           aria-invalid={!!errors.email}
@@ -88,6 +144,7 @@ export default function RegisterForm() {
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
+            required
             autoComplete="new-password"
             placeholder="••••••••"
             aria-invalid={!!errors.password}
@@ -121,6 +178,7 @@ export default function RegisterForm() {
           <Input
             id="confirmPassword"
             type={showConfirmPassword? "text" : "password"}
+            required
             autoComplete="new-password"
             placeholder="••••••••"
             aria-invalid={!!errors.confirmPassword}
