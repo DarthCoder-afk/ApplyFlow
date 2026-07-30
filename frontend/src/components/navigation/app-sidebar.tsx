@@ -11,7 +11,7 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
-  Settings,
+  UserRound,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -23,7 +23,7 @@ const navItems = [
   { href: '/jobs', label: 'Jobs', icon: BriefcaseBusiness },
   { href: '/applications', label: 'Applications', icon: FileText },
   { href: '/calendar', label: 'Calendar', icon: CalendarDays },
-  { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/profile', label: 'Profile', icon: UserRound },
 ];
 
 type SidebarContentProps = {

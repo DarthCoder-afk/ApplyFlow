@@ -13,7 +13,7 @@ export default function GuestGuard({ children }: { children: React.ReactNode }) 
       router.push('/dashboard');
       return;
     }
-    setReady(true);
+    queueMicrotask(() => setReady(true));
   }, [router]);
 
   if (!ready) return null;

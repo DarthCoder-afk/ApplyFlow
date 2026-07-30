@@ -8,6 +8,10 @@ import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
 
+if (env.nodeEnv === 'production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(
   cors({
     origin: env.frontendUrl,

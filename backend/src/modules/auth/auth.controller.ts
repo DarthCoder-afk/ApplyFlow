@@ -9,10 +9,18 @@ import {
 
 export async function register(req: Request, res: Response) {
   try {
-    const user = await registerUser(req.body);
+    const { accessToken, refreshToken, user } = await registerUser(req.body);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      sameSite: 'strict',
+    });
 
     return res.status(201).json({
       message: 'User registered successfully',
+      accessToken,
       user,
     });
   } catch (error) {

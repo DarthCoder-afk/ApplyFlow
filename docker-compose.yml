@@ -22,6 +22,8 @@ services:
       context: ./backend
       target: development
     restart: unless-stopped
+    env_file:
+      - ./backend/.env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/applyflow
       PORT: 4000

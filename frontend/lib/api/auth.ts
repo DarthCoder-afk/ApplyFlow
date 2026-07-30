@@ -1,17 +1,16 @@
 import type { LoginFormValues, RegisterFormValues } from '@/lib/validation/auth';
+import type { UserProfile } from '@/lib/types/user';
 
 type LoginResponse = {
   accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name?: string | null;
-  };
+  user: UserProfile;
 };
 
 type RegisterPayload = {
-  name: string;
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
+  suffix: string | null;
   email: string;
   password: string;
 };
@@ -82,13 +81,17 @@ export async function login(values: LoginFormValues): Promise<LoginResponse> {
 
 export async function register(values: RegisterFormValues): Promise<LoginResponse> {
   const payload: RegisterPayload = {
-    name: values.name,
-    email: values.email,
+    firstName: values.firstName.trim(),
+    middleName: values.middleName.trim() || null,
+    lastName: values.lastName.trim(),
+    suffix: values.suffix.trim() || null,
+    email: values.email.trim().toLowerCase(),
     password: values.password,
   };
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   });
   const data = await readJsonResponse<LoginResponse & ApiError>(res);

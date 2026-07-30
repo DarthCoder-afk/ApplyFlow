@@ -10,8 +10,8 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Settings,
   Sparkles,
+  UserRound,
   type LucideIcon,
 } from 'lucide-react';
 import { getCurrentUser } from '@/lib/api/dashboard';
@@ -25,13 +25,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/src/components/ui/dropdown-menu';
+import UserAvatar from '@/src/components/profile/user-avatar';
 
 const PAGE_META: Record<string, { title: string; icon: LucideIcon }> = {
   '/dashboard': { title: 'Dashboard', icon: LayoutDashboard },
   '/jobs': { title: 'Jobs', icon: BriefcaseBusiness },
   '/applications': { title: 'Applications', icon: FileText },
   '/calendar': { title: 'Calendar', icon: CalendarDays },
-  '/settings': { title: 'Settings', icon: Settings },
+  '/profile': { title: 'Profile', icon: UserRound },
 };
 
 function getPageMeta(pathname: string) {
@@ -51,16 +52,6 @@ export default function DashboardHeader() {
   });
   const pageMeta = getPageMeta(pathname);
   const PageIcon = pageMeta.icon;
-
-  const initials =
-    user?.name
-      ?.split(/\s+/)
-      .map((part) => part[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase() ??
-    user?.email?.[0]?.toUpperCase() ??
-    'U';
 
   async function handleLogout() {
     try {
@@ -92,12 +83,16 @@ export default function DashboardHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button type="button" variant="ghost" className="ml-auto h-auto gap-2 border-0 p-1.5 shadow-none">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
-                {initials}
-              </span>
+              {user ? (
+                <UserAvatar user={user} className="h-9 w-9" textClassName="text-sm" />
+              ) : (
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
+                  U
+                </span>
+              )}
               <span className="hidden min-w-0 text-left md:block">
                 <span className="block max-w-36 truncate text-sm font-medium text-slate-900">
-                  {user?.name ?? 'Your account'}
+                  {user?.fullName ?? 'Your account'}
                 </span>
                 <span className="block max-w-40 truncate text-xs font-normal text-slate-500">
                   {user?.email ?? 'Signed in'}
@@ -107,8 +102,8 @@ export default function DashboardHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem onSelect={() => router.push('/settings')}>
-              <Settings className="h-4 w-4" />Settings
+            <DropdownMenuItem onSelect={() => router.push('/profile')}>
+              <UserRound className="h-4 w-4" />Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleLogout} className="text-red-600 focus:text-red-600">
