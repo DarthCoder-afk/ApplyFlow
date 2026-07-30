@@ -13,14 +13,18 @@ async function getValidAccessToken(): Promise<string | null> {
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const attempt = async (token: string | null) => {
+    const headers = new Headers(init?.headers);
+    if (!(init?.body instanceof FormData) && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
       ...init,
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...init?.headers,
-      },
+      headers,
     });
     return res;
   };
