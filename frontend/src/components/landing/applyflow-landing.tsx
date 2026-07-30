@@ -9,13 +9,6 @@ import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, Check, ChevronRight,
 
 gsap.registerPlugin(ScrollTrigger);
 
-const stages = [
-  { name: 'Saved', count: 8, color: 'bg-slate-300' },
-  { name: 'Applied', count: 12, color: 'bg-blue-500' },
-  { name: 'Interview', count: 4, color: 'bg-violet-500' },
-  { name: 'Offer', count: 1, color: 'bg-emerald-500' },
-];
-
 const workflow = [
   ['01', 'Save jobs worth your time', 'Keep the role, company, source, and first impressions together before a good listing disappears.', FileText],
   ['02', 'Move every application forward', 'A clear pipeline makes the next action obvious—from sending an application to following up.', Target],

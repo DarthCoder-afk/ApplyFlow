@@ -13,7 +13,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       router.replace('/login');
       return;
     }
-    setReady(true);
+    queueMicrotask(() => setReady(true));
   }, [router]);
 
   if (!ready) {
