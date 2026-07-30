@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      <DashboardSummary name={user?.name} summary={data.summary} />
+      <DashboardSummary name={user?.fullName} summary={data.summary} />
 
       <div className="grid items-stretch gap-4 xl:grid-cols-12">
         <div className="h-full min-w-0 xl:col-span-7">
