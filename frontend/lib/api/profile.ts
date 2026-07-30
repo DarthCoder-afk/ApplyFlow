@@ -1,11 +1,12 @@
 import { apiFetch } from './client';
 import type { UserProfile } from '@/lib/types/user';
 import type { ProfileFormValues } from '@/lib/validation/profile';
+import { normalizeUserProfile, type UserProfilePayload } from '@/lib/user-profile';
 
 type ProfileResponse = {
   success: boolean;
   message?: string;
-  profile: UserProfile;
+  profile: UserProfilePayload;
 };
 
 function optionalValue(value: string): string | null {
@@ -14,7 +15,7 @@ function optionalValue(value: string): string | null {
 
 export async function getProfile(): Promise<UserProfile> {
   const data = await apiFetch<ProfileResponse>('/api/profile');
-  return data.profile;
+  return normalizeUserProfile(data.profile);
 }
 
 export async function updateProfile(values: ProfileFormValues): Promise<UserProfile> {
@@ -33,7 +34,7 @@ export async function updateProfile(values: ProfileFormValues): Promise<UserProf
       portfolioUrl: optionalValue(values.portfolioUrl),
     }),
   });
-  return data.profile;
+  return normalizeUserProfile(data.profile);
 }
 
 export async function uploadProfileAvatar(file: File): Promise<UserProfile> {
@@ -43,12 +44,12 @@ export async function uploadProfileAvatar(file: File): Promise<UserProfile> {
     method: 'POST',
     body,
   });
-  return data.profile;
+  return normalizeUserProfile(data.profile);
 }
 
 export async function removeProfileAvatar(): Promise<UserProfile> {
   const data = await apiFetch<ProfileResponse>('/api/profile/avatar', {
     method: 'DELETE',
   });
-  return data.profile;
+  return normalizeUserProfile(data.profile);
 }

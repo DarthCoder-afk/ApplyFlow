@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { getUserInitials } from '@/lib/user-profile';
+import { formatFullName, getUserInitials } from '@/lib/user-profile';
 import type { UserProfile } from '@/lib/types/user';
 
 type UserAvatarProps = {
@@ -18,7 +18,16 @@ export default function UserAvatar({
   textClassName,
   priority = false,
 }: UserAvatarProps) {
-  const source = previewUrl || user.avatarUrl;
+  const source =
+    typeof previewUrl === 'string' && previewUrl
+      ? previewUrl
+      : typeof user.avatarUrl === 'string'
+        ? user.avatarUrl
+        : null;
+  const displayName =
+    (typeof user.fullName === 'string' ? user.fullName.trim() : '') ||
+    formatFullName(user) ||
+    'User';
 
   return (
     <span
@@ -30,7 +39,7 @@ export default function UserAvatar({
       {source ? (
         <Image
           src={source}
-          alt={`${user.fullName} profile photo`}
+          alt={`${displayName} profile photo`}
           fill
           sizes="128px"
           priority={priority}

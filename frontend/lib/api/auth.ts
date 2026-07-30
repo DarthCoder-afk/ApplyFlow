@@ -1,9 +1,14 @@
 import type { LoginFormValues, RegisterFormValues } from '@/lib/validation/auth';
 import type { UserProfile } from '@/lib/types/user';
+import { normalizeUserProfile, type UserProfilePayload } from '@/lib/user-profile';
 
 type LoginResponse = {
   accessToken: string;
   user: UserProfile;
+};
+
+type LoginResponsePayload = Omit<LoginResponse, 'user'> & {
+  user: UserProfilePayload;
 };
 
 type RegisterPayload = {
@@ -70,13 +75,13 @@ export async function login(values: LoginFormValues): Promise<LoginResponse> {
     body: JSON.stringify(values),
   });
 
-  const data = await readJsonResponse<LoginResponse & ApiError>(res);
+  const data = await readJsonResponse<LoginResponsePayload & ApiError>(res);
 
   if (!res.ok) {
     throw new Error(data.message ?? 'Invalid email or password');
   }
 
-  return data;
+  return { ...data, user: normalizeUserProfile(data.user) };
 }
 
 export async function register(values: RegisterFormValues): Promise<LoginResponse> {
@@ -94,9 +99,9 @@ export async function register(values: RegisterFormValues): Promise<LoginRespons
     credentials: 'include',
     body: JSON.stringify(payload),
   });
-  const data = await readJsonResponse<LoginResponse & ApiError>(res);
+  const data = await readJsonResponse<LoginResponsePayload & ApiError>(res);
   if (!res.ok) {
     throw new Error(data.message ?? 'Could not create account');
   }
-  return data;
+  return { ...data, user: normalizeUserProfile(data.user) };
 }
