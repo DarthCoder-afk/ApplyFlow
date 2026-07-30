@@ -7,8 +7,22 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, 'Name is required'),
-    email: z.email('Enter a valid email'),
+    firstName: z
+      .string()
+      .trim()
+      .min(1, 'First name is required')
+      .max(100, 'First name must be 100 characters or fewer'),
+    middleName: z
+      .string()
+      .trim()
+      .max(100, 'Middle name must be 100 characters or fewer'),
+    lastName: z
+      .string()
+      .trim()
+      .min(1, 'Last name is required')
+      .max(100, 'Last name must be 100 characters or fewer'),
+    suffix: z.string().trim().max(20, 'Suffix must be 20 characters or fewer'),
+    email: z.string().trim().toLowerCase().pipe(z.email('Enter a valid email')),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
