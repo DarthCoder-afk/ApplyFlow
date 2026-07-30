@@ -20,6 +20,19 @@ describe('protected routes', () => {
         });
     });
 
+    it('rejects unauthenticated profile and avatar requests', async () => {
+        const profileResponse = await request(app).get('/api/profile');
+        const avatarResponse = await request(app)
+            .post('/api/profile/avatar')
+            .attach('avatar', Buffer.from([0xff, 0xd8, 0xff]), {
+                filename: 'avatar.jpg',
+                contentType: 'image/jpeg',
+            });
+
+        expect(profileResponse.status).toBe(401);
+        expect(avatarResponse.status).toBe(401);
+    });
+
     it('rejects an invalid access token', async () => {
         const response = await request(app)
             .get('/api/jobs')
