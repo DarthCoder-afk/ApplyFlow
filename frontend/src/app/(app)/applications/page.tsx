@@ -115,7 +115,7 @@ function BoardSkeleton() {
         {APPLICATION_STATUSES.map((status, columnIndex) => (
           <section
             key={status}
-            className="flex h-[calc(100dvh-24rem)] min-h-[22rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)]"
+            className="flex h-[calc(100dvh-16rem)] min-h-[28rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)] sm:min-h-[22rem]"
           >
             <div className="mb-3 flex items-center justify-between">
               <div className="h-4 w-20 animate-pulse rounded bg-slate-200" />
@@ -417,7 +417,7 @@ export default function ApplicationsPage() {
                       if (application) changeStatus(application, status);
                       setDraggedApplicationId(null);
                     }}
-                    className="flex h-[calc(100dvh-24rem)] min-h-[22rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)]"
+                    className="flex h-[calc(100dvh-16rem)] min-h-[28rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)] sm:min-h-[22rem]"
                   >
                     <div className="mb-3 flex shrink-0 items-center justify-between">
                       <h2 className="text-sm font-semibold text-slate-800">
