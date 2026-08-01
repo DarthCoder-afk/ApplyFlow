@@ -61,6 +61,26 @@ describe('updateJob', () => {
 
     expect(mockedJob.update).not.toHaveBeenCalled();
   });
+
+  it('clears an existing job URL', async () => {
+    mockedJob.findFirst.mockResolvedValue({
+      id: 'job-1',
+      userId: 'user-1',
+      title: 'Developer',
+      company: 'Acme',
+      jobUrl: 'https://example.com/job',
+    });
+    mockedJob.findMany.mockResolvedValue([]);
+    mockedJob.update.mockResolvedValue({ id: 'job-1', jobUrl: null });
+
+    await updateJob('job-1', 'user-1', { jobUrl: null, userId: 'user-1' });
+
+    expect(mockedJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ jobUrl: null }),
+      })
+    );
+  });
 });
 
 describe('job opportunity summary', () => {

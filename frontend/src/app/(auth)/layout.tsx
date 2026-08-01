@@ -16,10 +16,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </Link>
           <Link
             href="/"
+            aria-label="Back to home"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-[#6657d9]"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to home
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            <span className="hidden sm:inline">Back to home</span>
           </Link>
         </div>
         <div className="flex flex-1">{children}</div>

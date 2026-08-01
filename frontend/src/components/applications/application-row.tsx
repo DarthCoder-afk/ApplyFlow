@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CalendarDays,
-  Ellipsis,
+  EllipsisVertical,
   ListRestart,
   StickyNote,
   Trash2,
@@ -176,15 +176,13 @@ export default function ApplicationRow({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="sm"
-            className="h-9 w-9 shrink-0 p-0"
+            className="grid h-9 w-7 shrink-0 place-items-center bg-transparent p-0 text-slate-500 transition hover:text-slate-900 focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
             aria-label={`Actions for ${application.job.title}`}
           >
-            <Ellipsis className="h-5 w-5" />
-          </Button>
+            <EllipsisVertical className="h-5 w-5" />
+          </button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">

@@ -33,6 +33,15 @@ type JobFormProps = {
   onSuccess?: () => void;
 };
 
+function RequiredMark() {
+  return (
+    <>
+      <span aria-hidden="true" className="text-red-600">*</span>
+      <span className="sr-only">(required)</span>
+    </>
+  );
+}
+
 function toFormValues(job?: Job): CreateJobFormValues {
   return {
     title: job?.title ?? '',
@@ -67,6 +76,8 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
     mutationFn: (values: CreateJobFormValues & { allowDuplicate?: boolean }) => {
       const payload = {
         ...values,
+        url: values.url || null,
+        description: values.description || null,
         deadline: values.deadline || null,
       };
       return isEdit && job ? updateJob(job.id, payload) : createJob(payload);
@@ -100,21 +111,25 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="title">Job title</Label>
-          <Input id="title" placeholder="Frontend Engineer" {...register('title')} />
+          <Label htmlFor="title" className="gap-1">
+            Job title <RequiredMark />
+          </Label>
+          <Input id="title" required placeholder="Frontend Engineer" {...register('title')} />
           {errors.title && <p className="text-sm text-red-600">{errors.title.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="company">Company</Label>
-          <Input id="company" placeholder="Acme Co" {...register('company')} />
+          <Label htmlFor="company" className="gap-1">
+            Company <RequiredMark />
+          </Label>
+          <Input id="company" required placeholder="Acme Co" {...register('company')} />
           {errors.company && <p className="text-sm text-red-600">{errors.company.message}</p>}
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Priority</Label>
+          <Label>Priority (optional)</Label>
           <Controller
             name="priority"
             control={control}
@@ -133,26 +148,34 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="deadline">Deadline</Label>
+          <Label htmlFor="deadline">Deadline (optional)</Label>
           <Input id="deadline" type="date" {...register('deadline')} />
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
-          <Input id="location" placeholder="Remote" {...register('location')} />
+          <Label htmlFor="location" className="gap-1">
+            Location <RequiredMark />
+          </Label>
+          <Input id="location" required placeholder="Remote" {...register('location')} />
           {errors.location && <p className="text-sm text-red-600">{errors.location.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="source">Source</Label>
+          <Label htmlFor="source" className="gap-1">
+            Source <RequiredMark />
+          </Label>
           <Controller
             name="source"
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="source" className="h-11 w-full border-[#ced4da] bg-white sm:h-9">
+                <SelectTrigger
+                  id="source"
+                  aria-required="true"
+                  className="h-11 w-full border-[#ced4da] bg-white sm:h-9"
+                >
                   <SelectValue placeholder="Select source" />
                 </SelectTrigger>
                 <SelectContent position="popper" align="start">
@@ -174,13 +197,13 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="url">Job URL</Label>
+        <Label htmlFor="url">Job URL (optional)</Label>
         <Input id="url" type="url" placeholder="https://..." {...register('url')} />
         {errors.url && <p className="text-sm text-red-600">{errors.url.message}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">Description (optional)</Label>
         <textarea
           id="description"
           rows={12}

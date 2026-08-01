@@ -8,6 +8,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
+  ArrowUpDown,
   Bell,
   Building2,
   CalendarDays,
@@ -114,7 +115,7 @@ function BoardSkeleton() {
         {APPLICATION_STATUSES.map((status, columnIndex) => (
           <section
             key={status}
-            className="flex h-[calc(100dvh-24rem)] min-h-[22rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)]"
+            className="flex h-[calc(100dvh-16rem)] min-h-[28rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)] sm:min-h-[22rem]"
           >
             <div className="mb-3 flex items-center justify-between">
               <div className="h-4 w-20 animate-pulse rounded bg-slate-200" />
@@ -268,6 +269,7 @@ export default function ApplicationsPage() {
   });
 
   function clearFilters() {
+    setSort('appliedAt');
     setStatusFilter('ALL');
     setFollowUpOnly(false);
     setSearch('');
@@ -298,7 +300,7 @@ export default function ApplicationsPage() {
   return (
     <>
       <div className="space-y-5">
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex items-center gap-2">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
@@ -309,20 +311,11 @@ export default function ApplicationsPage() {
               className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-none"
             />
           </div>
-          <div className="flex flex-wrap gap-2 sm:contents">
-            <Select value={sort} onValueChange={(value) => { setSort(value as SortOption); setPage(1); }}>
-              <SelectTrigger className="min-w-0 flex-1 rounded-xl border-slate-200 bg-white shadow-none data-[size=default]:h-11 sm:w-44 sm:flex-none">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                <SelectItem value="appliedAt">Newest applied</SelectItem>
-                <SelectItem value="updatedAt">Recently updated</SelectItem>
-                <SelectItem value="status">Status</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex justify-end sm:contents">
             <Button
               type="button"
               variant="ghost"
+              aria-label="Open application filters"
               onClick={() => setFiltersOpen(true)}
               className="h-11 shrink-0 rounded-xl bg-transparent px-4 shadow-none"
             >
@@ -331,7 +324,7 @@ export default function ApplicationsPage() {
             <Button
               type="button"
               onClick={() => setShowForm(true)}
-              className="h-11 shrink-0 bg-indigo-600 px-4 text-white shadow-sm hover:bg-indigo-700"
+              className="hidden h-11 shrink-0 bg-indigo-600 px-4 text-white shadow-sm hover:bg-indigo-700 sm:inline-flex"
             >
               <Plus className="h-4 w-4" />
               Add application
@@ -369,32 +362,6 @@ export default function ApplicationsPage() {
             <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>Clear all</Button>
           </div>
         )}
-
-        <div className="flex justify-end">
-          <div
-            className="flex rounded-lg bg-slate-100 p-1"
-            aria-label="Application view"
-          >
-            <Button
-              type="button"
-              size="sm"
-              variant={view === 'list' ? 'default' : 'ghost'}
-              onClick={() => { setView('list'); setPage(1); }}
-              className={view === 'list' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : ''}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={view === 'board' ? 'default' : 'ghost'}
-              onClick={() => { setView('board'); setPage(1); }}
-              className={view === 'board' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : ''}
-            >
-              <Columns3 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
 
         {view === 'list' && isLoading && !data && <ListSkeleton rows={5} />}
         {view === 'board' && (isLoading || isPlaceholderData) && <BoardSkeleton />}
@@ -450,7 +417,7 @@ export default function ApplicationsPage() {
                       if (application) changeStatus(application, status);
                       setDraggedApplicationId(null);
                     }}
-                    className="flex h-[calc(100dvh-24rem)] min-h-[22rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)]"
+                    className="flex h-[calc(100dvh-16rem)] min-h-[28rem] flex-col rounded-2xl bg-slate-100/80 p-3 sm:h-[calc(100dvh-20rem)] sm:min-h-[22rem]"
                   >
                     <div className="mb-3 flex shrink-0 items-center justify-between">
                       <h2 className="text-sm font-semibold text-slate-800">
@@ -545,6 +512,16 @@ export default function ApplicationsPage() {
         )}
       </div>
 
+      <div aria-hidden="true" className="h-16 sm:hidden" />
+      <Button
+        type="button"
+        onClick={() => setShowForm(true)}
+        aria-label="Add application"
+        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-indigo-600 p-0 text-white shadow-[0_12px_28px_rgba(79,70,229,0.35)] hover:bg-indigo-700 sm:hidden"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
+
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <button type="button" aria-label="Close" onClick={() => setShowForm(false)} className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" />
@@ -581,7 +558,56 @@ export default function ApplicationsPage() {
               </Button>
             </div>
             <div className="scrollbar-hidden flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-5">
+              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Columns3 className="h-4 w-4 text-indigo-500" />
+                  View
+                </p>
+                <div
+                  role="group"
+                  aria-label="Application view"
+                  className="grid grid-cols-2 rounded-xl bg-slate-100 p-1"
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={view === 'list'}
+                    onClick={() => { setView('list'); setPage(1); }}
+                    className={view === 'list' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : 'text-slate-600'}
+                  >
+                    <List className="h-4 w-4" />
+                    List
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={view === 'board'}
+                    onClick={() => { setView('board'); setPage(1); }}
+                    className={view === 'board' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : 'text-slate-600'}
+                  >
+                    <Columns3 className="h-4 w-4" />
+                    Kanban
+                  </Button>
+                </div>
+              </div>
+              </section>
+
               <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <ArrowUpDown className="h-4 w-4 text-indigo-500" />
+                  Sort by
+                </label>
+                <Select value={sort} onValueChange={(value) => { setSort(value as SortOption); setPage(1); }}>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="appliedAt">Newest applied</SelectItem>
+                    <SelectItem value="updatedAt">Recently updated</SelectItem>
+                    <SelectItem value="status">Status</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                   <ListChecks className="h-4 w-4 text-indigo-500" />

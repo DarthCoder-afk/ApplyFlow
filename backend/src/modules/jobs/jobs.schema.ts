@@ -6,23 +6,30 @@ import {
 import { isSafeExternalUrl, sanitizePlainText } from '../../utils/sanitize';
 
 const plainText = () => z.string().trim().transform(sanitizePlainText);
+const optionalJobUrl = z.preprocess(
+  (value) => (typeof value === 'string' && value.trim() === '' ? null : value),
+  z
+    .string()
+    .trim()
+    .url({ message: 'Invalid URL' })
+    .refine(isSafeExternalUrl, { message: 'URL must use HTTP or HTTPS' })
+    .nullable()
+    .optional()
+);
+const optionalDescription = z.preprocess(
+  (value) => (typeof value === 'string' && value.trim() === '' ? null : value),
+  plainText()
+    .pipe(z.string().max(10_000, { message: 'Description must be 10,000 characters or fewer' }))
+    .nullable()
+    .optional()
+);
 
 export const createJobSchema = z.object({
   title: plainText().pipe(z.string().min(1, { message: 'Title is required' }).max(120)),
   company: plainText().pipe(z.string().min(1, { message: 'Company is required' }).max(120)),
   location: plainText().pipe(z.string().min(1, { message: 'Location is required' }).max(120)),
-  description: plainText().pipe(
-    z
-      .string()
-      .min(1, { message: 'Description is required' })
-      .max(10_000, { message: 'Description must be 10,000 characters or fewer' })
-  ),
-  url: z
-    .string()
-    .trim()
-    .min(1, { message: 'URL is required' })
-    .url({ message: 'Invalid URL' })
-    .refine(isSafeExternalUrl, { message: 'URL must use HTTP or HTTPS' }),
+  description: optionalDescription,
+  url: optionalJobUrl,
   source: z.enum(JOB_SOURCES),
   notes: plainText().pipe(z.string().max(1000)).optional(),
   priority: z.enum(JOB_PRIORITIES).optional(),
