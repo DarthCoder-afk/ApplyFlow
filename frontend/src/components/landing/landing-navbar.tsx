@@ -5,7 +5,16 @@ import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import {
+  ArrowRight,
+  LayoutDashboard,
+  LogIn,
+  Menu,
+  Rocket,
+  Sparkles,
+  Workflow,
+  X,
+} from 'lucide-react';
 
 export default function LandingNavbar() {
   const header = useRef<HTMLElement>(null);
@@ -107,13 +116,29 @@ export default function LandingNavbar() {
         className="absolute left-4 right-4 top-full rounded-2xl border border-[#e3e2dc] bg-[#fcfcfa] p-3 shadow-[0_20px_45px_-28px_rgba(15,23,42,.35)] lg:hidden"
       >
         <div className="space-y-1">
-          <a data-menu-item href="#features" onClick={closeMobileMenu} className="block rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#f3f1fc] hover:text-[#6657d9]">Features</a>
-          <a data-menu-item href="#workflow" onClick={closeMobileMenu} className="block rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#f3f1fc] hover:text-[#6657d9]">Workflow</a>
-          <a data-menu-item href="#dashboard" onClick={closeMobileMenu} className="block rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#f3f1fc] hover:text-[#6657d9]">Dashboard</a>
+          <a data-menu-item href="#features" onClick={closeMobileMenu} className="flex items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#f3f1fc] hover:text-[#6657d9]">
+            <Sparkles aria-hidden="true" className="h-4 w-4" />
+            Features
+          </a>
+          <a data-menu-item href="#workflow" onClick={closeMobileMenu} className="flex items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#f3f1fc] hover:text-[#6657d9]">
+            <Workflow aria-hidden="true" className="h-4 w-4" />
+            Workflow
+          </a>
+          <a data-menu-item href="#dashboard" onClick={closeMobileMenu} className="flex items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#f3f1fc] hover:text-[#6657d9]">
+            <LayoutDashboard aria-hidden="true" className="h-4 w-4" />
+            Dashboard
+          </a>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-200 pt-3">
-          <Link data-menu-item href="/login" onClick={closeMobileMenu} className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white">Sign in</Link>
-          <Link data-menu-item href="/register" onClick={closeMobileMenu} className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-[#1d1c25] text-sm font-semibold text-white transition hover:bg-[#302d41]">Get started <ArrowRight className="h-3.5 w-3.5" /></Link>
+          <Link data-menu-item href="/login" onClick={closeMobileMenu} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white">
+            <LogIn aria-hidden="true" className="h-4 w-4" />
+            Sign in
+          </Link>
+          <Link data-menu-item href="/register" onClick={closeMobileMenu} className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-[#1d1c25] text-sm font-semibold text-white transition hover:bg-[#302d41]">
+            <Rocket aria-hidden="true" className="h-4 w-4" />
+            Get started
+            <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+          </Link>
         </div>
       </div>
     </header>
