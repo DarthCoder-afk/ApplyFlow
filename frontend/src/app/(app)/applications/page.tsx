@@ -300,7 +300,7 @@ export default function ApplicationsPage() {
   return (
     <>
       <div className="space-y-5">
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex items-center gap-2">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
@@ -311,7 +311,7 @@ export default function ApplicationsPage() {
               className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-none"
             />
           </div>
-          <div className="flex items-center justify-between gap-2 sm:contents">
+          <div className="flex justify-end sm:contents">
             <Button
               type="button"
               variant="ghost"
@@ -324,7 +324,7 @@ export default function ApplicationsPage() {
             <Button
               type="button"
               onClick={() => setShowForm(true)}
-              className="h-11 shrink-0 bg-indigo-600 px-4 text-white shadow-sm hover:bg-indigo-700"
+              className="hidden h-11 shrink-0 bg-indigo-600 px-4 text-white shadow-sm hover:bg-indigo-700 sm:inline-flex"
             >
               <Plus className="h-4 w-4" />
               Add application
@@ -511,6 +511,16 @@ export default function ApplicationsPage() {
           </div>
         )}
       </div>
+
+      <div aria-hidden="true" className="h-16 sm:hidden" />
+      <Button
+        type="button"
+        onClick={() => setShowForm(true)}
+        aria-label="Add application"
+        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-indigo-600 p-0 text-white shadow-[0_12px_28px_rgba(79,70,229,0.35)] hover:bg-indigo-700 sm:hidden"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
