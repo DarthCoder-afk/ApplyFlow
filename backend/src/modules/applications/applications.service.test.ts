@@ -95,6 +95,20 @@ describe('updateApplication', () => {
     await expect(updateApplication('missing-application', 'user-1', { status: 'INTERVIEW' })).resolves.toBeNull();
     expect(mockedApplication.update).not.toHaveBeenCalled();
   });
+
+  it('updates the date applied', async () => {
+    const appliedAt = '2026-07-01T12:00:00.000Z';
+    mockedApplication.findFirst.mockResolvedValue({ id: 'application-1', userId: 'user-1' });
+    mockedApplication.update.mockResolvedValue({ id: 'application-1', appliedAt });
+
+    await updateApplication('application-1', 'user-1', { appliedAt });
+
+    expect(mockedApplication.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ appliedAt: new Date(appliedAt) }),
+      })
+    );
+  });
 });
 
 describe('isFollowUpNeeded', () => {

@@ -21,6 +21,7 @@ export const APPLICATION_STATUS_LABELS: Record<(typeof APPLICATION_STATUSES)[num
 export const createApplicationSchema = z.object({
   jobId: z.string().min(1, 'Select a job'),
   status: z.enum(APPLICATION_STATUSES),
+  appliedAt: z.string().date('Select a valid application date'),
   notes: z.string().trim().max(2000).optional(),
 });
 

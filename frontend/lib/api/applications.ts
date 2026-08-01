@@ -52,7 +52,7 @@ export async function createApplication(payload: {
 
 export async function updateApplication(
   id: string,
-  payload: { status?: ApplicationStatus; notes?: string }
+  payload: { status?: ApplicationStatus; appliedAt?: string; notes?: string }
 ) {
   return apiFetch<{ message: string; application: Application }>(`/api/applications/${id}`, {
     method: 'PUT',

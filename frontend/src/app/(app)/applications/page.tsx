@@ -84,6 +84,16 @@ import {
 type ViewMode = 'list' | 'board';
 type SortOption = 'appliedAt' | 'updatedAt' | 'status';
 
+function toLocalDateInputValue(value: string | Date) {
+  const date = value instanceof Date ? value : new Date(value);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 10);
+}
+
+function dateInputValueToIso(value: string) {
+  return new Date(`${value}T12:00:00`).toISOString();
+}
+
 function getApplicationTimeline(application: Application) {
   const createdAt = new Date(application.createdAt);
   const appliedAt = application.appliedAt
@@ -157,6 +167,7 @@ export default function ApplicationsPage() {
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [view, setView] = useState<ViewMode>('board');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [appliedDateDraft, setAppliedDateDraft] = useState('');
   const [notesDraft, setNotesDraft] = useState('');
   const [draggedApplicationId, setDraggedApplicationId] = useState<string | null>(null);
   const [updatingApplicationId, setUpdatingApplicationId] = useState<string | null>(null);
@@ -251,6 +262,35 @@ export default function ApplicationsPage() {
       ),
   });
 
+  const appliedDateMutation = useMutation({
+    mutationFn: (date: string) =>
+      updateApplication(selectedApplication!.id, {
+        appliedAt: dateInputValueToIso(date),
+      }),
+    onSuccess: ({ application }) => {
+      setSelectedApplication((current) =>
+        current ? { ...current, appliedAt: application.appliedAt } : current
+      );
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      toast.success('Date applied updated');
+    },
+    onError: (mutationError) => {
+      if (selectedApplication) {
+        setAppliedDateDraft(
+          toLocalDateInputValue(
+            selectedApplication.appliedAt ?? selectedApplication.createdAt
+          )
+        );
+      }
+      toast.error(
+        mutationError instanceof Error
+          ? mutationError.message
+          : 'Could not update the application date'
+      );
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: () => deleteApplication(selectedApplication!.id),
     onSuccess: () => {
@@ -283,6 +323,9 @@ export default function ApplicationsPage() {
 
   function openDetails(application: Application) {
     setSelectedApplication(application);
+    setAppliedDateDraft(
+      toLocalDateInputValue(application.appliedAt ?? application.createdAt)
+    );
     setNotesDraft(application.notes ?? '');
   }
 
@@ -746,8 +789,20 @@ export default function ApplicationsPage() {
                     <dt className="flex items-center gap-1.5 text-xs text-slate-400">
                       <CalendarDays className="h-3.5 w-3.5" />Applied
                     </dt>
-                    <dd className="mt-1 font-medium text-slate-800">
-                      {new Date(selectedApplication.appliedAt ?? selectedApplication.createdAt).toLocaleDateString()}
+                    <dd className="mt-1">
+                      <Input
+                        type="date"
+                        aria-label="Date applied"
+                        value={appliedDateDraft}
+                        max={toLocalDateInputValue(new Date())}
+                        disabled={appliedDateMutation.isPending}
+                        onChange={(event) => {
+                          const nextDate = event.target.value;
+                          setAppliedDateDraft(nextDate);
+                          if (nextDate) appliedDateMutation.mutate(nextDate);
+                        }}
+                        className="h-8 border-0 bg-transparent px-0 text-sm font-medium text-slate-800 shadow-none focus-visible:ring-0"
+                      />
                     </dd>
                   </div>
                   <div className="rounded-xl bg-slate-50 p-3">

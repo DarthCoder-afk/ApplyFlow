@@ -1,4 +1,5 @@
 import type { Application } from './types/application';
+
 import type { Interview } from './types/interview';
 
 const DAY = 86_400_000;

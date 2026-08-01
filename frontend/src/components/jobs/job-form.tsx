@@ -147,9 +147,9 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
             )}
           />
         </div>
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor="deadline">Deadline (optional)</Label>
-          <Input id="deadline" type="date" {...register('deadline')} />
+          <Input id="deadline" type="date" className="block overflow-hidden" {...register('deadline')} />
         </div>
       </div>
 

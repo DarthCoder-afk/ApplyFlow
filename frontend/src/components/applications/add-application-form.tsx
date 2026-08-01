@@ -25,6 +25,16 @@ import {
 } from '@/src/components/ui/select';
 import { toast } from 'sonner';
 
+function toLocalDateInputValue(value: string | Date) {
+  const date = value instanceof Date ? value : new Date(value);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 10);
+}
+
+function dateInputValueToIso(value: string) {
+  return new Date(`${value}T12:00:00`).toISOString();
+}
+
 type AddApplicationFormProps = {
   onSuccess?: () => void;
 };
@@ -46,11 +56,20 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
     formState: { errors, isSubmitting },
   } = useForm<CreateApplicationFormValues>({
     resolver: zodResolver(createApplicationSchema),
-    defaultValues: { jobId: '', status: 'APPLIED', notes: '' },
+    defaultValues: {
+      jobId: '',
+      status: 'APPLIED',
+      appliedAt: toLocalDateInputValue(new Date()),
+      notes: '',
+    },
   });
 
   const mutation = useMutation({
-    mutationFn: createApplication,
+    mutationFn: (values: CreateApplicationFormValues) =>
+      createApplication({
+        ...values,
+        appliedAt: dateInputValueToIso(values.appliedAt),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
@@ -123,6 +142,20 @@ export default function AddApplicationForm({ onSuccess }: AddApplicationFormProp
             </Select>
           )}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="application-applied-at">Date applied</Label>
+        <Input
+          id="application-applied-at"
+          type="date"
+          required
+          max={toLocalDateInputValue(new Date())}
+          {...register('appliedAt')}
+        />
+        {errors.appliedAt && (
+          <p className="text-sm text-red-600">{errors.appliedAt.message}</p>
+        )}
       </div>
 
       <div className="space-y-2">

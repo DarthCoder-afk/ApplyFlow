@@ -108,7 +108,8 @@ describe('AvatarManager', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: 'Uploading…' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('Uploading photo…');
+    expect(screen.queryByRole('button', { name: 'Change photo' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Remove photo' })).toBeDisabled();
     expect(screen.getByRole('alert')).toHaveTextContent('uploading too frequently');
   });

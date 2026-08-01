@@ -36,6 +36,25 @@ html {
   display: none;
 }
 
+@media (max-width: 639px) {
+  input[type='date'],
+  input[type='datetime-local'] {
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    overflow: hidden;
+  }
+
+  input[type='date']::-webkit-date-and-time-value,
+  input[type='datetime-local']::-webkit-date-and-time-value,
+  input[type='date']::-webkit-datetime-edit,
+  input[type='datetime-local']::-webkit-datetime-edit {
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

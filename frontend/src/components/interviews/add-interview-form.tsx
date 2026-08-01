@@ -147,7 +147,7 @@ export default function AddInterviewForm({
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="min-w-0 space-y-2">
         <Label htmlFor="interview-scheduled-at">
           Date and time
         </Label>
@@ -155,6 +155,7 @@ export default function AddInterviewForm({
         <Input
           id="interview-scheduled-at"
           type="datetime-local"
+          className="block overflow-hidden"
           aria-invalid={Boolean(errors.scheduledAt)}
           {...register('scheduledAt')}
         />
