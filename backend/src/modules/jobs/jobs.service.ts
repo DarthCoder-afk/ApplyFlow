@@ -11,7 +11,7 @@ type JobInput = {
   title?: string;
   company?: string;
   location?: string;
-  jobUrl?: string;
+  jobUrl?: string | null;
   description?: string;
   notes?: string;
   source?: JobSource;
@@ -236,7 +236,7 @@ export async function updateJob(jobId: string, userId: string, input: JobInput) 
     ...input,
     title: input.title ?? existing.title,
     company: input.company ?? existing.company,
-    jobUrl: input.jobUrl ?? existing.jobUrl ?? undefined,
+    jobUrl: input.jobUrl === undefined ? existing.jobUrl : input.jobUrl,
   };
   await assertNotDuplicate(merged, jobId);
   const { allowDuplicate: _allowDuplicate, userId: _userId, deadline, ...data } = input;

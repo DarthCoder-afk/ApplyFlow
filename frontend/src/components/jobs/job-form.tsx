@@ -67,6 +67,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
     mutationFn: (values: CreateJobFormValues & { allowDuplicate?: boolean }) => {
       const payload = {
         ...values,
+        url: values.url || null,
         deadline: values.deadline || null,
       };
       return isEdit && job ? updateJob(job.id, payload) : createJob(payload);
@@ -174,7 +175,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="url">Job URL</Label>
+        <Label htmlFor="url">Job URL (optional)</Label>
         <Input id="url" type="url" placeholder="https://..." {...register('url')} />
         {errors.url && <p className="text-sm text-red-600">{errors.url.message}</p>}
       </div>

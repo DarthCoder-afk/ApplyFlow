@@ -10,7 +10,7 @@ export type CreateJobPayload = {
   company: string;
   location: string;
   description: string;
-  url: string;
+  url?: string | null;
   source: string;
   notes?: string;
   priority?: JobPriority;
