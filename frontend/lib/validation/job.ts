@@ -35,15 +35,15 @@ export const createJobSchema = z.object({
   description: z
     .string()
     .trim()
-    .min(1, 'Description is required')
-    .max(10_000, 'Description must be 10,000 characters or fewer'),
+    .max(10_000, 'Description must be 10,000 characters or fewer')
+    .optional(),
   url: z
     .string()
     .trim()
     .pipe(z.union([z.literal(''), z.url('Enter a valid URL')])),
   source: z.enum(JOB_SOURCES),
   notes: z.string().trim().max(1000).optional(),
-  priority: z.enum(JOB_PRIORITIES),
+  priority: z.enum(JOB_PRIORITIES).optional(),
   deadline: z.string().optional(),
 });
 

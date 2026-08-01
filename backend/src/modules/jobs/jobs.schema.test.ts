@@ -29,6 +29,16 @@ describe('createJobSchema', () => {
     expect(createJobSchema.parse({ ...validJob, url: '   ' }).url).toBeNull();
   });
 
+  it('accepts job data without priority, deadline, or description', () => {
+    const { description: _description, ...jobWithoutOptionalFields } = validJob;
+
+    expect(createJobSchema.safeParse(jobWithoutOptionalFields).success).toBe(true);
+  });
+
+  it('treats a blank description as missing', () => {
+    expect(createJobSchema.parse({ ...validJob, description: '   ' }).description).toBeNull();
+  });
+
   it('rejects a missing title', () => {
     const result = createJobSchema.safeParse({ ...validJob, title: '   ' });
 
@@ -117,8 +127,10 @@ describe('updateJobSchema', () => {
     expect(updateJobSchema.safeParse({ company: '   ' }).success).toBe(false);
   });
 
-  it('accepts null to clear the job URL', () => {
-    expect(updateJobSchema.safeParse({ url: null }).success).toBe(true);
+  it('accepts null to clear optional job fields', () => {
+    expect(
+      updateJobSchema.safeParse({ url: null, description: null, deadline: null }).success
+    ).toBe(true);
   });
 });
 

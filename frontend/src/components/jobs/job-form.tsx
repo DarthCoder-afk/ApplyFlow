@@ -68,6 +68,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       const payload = {
         ...values,
         url: values.url || null,
+        description: values.description || null,
         deadline: values.deadline || null,
       };
       return isEdit && job ? updateJob(job.id, payload) : createJob(payload);
@@ -115,7 +116,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Priority</Label>
+          <Label>Priority (optional)</Label>
           <Controller
             name="priority"
             control={control}
@@ -134,7 +135,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="deadline">Deadline</Label>
+          <Label htmlFor="deadline">Deadline (optional)</Label>
           <Input id="deadline" type="date" {...register('deadline')} />
         </div>
       </div>
@@ -181,7 +182,7 @@ export default function JobForm({ job, onSuccess }: JobFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">Description (optional)</Label>
         <textarea
           id="description"
           rows={12}

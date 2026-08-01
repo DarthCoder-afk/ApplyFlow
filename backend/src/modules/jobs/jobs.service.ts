@@ -12,7 +12,7 @@ type JobInput = {
   company?: string;
   location?: string;
   jobUrl?: string | null;
-  description?: string;
+  description?: string | null;
   notes?: string;
   source?: JobSource;
   priority?: JobPriority;
