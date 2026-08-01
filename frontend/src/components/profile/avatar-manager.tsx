@@ -118,19 +118,26 @@ export default function AvatarManager({
               disabled={busy}
               onChange={(event) => void handleFile(event.target.files?.[0])}
             />
-            <Button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              disabled={busy}
-              className="h-10 rounded-xl bg-[#4F46E5] px-4 hover:bg-[#4338CA]"
-            >
-              {uploading ? (
-                <LoaderCircle className="animate-spin" />
-              ) : (
+            {uploading ? (
+              <div
+                role="status"
+                aria-live="polite"
+                className="inline-flex h-10 min-w-36 items-center justify-center gap-2 rounded-xl bg-indigo-50 px-4 text-sm font-medium text-indigo-700"
+              >
+                <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" />
+                <span>Uploading photo…</span>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                disabled={removing}
+                className="h-10 min-w-36 rounded-xl bg-[#4F46E5] px-4 hover:bg-[#4338CA]"
+              >
                 <ImagePlus />
-              )}
-              {uploading ? 'Uploading…' : 'Change photo'}
-            </Button>
+                Change photo
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"
