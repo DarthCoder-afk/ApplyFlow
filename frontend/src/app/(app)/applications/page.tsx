@@ -8,6 +8,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
+  ArrowUpDown,
   Bell,
   Building2,
   CalendarDays,
@@ -268,6 +269,7 @@ export default function ApplicationsPage() {
   });
 
   function clearFilters() {
+    setSort('appliedAt');
     setStatusFilter('ALL');
     setFollowUpOnly(false);
     setSearch('');
@@ -309,20 +311,11 @@ export default function ApplicationsPage() {
               className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-none"
             />
           </div>
-          <div className="flex flex-wrap gap-2 sm:contents">
-            <Select value={sort} onValueChange={(value) => { setSort(value as SortOption); setPage(1); }}>
-              <SelectTrigger className="min-w-0 flex-1 rounded-xl border-slate-200 bg-white shadow-none data-[size=default]:h-11 sm:w-44 sm:flex-none">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                <SelectItem value="appliedAt">Newest applied</SelectItem>
-                <SelectItem value="updatedAt">Recently updated</SelectItem>
-                <SelectItem value="status">Status</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center justify-between gap-2 sm:contents">
             <Button
               type="button"
               variant="ghost"
+              aria-label="Open application filters"
               onClick={() => setFiltersOpen(true)}
               className="h-11 shrink-0 rounded-xl bg-transparent px-4 shadow-none"
             >
@@ -369,32 +362,6 @@ export default function ApplicationsPage() {
             <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>Clear all</Button>
           </div>
         )}
-
-        <div className="flex justify-end">
-          <div
-            className="flex rounded-lg bg-slate-100 p-1"
-            aria-label="Application view"
-          >
-            <Button
-              type="button"
-              size="sm"
-              variant={view === 'list' ? 'default' : 'ghost'}
-              onClick={() => { setView('list'); setPage(1); }}
-              className={view === 'list' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : ''}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={view === 'board' ? 'default' : 'ghost'}
-              onClick={() => { setView('board'); setPage(1); }}
-              className={view === 'board' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : ''}
-            >
-              <Columns3 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
 
         {view === 'list' && isLoading && !data && <ListSkeleton rows={5} />}
         {view === 'board' && (isLoading || isPlaceholderData) && <BoardSkeleton />}
@@ -581,7 +548,56 @@ export default function ApplicationsPage() {
               </Button>
             </div>
             <div className="scrollbar-hidden flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-5">
+              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Columns3 className="h-4 w-4 text-indigo-500" />
+                  View
+                </p>
+                <div
+                  role="group"
+                  aria-label="Application view"
+                  className="grid grid-cols-2 rounded-xl bg-slate-100 p-1"
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={view === 'list'}
+                    onClick={() => { setView('list'); setPage(1); }}
+                    className={view === 'list' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : 'text-slate-600'}
+                  >
+                    <List className="h-4 w-4" />
+                    List
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={view === 'board'}
+                    onClick={() => { setView('board'); setPage(1); }}
+                    className={view === 'board' ? 'bg-white text-slate-950 shadow-sm hover:bg-white' : 'text-slate-600'}
+                  >
+                    <Columns3 className="h-4 w-4" />
+                    Kanban
+                  </Button>
+                </div>
+              </div>
+              </section>
+
               <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <ArrowUpDown className="h-4 w-4 text-indigo-500" />
+                  Sort by
+                </label>
+                <Select value={sort} onValueChange={(value) => { setSort(value as SortOption); setPage(1); }}>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="appliedAt">Newest applied</SelectItem>
+                    <SelectItem value="updatedAt">Recently updated</SelectItem>
+                    <SelectItem value="status">Status</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                   <ListChecks className="h-4 w-4 text-indigo-500" />

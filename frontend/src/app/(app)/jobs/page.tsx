@@ -10,6 +10,7 @@ import { useDeferredValue, useEffect, useState } from 'react';
 import { Job, JobPriority, JobSource } from '@/lib/types/job';
 import { Input } from '@/src/components/ui/input';
 import {
+  ArrowUpDown,
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
@@ -120,6 +121,7 @@ export default function JobsPage() {
   });
 
   function clearFilters() {
+    setSort('createdAt');
     setSourceFilter('ALL');
     setPriority('ALL');
     setHasApplication(undefined);
@@ -179,22 +181,11 @@ export default function JobsPage() {
               className="h-11 rounded-xl border-slate-200 bg-white pl-11 shadow-none"
             />
           </div>
-          <div className="flex flex-wrap gap-2 sm:contents">
-            <Select value={sort} onValueChange={(value) => setSort(value as typeof sort)}>
-              <SelectTrigger className="min-w-0 flex-1 rounded-xl border-slate-200 bg-white shadow-none data-[size=default]:h-11 sm:w-44 sm:flex-none">
-                <SelectValue placeholder="Sort" />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                <SelectItem value="createdAt">Newest saved</SelectItem>
-                <SelectItem value="priority">Highest priority</SelectItem>
-                <SelectItem value="deadline">Closing soon</SelectItem>
-                <SelectItem value="company">Company A–Z</SelectItem>
-                <SelectItem value="title">Job title A–Z</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center justify-between gap-2 sm:contents">
             <Button
               type="button"
               variant="ghost"
+              aria-label="Open job filters"
               onClick={() => setFiltersOpen(true)}
               className="h-11 shrink-0 rounded-xl bg-transparent px-4 shadow-none"
             >
@@ -358,6 +349,22 @@ export default function JobsPage() {
             <div className="scrollbar-hidden flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-5">
               <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <ArrowUpDown className="h-4 w-4 text-indigo-500" />
+                  Sort by
+                </label>
+                <Select value={sort} onValueChange={(value) => { setSort(value as typeof sort); setPage(1); }}>
+                  <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50 shadow-none"><SelectValue /></SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="createdAt">Newest saved</SelectItem>
+                    <SelectItem value="priority">Highest priority</SelectItem>
+                    <SelectItem value="deadline">Closing soon</SelectItem>
+                    <SelectItem value="company">Company A–Z</SelectItem>
+                    <SelectItem value="title">Job title A–Z</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                   <Globe2 className="h-4 w-4 text-indigo-500" />
                   Source
