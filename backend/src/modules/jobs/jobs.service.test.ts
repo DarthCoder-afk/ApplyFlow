@@ -3,15 +3,19 @@ jest.mock('../../config/database', () => ({
     job: {
       findFirst: jest.fn(),
       findMany: jest.fn(),
+      create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
   },
 }));
 
 import { prisma } from '../../config/database';
 import {
+  createJob,
   deleteJob,
+  getJobsByUser,
   getJobsSummary,
   isPossibleDuplicate,
   normalizeJobTitle,
@@ -22,8 +26,10 @@ import {
 const mockedJob = prisma.job as unknown as {
   findFirst: jest.Mock;
   findMany: jest.Mock;
+  create: jest.Mock;
   update: jest.Mock;
   delete: jest.Mock;
+  count: jest.Mock;
 };
 
 describe('updateJob', () => {
@@ -80,6 +86,183 @@ describe('updateJob', () => {
         data: expect.objectContaining({ jobUrl: null }),
       })
     );
+  });
+});
+
+describe('createJob', () => {
+  const input = {
+    title: 'Frontend Developer',
+    company: 'Acme',
+    jobUrl: 'https://example.com/job/1',
+    deadline: '2026-08-01',
+    userId: 'user-1',
+  };
+
+  it('creates a job with a normalized deadline when no duplicate exists', async () => {
+    mockedJob.findMany.mockResolvedValue([]);
+    const createdJob = { id: 'job-1', ...input };
+    mockedJob.create.mockResolvedValue(createdJob);
+
+    await expect(createJob(input)).resolves.toEqual(createdJob);
+
+    expect(mockedJob.findMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1' },
+      select: { title: true, company: true, jobUrl: true },
+    });
+    expect(mockedJob.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        title: 'Frontend Developer',
+        company: 'Acme',
+        jobUrl: 'https://example.com/job/1',
+        deadline: new Date('2026-08-01'),
+      }),
+    });
+    expect(mockedJob.create.mock.calls[0][0].data.allowDuplicate).toBeUndefined();
+  });
+
+  it('rejects creation when a matching job already exists for the user', async () => {
+    mockedJob.findMany.mockResolvedValue([
+      { title: 'Frontend Developer', company: 'Acme', jobUrl: null },
+    ]);
+
+    await expect(createJob(input)).rejects.toThrow('POSSIBLE_DUPLICATE');
+    expect(mockedJob.create).not.toHaveBeenCalled();
+  });
+
+  it('skips the duplicate check when allowDuplicate is true', async () => {
+    const createdJob = { id: 'job-1', ...input };
+    mockedJob.create.mockResolvedValue(createdJob);
+
+    await expect(createJob({ ...input, allowDuplicate: true })).resolves.toEqual(createdJob);
+
+    expect(mockedJob.findMany).not.toHaveBeenCalled();
+    expect(mockedJob.create).toHaveBeenCalled();
+  });
+
+  it('stores a null deadline when none is provided', async () => {
+    mockedJob.findMany.mockResolvedValue([]);
+    mockedJob.create.mockResolvedValue({ id: 'job-1' });
+
+    await createJob({ ...input, deadline: undefined });
+
+    expect(mockedJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ deadline: null }) })
+    );
+  });
+});
+
+describe('updateJob duplicate detection', () => {
+  it('rejects an update that would duplicate another job owned by the user', async () => {
+    mockedJob.findFirst.mockResolvedValue({
+      id: 'job-1',
+      userId: 'user-1',
+      title: 'Frontend Developer',
+      company: 'Acme',
+      jobUrl: null,
+    });
+    mockedJob.findMany.mockResolvedValue([
+      { title: 'Senior Frontend Developer', company: 'acme', jobUrl: null },
+    ]);
+
+    await expect(
+      updateJob('job-1', 'user-1', { title: 'Senior Frontend Developer', userId: 'user-1' })
+    ).rejects.toThrow('POSSIBLE_DUPLICATE');
+
+    expect(mockedJob.findMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1', id: { not: 'job-1' } },
+      select: { title: true, company: true, jobUrl: true },
+    });
+    expect(mockedJob.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('getJobsByUser', () => {
+  function mockJobsQuery(mainJobs: unknown[], summaryJobs: unknown[], total: number) {
+    mockedJob.findMany.mockResolvedValueOnce(mainJobs).mockResolvedValueOnce(summaryJobs);
+    mockedJob.count.mockResolvedValue(total);
+  }
+
+  it('builds priority, hasApplication, closingSoon, and location filters', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-07-24T00:00:00.000Z'));
+    mockJobsQuery([], [], 0);
+
+    await getJobsByUser({
+      userId: 'user-1',
+      priority: 'HIGH',
+      hasApplication: true,
+      closingSoon: true,
+      location: 'Manila',
+    });
+
+    const mainQuery = mockedJob.findMany.mock.calls[0][0];
+    expect(mainQuery.where).toEqual(
+      expect.objectContaining({
+        userId: 'user-1',
+        priority: 'HIGH',
+        applications: { some: { userId: 'user-1' } },
+        location: { contains: 'Manila', mode: 'insensitive' },
+        deadline: { gte: new Date('2026-07-24T00:00:00.000Z'), lte: new Date(Date.now() + 7 * 86_400_000) },
+      })
+    );
+
+    jest.useRealTimers();
+  });
+
+  it('excludes jobs with an application when hasApplication is false', async () => {
+    mockJobsQuery([], [], 0);
+
+    await getJobsByUser({ userId: 'user-1', hasApplication: false });
+
+    expect(mockedJob.findMany.mock.calls[0][0].where.applications).toEqual({
+      none: { userId: 'user-1' },
+    });
+  });
+
+  it('matches a search term against a known job source', async () => {
+    mockJobsQuery([], [], 0);
+
+    await getJobsByUser({ userId: 'user-1', search: 'linkedin' });
+
+    const mainQuery = mockedJob.findMany.mock.calls[0][0];
+    expect(mainQuery.where.OR).toEqual(
+      expect.arrayContaining([{ source: 'LINKEDIN' }])
+    );
+  });
+
+  it('sorts by deadline with nulls last regardless of the requested order', async () => {
+    mockJobsQuery([], [], 0);
+
+    await getJobsByUser({ userId: 'user-1', sort: 'deadline', order: 'desc' });
+
+    expect(mockedJob.findMany.mock.calls[0][0].orderBy).toEqual({
+      deadline: { sort: 'asc', nulls: 'last' },
+    });
+  });
+
+  it('flags possible duplicates and returns a summary computed from all user jobs', async () => {
+    const jobA = { id: 'job-a', title: 'Frontend Developer', company: 'Acme', jobUrl: null, priority: 'HIGH', deadline: null, applications: [] };
+    const jobB = { id: 'job-b', title: 'Frontend-Developer', company: 'acme', jobUrl: null, priority: 'NONE', deadline: null, applications: [] };
+    mockJobsQuery([jobA], [jobA, jobB], 1);
+
+    const result = await getJobsByUser({ userId: 'user-1' });
+
+    expect(result.jobs).toEqual([{ ...jobA, possibleDuplicate: true }]);
+    expect(result.summary).toEqual({
+      all: 2,
+      highPriority: 1,
+      hasApplication: 0,
+      closingSoon: 0,
+    });
+    expect(result.pagination).toEqual({ page: 1, limit: 10, total: 1, totalPages: 1 });
+  });
+
+  it('applies pagination skip based on the requested page', async () => {
+    mockJobsQuery([], [], 0);
+
+    await getJobsByUser({ userId: 'user-1', page: 3, limit: 5 });
+
+    expect(mockedJob.findMany.mock.calls[0][0].skip).toBe(10);
+    expect(mockedJob.findMany.mock.calls[0][0].take).toBe(5);
   });
 });
 

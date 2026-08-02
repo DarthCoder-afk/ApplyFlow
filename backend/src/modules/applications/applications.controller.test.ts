@@ -1,14 +1,16 @@
 jest.mock('./applications.service', () => ({
   createApplication: jest.fn(),
   updateApplication: jest.fn(),
+  getApplications: jest.fn(),
 }));
 
 import type { Request, Response } from 'express';
-import { create, update } from './applications.controller';
-import { createApplication, updateApplication } from './applications.service';
+import { create, listApplications, update } from './applications.controller';
+import { createApplication, getApplications, updateApplication } from './applications.service';
 
 const mockedCreateApplication = createApplication as jest.Mock;
 const mockedUpdateApplication = updateApplication as jest.Mock;
+const mockedGetApplications = getApplications as jest.Mock;
 
 function createResponseMock() {
   const response = {
@@ -83,6 +85,74 @@ describe('create application controller', () => {
       message: 'Application created successfully',
       application,
     });
+  });
+});
+
+describe('list applications controller', () => {
+  it('returns 401 when the user is not authenticated', async () => {
+    const req = { validatedQuery: {} } as unknown as Request;
+    const res = createResponseMock();
+
+    await listApplications(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
+    expect(mockedGetApplications).not.toHaveBeenCalled();
+  });
+
+  it('forwards company, source, and follow-up filters to the service', async () => {
+    const result = {
+      applications: [],
+      summary: { active: 0, needsFollowUp: 0, upcomingInterviews: 0, offers: 0 },
+      pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+    };
+    mockedGetApplications.mockResolvedValue(result);
+    const req = {
+      userId: 'user-1',
+      validatedQuery: {
+        status: 'APPLIED',
+        company: 'Acme',
+        source: 'LINKEDIN',
+        followUpNeeded: true,
+        page: 1,
+        limit: 10,
+        sort: 'createdAt',
+        order: 'desc',
+      },
+    } as unknown as Request;
+    const res = createResponseMock();
+
+    await listApplications(req, res);
+
+    expect(mockedGetApplications).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'user-1',
+        status: 'APPLIED',
+        company: 'Acme',
+        source: 'LINKEDIN',
+        followUpNeeded: true,
+      })
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      count: 0,
+      applications: result.applications,
+      pagination: result.pagination,
+    });
+  });
+
+  it('returns 500 when the service throws an unexpected error', async () => {
+    mockedGetApplications.mockRejectedValue(new Error('boom'));
+    const req = {
+      userId: 'user-1',
+      validatedQuery: {},
+    } as unknown as Request;
+    const res = createResponseMock();
+
+    await listApplications(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
   });
 });
 

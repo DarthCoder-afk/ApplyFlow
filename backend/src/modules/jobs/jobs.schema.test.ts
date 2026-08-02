@@ -91,6 +91,42 @@ describe('createJobSchema', () => {
       false
     );
   });
+
+  it('accepts a priority, deadline date, and allowDuplicate flag', () => {
+    const result = createJobSchema.safeParse({
+      ...validJob,
+      priority: 'HIGH',
+      deadline: '2026-08-01',
+      allowDuplicate: true,
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toMatchObject({
+        priority: 'HIGH',
+        deadline: '2026-08-01',
+        allowDuplicate: true,
+      });
+    }
+  });
+
+  it('accepts a null deadline', () => {
+    expect(createJobSchema.safeParse({ ...validJob, deadline: null }).success).toBe(true);
+  });
+
+  it('accepts a full ISO datetime deadline', () => {
+    expect(
+      createJobSchema.safeParse({ ...validJob, deadline: '2026-08-01T00:00:00.000Z' }).success
+    ).toBe(true);
+  });
+
+  it('rejects an invalid deadline format', () => {
+    expect(createJobSchema.safeParse({ ...validJob, deadline: 'next week' }).success).toBe(false);
+  });
+
+  it('rejects an invalid priority value', () => {
+    expect(createJobSchema.safeParse({ ...validJob, priority: 'URGENT' }).success).toBe(false);
+  });
 });
 
 describe('listJobsQuerySchema', () => {
@@ -115,6 +151,24 @@ describe('listJobsQuerySchema', () => {
     ).toMatchObject({
       priority: 'HIGH',
     });
+  });
+
+  it('coerces hasApplication and closingSoon string flags to booleans', () => {
+    expect(
+      listJobsQuerySchema.parse({ hasApplication: 'true', closingSoon: 'false' })
+    ).toMatchObject({
+      hasApplication: true,
+      closingSoon: false,
+    });
+  });
+
+  it('accepts deadline and priority as sortable fields', () => {
+    expect(listJobsQuerySchema.safeParse({ sort: 'deadline' }).success).toBe(true);
+    expect(listJobsQuerySchema.safeParse({ sort: 'priority' }).success).toBe(true);
+  });
+
+  it('rejects a non-boolean-like hasApplication value', () => {
+    expect(listJobsQuerySchema.safeParse({ hasApplication: 'yes' }).success).toBe(false);
   });
 });
 

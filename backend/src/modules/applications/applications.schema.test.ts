@@ -79,4 +79,18 @@ describe('listApplicationsQuerySchema', () => {
       followUpNeeded: true,
     });
   });
+
+  it('rejects an unknown job source', () => {
+    expect(listApplicationsQuerySchema.safeParse({ source: 'FACEBOOK' }).success).toBe(false);
+  });
+
+  it('rejects a non-boolean-like followUpNeeded value', () => {
+    expect(listApplicationsQuerySchema.safeParse({ followUpNeeded: 'yes' }).success).toBe(false);
+  });
+
+  it('sanitizes unsafe HTML from the company filter', () => {
+    const result = listApplicationsQuerySchema.parse({ company: '<b>Acme</b> Corp' });
+
+    expect(result.company).toBe('Acme Corp');
+  });
 });
